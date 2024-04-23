@@ -3,7 +3,13 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <RouterView />
+  <div id="app" class="basic-font">
+    <RouterView />
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.basic-font {
+  font-family: 'SamsungOne500', sans-serif;
+}
+</style>

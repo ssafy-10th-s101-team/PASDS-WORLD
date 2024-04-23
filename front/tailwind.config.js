@@ -2,7 +2,11 @@
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
-    extend: {}
+    extend: {
+      colors: {
+        'samsung-blue': 'hsl(231, 78%, 35%)'
+      }
+    }
   },
   plugins: []
 }

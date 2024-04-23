@@ -1,7 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 :root {
-  --samsung-blue: #1428a0;
+  --samsung-blue: hsl(231, 78%, 35%);
+}
+
+.hover-bg-blue:hover {
+  background-color: var(--samsung-blue);
 }

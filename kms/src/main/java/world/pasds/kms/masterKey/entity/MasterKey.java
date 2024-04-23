@@ -7,11 +7,6 @@
 //    @Id
 //    private Long id;
 //
-//    // prev/cur
-//    @Enumerated(EnumType.STRING) // ENUM 타입 매핑
-//    private Type type;
-//
-//
 //    @Column(length = 32) //binary
 //    private byte[] value;
 //
@@ -25,8 +20,4 @@
 //    public Long getId() {
 //        return id;
 //    }
-//}
-//
-//enum Type {
-//    PREV, CUR
 //}

@@ -146,12 +146,9 @@
 </template>
 
 <script setup>
-const toggleDropdown = (id) => {
-  const dropdown = document.getElementById(id)
-  if (dropdown) {
-    dropdown.classList.toggle('hidden')
-  }
-}
+import { useCommonStore } from '@/stores/common'
+const commonStore = useCommonStore()
+const { toggleDropdown } = commonStore
 </script>
 
 <style scoped></style>

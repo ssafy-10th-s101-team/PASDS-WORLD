@@ -5,6 +5,9 @@ export default {
     extend: {
       colors: {
         'samsung-blue': 'hsl(231, 78%, 35%)'
+      },
+      fontFamily: {
+        samsungone700c: ['SamsungOne700C']
       }
     }
   },

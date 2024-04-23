@@ -1,9 +1,11 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import HeaderNavigation from '@/components/common/HeaderNavigation.vue'
 </script>
 
 <template>
   <div id="app" class="basic-font">
+    <HeaderNavigation />
     <RouterView />
   </div>
 </template>

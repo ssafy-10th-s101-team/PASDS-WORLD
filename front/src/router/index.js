@@ -19,12 +19,12 @@ const router = createRouter({
           path: 'vault',
           name: 'DashboardMain',
           component: () => import('@/components/dashboard/DashboardMain.vue')
-        },
-        {
-          path: 'vault/itemid',
-          name: 'DashboardInputLoginModal',
-          component: () => import('@/components/dashboard/DashboardInputLoginModal.vue')
         }
+        // {
+        //   path: 'vault/itemid',
+        //   name: 'DashboardInputLoginModal',
+        //   component: () => import('@/components/dashboard/DashboardInputLoginModal.vue')
+        // }
       ]
 
       // route level code-splitting

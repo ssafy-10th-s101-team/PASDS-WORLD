@@ -1,11 +1,15 @@
 <template>
-  <DashboardSidebar />
-  <BaseButton buttonText="test" />
-  <BaseButton buttonText="test2" />
+  <div class="flex">
+    <div>
+      <DashboardSidebar />
+    </div>
+    <div class="flex-1">
+      <RouterView />
+    </div>
+  </div>
 </template>
 
 <script setup>
-import BaseButton from '@/components/common/BaseButton.vue'
 import DashboardSidebar from '@/components/common/DashboardSidebar.vue'
 </script>
 

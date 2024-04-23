@@ -1,12 +1,15 @@
 <template>
-  <DashboardSidebar />
-  <BaseButton buttonText="test" />
-  <BaseButton buttonText="test2" />
+  <div>
+    <BaseSearchBar />
+    <div class="max-w-full mx-auto">
+      <DashboardTable />
+    </div>
+  </div>
 </template>
 
 <script setup>
-import BaseButton from '@/components/common/BaseButton.vue'
-import DashboardSidebar from '@/components/common/DashboardSidebar.vue'
+import BaseSearchBar from '@/components/common/BaseSearchBar.vue'
+import DashboardTable from '@/components/common/DashboardTable.vue'
 </script>
 
 <style scoped></style>

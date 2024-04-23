@@ -12,9 +12,15 @@ const router = createRouter({
     {
       path: '/',
       name: 'dashboard',
-      component: DashboardView
-      // redirect: { name: '' },
-      // children: [{}, {}]
+      component: DashboardView,
+      redirect: { name: 'DashboardMain' },
+      children: [
+        {
+          path: 'vault',
+          name: 'DashboardMain',
+          component: () => import('@/components/dashboard/DashboardMain.vue')
+        }
+      ]
 
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route

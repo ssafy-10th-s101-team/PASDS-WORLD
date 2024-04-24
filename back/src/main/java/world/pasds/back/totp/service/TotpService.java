@@ -2,9 +2,7 @@ package world.pasds.back.totp.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -18,10 +16,8 @@ import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -137,40 +133,43 @@ public class TotpService {
 			Base64.getDecoder().decode(totpDecryptionKeys.getIv()));
 	}
 
-	private String generateTotpCode(String totpKey, LocalDateTime serverTime) {
-		// T = (UT - T0) / (time_step)
+	private String generateTotpCode(String totpKey, LocalDateTime serverTime) throws
+		NoSuchAlgorithmException,
+		InvalidKeyException {
+		// time = (UT - T0) / (time_step)
 		// UT : 1970-01-01 이후 경과된 시간
-		// T0 : 시스템 파라미터 (OTP가 갱신된 횟수를 사용)
-		// time_step : 유효시간
-		// 유효시간을 나눈 몫을 사용하면 동일한 유효시간안에는 같은 값을 얻을 수 있음
-		Long time = ((serverTime.toEpochSecond(ZoneOffset.UTC)) / 60L);
+		// T0 : 서버 시작 시간 (0L)
+		// time_step : 유효시간 (30L; 30초)
+
+		long time = (serverTime.toEpochSecond(ZoneOffset.UTC)) / 30L;
 		// Convert time step to a byte array
 		byte[] timeData = ByteBuffer.allocate(8).putLong(time).array();
-		return hotp(totpKey, timeData);
+		return String.format("%06d", hotp(totpKey, timeData));			// 6자리 숫자 코드
 	}
 
-	private String hotp(String totpKey, byte[] time) {
-		return "구현 중";
+	private int hotp(String totpKey, byte[] time) throws NoSuchAlgorithmException, InvalidKeyException {
+		byte[] hash = hmacAndBase64(totpKey, time);
+		int offset = hash[hash.length - 1] & 0xf;
+		int binary = (hash[offset] & 0x7f) << 24 | (hash[offset + 1] & 0xff) << 16 |
+			(hash[offset + 2] & 0xff) << 8 | (hash[offset + 3] & 0xff);
+		return binary % 100000;						// 6자리 숫자 코드
 	}
 
-	private String hmacAndBase64(String totpKey, String serverTime) throws
+	private byte[] hmacAndBase64(String totpKey, byte[] time) throws
 		NoSuchAlgorithmException,
 		InvalidKeyException {
 
 		//1. SecretKeySpec 클래스를 사용한 키 생성
-		SecretKeySpec secretKey = new SecretKeySpec(totpKey.getBytes(), "HmacSHA256");
+		SecretKeySpec secretKey = new SecretKeySpec(Base64.getDecoder().decode(totpKey), "HmacSHA256");
 
 		//2. 지정된  MAC 알고리즘을 구현하는 Mac 객체를 작성합니다.
-		Mac hasher = Mac.getInstance("HmacSHA256");
+		Mac mac = Mac.getInstance("HmacSHA256");
 
 		//3. 키를 사용해 이 Mac 객체를 초기화
-		hasher.init(secretKey);
+		mac.init(secretKey);
 
 		//3. 암호화 하려는 데이터의 바이트의 배열을 처리해 MAC 조작을 종료
-		byte[] hash = hasher.doFinal(serverTime.getBytes());
-
-		//4. Base 64 Encode to String
-		return Base64.getEncoder().encodeToString(hash);
+		return  mac.doFinal(time);
 	}
 
 }

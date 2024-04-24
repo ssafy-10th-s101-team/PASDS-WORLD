@@ -76,6 +76,10 @@ public class OrganizationService {
          * Todo 권한 확인
          */
 
+
+        /**
+         * Todo 조직초대 링크 전송
+         */
         emailService.sendSimpleMessage(email, "invite to " + findOrganization.getName(), "welcome!");
     }
 

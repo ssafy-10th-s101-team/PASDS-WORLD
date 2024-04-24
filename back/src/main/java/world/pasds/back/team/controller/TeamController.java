@@ -5,10 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
-import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
-import world.pasds.back.team.entity.dto.request.DeleteTeamRequestDto;
-import world.pasds.back.team.entity.dto.request.GetPrivateDataListRequestDto;
-import world.pasds.back.team.entity.dto.request.GetTeamsRequestDto;
+import world.pasds.back.team.entity.dto.request.*;
 import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.service.TeamService;
@@ -43,6 +40,12 @@ public class TeamController {
     @PostMapping("/delete")
     public ResponseEntity<?> deleteTeam(@RequestBody DeleteTeamRequestDto deleteTeamRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         teamService.deleteTeam(deleteTeamRequestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/invite")
+    public ResponseEntity<?> inviteMemberToTeam(@RequestBody InviteMemberToTeamRequestDto inviteMemberToTeamRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.inviteMemberToTeam(inviteMemberToTeamRequestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

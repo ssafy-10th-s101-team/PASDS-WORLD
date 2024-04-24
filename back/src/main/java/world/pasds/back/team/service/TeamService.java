@@ -5,18 +5,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.EmailService;
 import world.pasds.back.member.entity.Member;
+import world.pasds.back.member.entity.MemberOrganization;
 import world.pasds.back.member.entity.MemberTeam;
+import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.team.entity.PrivateData;
 import world.pasds.back.team.entity.Team;
-import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
-import world.pasds.back.team.entity.dto.request.DeleteTeamRequestDto;
-import world.pasds.back.team.entity.dto.request.GetPrivateDataListRequestDto;
-import world.pasds.back.team.entity.dto.request.GetTeamsRequestDto;
+import world.pasds.back.team.entity.dto.request.*;
 import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.repository.PrivateDataRepository;
@@ -33,9 +33,11 @@ public class TeamService {
 
     private final MemberRepository memberRepository;
     private final MemberTeamRepository memberTeamRepository;
+    private final MemberOrganizationRepository memberOrganizationRepository;
     private final TeamRepository teamRepository;
     private final OrganizationRepository organizationRepository;
     private final PrivateDataRepository privateDataRepository;
+    private final EmailService emailService;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(GetTeamsRequestDto requestDto, Long memberId) {
@@ -107,5 +109,31 @@ public class TeamService {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
         teamRepository.delete(team);
+    }
+
+    @Transactional
+    public void inviteMemberToTeam(InviteMemberToTeamRequestDto requestDto, Long memberId) {
+        /**
+         * 팀 초대권한 확인
+         */
+        Member findMember = memberRepository.findByEmail(requestDto.getInviteMemberEmail());
+        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 초대 대상이 우리 회원이 아닌 경우
+        if (findMember == null) {
+            /**
+             * Todo 팀 초대 링크 이메일 전송
+             */
+            emailService.sendSimpleMessage(requestDto.getInviteMemberEmail(), "invite to " + organization.getName(), "welcome! 조직 초대링크");
+        } else {
+            MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(findMember, organization);
+
+            // 초대 대상이 조직원이 아닌 경우
+            if (findMemberAndOrganization == null) {
+                emailService.sendSimpleMessage(requestDto.getInviteMemberEmail(), "invite to " + organization.getName(), "welcome! 팀 초대링크");
+            } else {
+                throw new BusinessException(ExceptionCode.BAD_REQUEST);
+            }
+        }
     }
 }

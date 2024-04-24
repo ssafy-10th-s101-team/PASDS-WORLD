@@ -103,8 +103,8 @@ public class TeamService {
     }
 
     @Transactional
-    public void deleteTeam(DeleteTeamRequestDto deleteTeamRequestDto, Long memberId) {
-        Team team = teamRepository.findById(deleteTeamRequestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+    public void deleteTeam(DeleteTeamRequestDto requestDto, Long memberId) {
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
         if (team.getHeader().getId() != memberId) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }

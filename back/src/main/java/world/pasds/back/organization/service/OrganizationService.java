@@ -13,6 +13,10 @@ import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.organization.entity.dto.request.CreateOrganizationRequestDto;
+import world.pasds.back.organization.entity.dto.request.DeleteOrganizationRequestDto;
+import world.pasds.back.organization.entity.dto.request.InviteMemberToOrganizationRequestDto;
+import world.pasds.back.organization.entity.dto.request.RemoveMemberFromOrganizationRequestDto;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.team.entity.Team;
@@ -33,12 +37,12 @@ public class OrganizationService {
     private final MemberTeamRepository memberTeamRepository;
 
     @Transactional
-    public void createOrganization(String name, Long memberId) {
+    public void createOrganization(CreateOrganizationRequestDto requestDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
         Organization o = Organization.builder()
                 .header(findMember)
-                .name(name)
+                .name(requestDto.getName())
                 .teamCount(0)
                 .build();
         organizationRepository.save(o);
@@ -58,8 +62,9 @@ public class OrganizationService {
     }
 
     @Transactional
-    public void deleteOrganization(Long organizationId, Long memberId) {
-        Organization findOrganization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+    public void deleteOrganization(DeleteOrganizationRequestDto requestDto, Long memberId) {
+        Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
+                .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         if (findOrganization.getHeader().getId() != memberId) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
@@ -69,9 +74,9 @@ public class OrganizationService {
         organizationRepository.delete(findOrganization);
     }
 
-    public void inviteMemberToOrganization(Long organizationId, String email, Long memberId) {
-        Organization findOrganization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
-
+    public void inviteMemberToOrganization(InviteMemberToOrganizationRequestDto requestDto, Long memberId) {
+        Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
+                .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         /**
          * Todo 권한 확인
          */
@@ -80,13 +85,14 @@ public class OrganizationService {
         /**
          * Todo 조직초대 링크 전송
          */
-        emailService.sendSimpleMessage(email, "invite to " + findOrganization.getName(), "welcome!");
+        emailService.sendSimpleMessage(requestDto.getEmail(), "invite to " + findOrganization.getName(), "welcome!");
     }
 
-    public void removeMemberFromOrganization(Long organizationId, String email, Long memberId) {
-        Organization findOrganization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+    public void removeMemberFromOrganization(RemoveMemberFromOrganizationRequestDto requestDto, Long memberId) {
+        Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
+                .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Member removeMember = memberRepository.findByEmail(email);
+        Member removeMember = memberRepository.findByEmail(requestDto.getEmail());
         if (removeMember == null) {
             throw new BusinessException(ExceptionCode.MEMBER_NOT_FOUND);
         }

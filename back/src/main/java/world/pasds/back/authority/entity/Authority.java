@@ -1,4 +1,4 @@
-package world.pasds.back.member.entity;
+package world.pasds.back.authority.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

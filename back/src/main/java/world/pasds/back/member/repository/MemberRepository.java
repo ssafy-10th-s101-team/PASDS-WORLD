@@ -6,4 +6,6 @@ import world.pasds.back.member.entity.Member;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
+
+    Member findByEmail(String email);
 }

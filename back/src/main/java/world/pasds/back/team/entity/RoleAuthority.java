@@ -1,7 +1,8 @@
-package world.pasds.back.member.entity;
+package world.pasds.back.team.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import world.pasds.back.authority.entity.Authority;
 
 @Entity
 @Getter

@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
+import world.pasds.back.team.entity.dto.request.DeleteTeamRequestDto;
 import world.pasds.back.team.entity.dto.request.GetPrivateDataListRequestDto;
 import world.pasds.back.team.entity.dto.request.GetTeamsRequestDto;
 import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
@@ -36,6 +37,12 @@ public class TeamController {
     @PostMapping("/create")
     public ResponseEntity<?> createTeam(@RequestBody CreateTeamRequestDto createTeamRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         teamService.createTeam(createTeamRequestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteTeam(@RequestBody DeleteTeamRequestDto deleteTeamRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.deleteTeam(deleteTeamRequestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

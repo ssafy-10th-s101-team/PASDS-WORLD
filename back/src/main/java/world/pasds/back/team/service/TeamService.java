@@ -14,6 +14,7 @@ import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.team.entity.PrivateData;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
+import world.pasds.back.team.entity.dto.request.DeleteTeamRequestDto;
 import world.pasds.back.team.entity.dto.request.GetPrivateDataListRequestDto;
 import world.pasds.back.team.entity.dto.request.GetTeamsRequestDto;
 import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
@@ -97,5 +98,14 @@ public class TeamService {
                 .build();
 
         teamRepository.save(newTeam);
+    }
+
+    @Transactional
+    public void deleteTeam(DeleteTeamRequestDto deleteTeamRequestDto, Long memberId) {
+        Team team = teamRepository.findById(deleteTeamRequestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+        if (team.getHeader().getId() != memberId) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+        teamRepository.delete(team);
     }
 }

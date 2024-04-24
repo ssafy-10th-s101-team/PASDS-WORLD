@@ -1,13 +1,19 @@
 package world.pasds.back.member.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import world.pasds.back.common.BaseEntity;
-import world.pasds.back.team.entity.Team;
+import world.pasds.back.organization.entity.Organization;
 
 @Entity
 @Getter
-public class MemberTeam extends BaseEntity {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MemberOrganization extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,6 +23,6 @@ public class MemberTeam extends BaseEntity {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 }

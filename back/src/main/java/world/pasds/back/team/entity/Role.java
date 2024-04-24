@@ -1,12 +1,12 @@
-package world.pasds.back.member.entity;
+package world.pasds.back.team.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import world.pasds.back.team.entity.Team;
+import world.pasds.back.common.BaseEntity;
 
 @Entity
 @Getter
-public class Role {
+public class Role extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

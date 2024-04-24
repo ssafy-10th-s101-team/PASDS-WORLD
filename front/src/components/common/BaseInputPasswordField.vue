@@ -1,10 +1,10 @@
 <template>
   <div class="mb-6">
-    <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-      >Password</label
-    >
     <!-- 회원가입 상황일 때 -->
-    <div v-if="pwType === 'signUp'">
+    <div v-if="pwType === 'signup'">
+      <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+        >비밀번호</label
+      >
       <input
         type="password"
         id="password"
@@ -22,6 +22,9 @@
 
     <!-- Private info 상황일 때 -->
     <div v-else-if="pwType === 'privateInfo'" class="relative">
+      <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+        >Password</label
+      >
       <input
         :type="showPassword ? 'text' : 'password'"
         id="password"
@@ -73,6 +76,9 @@
     </div>
 
     <div v-else>
+      <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+        >Password</label
+      >
       <input
         type="password"
         id="password"
@@ -97,7 +103,8 @@ const password = ref('')
 const isPasswordValid = ref(true)
 const pwType = props.type
 const showPassword = ref(false)
-const validatePassword = () => {
+const validatePassword = (event) => {
+  event.preventDefault()
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/
   isPasswordValid.value = regex.test(password.value)
 }

@@ -1,9 +1,9 @@
 <template>
   <!-- This is an example component -->
-  <div class="flex justify-center max-w-2xl mx-auto">
+  <div class="max-w-2xl mx-auto">
     <!-- <div class="max-w-2xl mx-auto"> -->
     <div
-      class="bg-white shadow-md border border-gray-200 rounded-lg max-w-sm p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
+      class="bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
       <form class="space-y-6" action="#">
         <h3 class="text-xl text-gray-900 dark:text-white">로그인</h3>

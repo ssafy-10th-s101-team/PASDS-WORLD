@@ -35,8 +35,7 @@ public class AesUtil {
             //byte[]로 변환후 리턴
             return secretKey.getEncoded();
         }catch(NoSuchAlgorithmException e){
-            e.printStackTrace();
-            return null;
+            throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 

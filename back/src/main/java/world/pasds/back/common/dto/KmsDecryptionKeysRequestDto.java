@@ -7,5 +7,5 @@ import lombok.Getter;
 @Builder
 public class KmsDecryptionKeysRequestDto {
 	private String encryptedDataKey;
-	private String encryptedIvKey;
+	private String encryptedIv;
 }

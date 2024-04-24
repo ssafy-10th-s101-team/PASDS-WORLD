@@ -71,7 +71,7 @@ public class TotpService {
 		KmsEncryptionKeysResponseDto totpEncryptionKeys = keyService.generateKeys();
 		byte[] encryptedTotpKey = keyService.encryptSecret(base64EncodedTotpKey,
 			Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()),
-			Base64.getDecoder().decode(totpEncryptionKeys.getIvKey()));
+			Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
 		// todo db에 암호화 한 totpKey, dataKey, ivKey 저장 !!
 
 		// QR Code - BitMatrix: qr code 정보 생성
@@ -123,7 +123,7 @@ public class TotpService {
 		KmsDecryptionKeysRequestDto kmsRequest = KmsDecryptionKeysRequestDto
 			.builder()
 			.encryptedDataKey(Base64.getEncoder().encodeToString(encryptedTotpDataKey))
-			.encryptedIvKey(Base64.getEncoder().encodeToString(encryptedTotpIvKey))
+			.encryptedIv(Base64.getEncoder().encodeToString(encryptedTotpIvKey))
 			.build();
 
 		// KMS 에 totp key 복호화를 위한 data key, iv key 요청
@@ -134,7 +134,7 @@ public class TotpService {
 
 		return keyService.decryptSecret(encryptedTotpKeyByMemberId,
 			Base64.getDecoder().decode(totpDecryptionKeys.getDataKey()),
-			Base64.getDecoder().decode(totpDecryptionKeys.getIvKey()));
+			Base64.getDecoder().decode(totpDecryptionKeys.getIv()));
 	}
 
 	private String generateTotpCode(String totpKey, LocalDateTime serverTime) {

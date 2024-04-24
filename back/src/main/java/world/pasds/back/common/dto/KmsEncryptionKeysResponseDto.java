@@ -6,8 +6,8 @@ import lombok.Getter;
 public class KmsEncryptionKeysResponseDto {
 	private String dataKey;
 	private String encryptedDataKey;
-	private String ivKey;
-	private String encryptedIvKey;
+	private String iv;
+	private String encryptedIv;
 }
 
 

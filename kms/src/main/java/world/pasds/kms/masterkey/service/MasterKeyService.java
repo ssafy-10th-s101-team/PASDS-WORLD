@@ -1,12 +1,13 @@
-package world.pasds.kms.masterKey.service;
+package world.pasds.kms.masterkey.service;
 
 import com.github.benmanes.caffeine.cache.*;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import world.pasds.kms.masterKey.entity.MasterKey;
-import world.pasds.kms.masterKey.repository.MasterKeyRepository;
+import world.pasds.kms.datakey.model.MasterKeyData;
+import world.pasds.kms.masterkey.entity.MasterKey;
+import world.pasds.kms.masterkey.repository.MasterKeyRepository;
 import world.pasds.kms.util.AesUtil;
 
 import java.util.concurrent.TimeUnit;
@@ -48,9 +49,13 @@ public class MasterKeyService {
         keyCache.put("curMasterKey", generateNewMasterKey());
     }
 
+    public MasterKeyData getCurMasterKey(){
+
+        return keyCache.getIfPresent("curMasterKey");
+    }
 
     //만료 시 새로운 Master 값 생성.
-    public MasterKeyData generateNewMasterKey() {
+    private MasterKeyData generateNewMasterKey() {
         // 실제 키 생성
         byte[] key = aesUtil.keyGenerator();
         byte[] iv = aesUtil.IVGenerator();
@@ -64,20 +69,5 @@ public class MasterKeyService {
         return new MasterKeyData(key,iv);
     }
 
-    public static class MasterKeyData{
-        public byte[] value;
-        public byte[] iv;
-
-        public MasterKeyData(byte[] value, byte[] iv){
-            this.value = value;
-            this.iv = iv;
-        }
-
-        @Override
-        public String toString(){
-            StringBuilder sb = new StringBuilder();
-            return sb.append(value).append(iv).toString();
-        }
-    }
 
 }

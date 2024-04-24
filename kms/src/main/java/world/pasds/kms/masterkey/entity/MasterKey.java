@@ -1,4 +1,4 @@
-package world.pasds.kms.masterKey.entity;
+package world.pasds.kms.masterkey.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

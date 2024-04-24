@@ -2,12 +2,13 @@ package world.pasds.back.member.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import world.pasds.back.common.BaseEntity;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Member {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

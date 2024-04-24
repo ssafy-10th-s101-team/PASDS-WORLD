@@ -1,16 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
+import MemberView from '@/views/MemberView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/test',
+      path: '/',
       name: 'home',
-      component: DashboardView
+      component: MemberView,
+      redirect: { name: 'MemberLogin' },
+      children: [
+        {
+          path: 'login',
+          name: 'MemberLogin',
+          component: () => import('@/components/member/MemberLogin.vue')
+        }
+      ]
     },
     {
-      path: '/',
+      path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
       redirect: { name: 'DashboardMain' },

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between">
+  <div class="max-w-2xl mx-auto flex justify-between">
     <!-- This is an example component -->
     <div class="max-w-lg">
       <div class="inline-flex shadow-sm rounded-md mt-5" role="group">

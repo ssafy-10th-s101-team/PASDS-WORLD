@@ -16,11 +16,12 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ControllerAdvice {
 
-	//비즈니스 로직과 관련된 예외처리 << 400번대
+	//비즈니스 로직과 관련된 예외처리
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
 		log.error("{} error message >> {} ", e.getClass().getSimpleName(), e.getMessage());
-		return ResponseEntity.status(e.status()).body(new ErrorResponse(e.status(), e.getMessage()));
+		return ResponseEntity.status(HttpStatus.valueOf(e.getExceptionCode().getStatus()))
+				.body(new ErrorResponse(HttpStatus.valueOf(e.getExceptionCode().getStatus()), e.getExceptionCode().getMessage()));
 	}
 
 	//validation 관련 예외처리1 << 400

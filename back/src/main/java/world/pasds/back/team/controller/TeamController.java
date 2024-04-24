@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import world.pasds.back.member.entity.CustomUserDetails;
+import world.pasds.back.team.entity.dto.request.GetPrivateDataListRequestDto;
 import world.pasds.back.team.entity.dto.request.GetTeamsRequestDto;
+import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.service.TeamService;
 
@@ -24,6 +26,12 @@ public class TeamController {
     @GetMapping("")
     public ResponseEntity<?> getTeams(@RequestBody GetTeamsRequestDto getTeamsRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetTeamsResponseDto> response = teamService.getTeams(getTeamsRequestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getPrivateDataList(@RequestBody GetPrivateDataListRequestDto getPrivateDataListRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<GetPrivateDataListResponseDto> response = teamService.getPrivateDataList(getPrivateDataListRequestDto, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 }

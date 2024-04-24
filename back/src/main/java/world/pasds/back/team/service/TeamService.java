@@ -13,6 +13,7 @@ import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.team.entity.PrivateData;
 import world.pasds.back.team.entity.Team;
+import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
 import world.pasds.back.team.entity.dto.request.GetPrivateDataListRequestDto;
 import world.pasds.back.team.entity.dto.request.GetTeamsRequestDto;
 import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
@@ -20,6 +21,7 @@ import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.repository.PrivateDataRepository;
 import world.pasds.back.team.repository.TeamRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,5 +67,35 @@ public class TeamService {
 
         List<PrivateData> privateDataList = privateDataRepository.findAllByTeam(team);
         return privateDataList.stream().map(pd -> new GetPrivateDataListResponseDto(organization.getId(), team.getId(), team.getName())).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void createTeam(CreateTeamRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        if (teamRepository.existsByName(requestDto.getTeamName())) {
+            throw new BusinessException(ExceptionCode.TEAM_NAME_CONFLICT);
+        }
+
+        /**
+         * Todo 팀 비밀키 발급
+         */
+        byte[] encryptedDataKey = null;
+        byte[] encryptedIv = null;
+        LocalDateTime expiredAt = null;
+
+        Team newTeam = Team.builder()
+                .header(member)
+                .organization(organization)
+                .name(requestDto.getTeamName())
+                .roleCount(0)
+                .secretCount(0)
+                .encryptedDataKey(encryptedDataKey)
+                .encryptedIv(encryptedIv)
+                .expiredAt(expiredAt)
+                .build();
+
+        teamRepository.save(newTeam);
     }
 }

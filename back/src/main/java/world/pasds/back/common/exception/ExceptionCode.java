@@ -16,8 +16,9 @@ public enum ExceptionCode {
     MEMBER_UNAUTHORIZED(401,"Unauthorized member control"),
 
     BAD_REQUEST(400, "Bad Request"),
-    FORBIDDEN(503,"Forbidden");
+    FORBIDDEN(503,"Forbidden"),
 
+    TEAM_NAME_CONFLICT(403, "Team name already exists");
 
     @Getter
     private int status;

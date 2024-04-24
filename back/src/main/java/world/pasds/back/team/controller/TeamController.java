@@ -3,11 +3,9 @@ package world.pasds.back.team.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
+import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
 import world.pasds.back.team.entity.dto.request.GetPrivateDataListRequestDto;
 import world.pasds.back.team.entity.dto.request.GetTeamsRequestDto;
 import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
@@ -33,5 +31,11 @@ public class TeamController {
     public ResponseEntity<?> getPrivateDataList(@RequestBody GetPrivateDataListRequestDto getPrivateDataListRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetPrivateDataListResponseDto> response = teamService.getPrivateDataList(getPrivateDataListRequestDto, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createTeam(@RequestBody CreateTeamRequestDto createTeamRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.createTeam(createTeamRequestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
     }
 }

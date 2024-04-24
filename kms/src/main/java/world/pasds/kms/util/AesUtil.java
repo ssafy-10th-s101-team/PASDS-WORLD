@@ -1,5 +1,7 @@
 package world.pasds.kms.util;
 
+import org.springframework.stereotype.Component;
+
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,24 +11,32 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.nio.charset.StandardCharsets;
 
+
+@Component
 public class AesUtil {
 
     //키 생성
-    public byte[] keyGenerator() throws NoSuchAlgorithmException {
-        // AES 알고리즘 확인
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+    public byte[] keyGenerator(){
 
-        // 랜덤 시드 생성.
-        SecureRandom random = new SecureRandom();
+        try {
+            // AES 알고리즘 확인
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 
-        //256비트 키 생성
-        keyGenerator.init(256, random);
+            // 랜덤 시드 생성.
+            SecureRandom random = new SecureRandom();
 
-        //키 생성
-        SecretKey secretKey = keyGenerator.generateKey();
+            //256비트 키 생성
+            keyGenerator.init(256, random);
 
-        //byte[]로 변환후 리턴
-        return secretKey.getEncoded();
+            //키 생성
+            SecretKey secretKey = keyGenerator.generateKey();
+
+            //byte[]로 변환후 리턴
+            return secretKey.getEncoded();
+        }catch(NoSuchAlgorithmException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

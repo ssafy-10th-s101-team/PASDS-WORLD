@@ -114,7 +114,7 @@ public class TeamService {
     @Transactional
     public void inviteMemberToTeam(InviteMemberToTeamRequestDto requestDto, Long memberId) {
         /**
-         * 팀 초대권한 확인
+         * Todo 팀 초대권한 확인
          */
         Member findMember = memberRepository.findByEmail(requestDto.getInviteMemberEmail());
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
@@ -135,5 +135,19 @@ public class TeamService {
                 throw new BusinessException(ExceptionCode.BAD_REQUEST);
             }
         }
+    }
+
+    @Transactional
+    public void removeMemberFromTeam(RemoveMemberFromTeamRequestDto requestDto, Long memberId) {
+        /**
+         * Todo 팀원 추방권한 확인
+         */
+        Member findMember = memberRepository.findByEmail(requestDto.getRemoveMemberEmail());
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+        if (findMember == null) {
+            throw new BusinessException(ExceptionCode.MEMBER_NOT_FOUND);
+        }
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(findMember, team);
+        memberTeamRepository.delete(findMemberAndTeam);
     }
 }

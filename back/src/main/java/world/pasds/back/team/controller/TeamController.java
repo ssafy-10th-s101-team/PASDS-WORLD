@@ -48,4 +48,10 @@ public class TeamController {
         teamService.inviteMemberToTeam(inviteMemberToTeamRequestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/remove")
+    public ResponseEntity<?> removeMemberFromTeam(@RequestBody RemoveMemberFromTeamRequestDto removeMemberFromTeamRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.removeMemberFromTeam(removeMemberFromTeamRequestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
 }

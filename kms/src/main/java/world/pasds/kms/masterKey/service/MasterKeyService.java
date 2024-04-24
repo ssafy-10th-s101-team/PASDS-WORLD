@@ -28,19 +28,17 @@ public class MasterKeyService {
     @Transactional
     @PostConstruct
     public void init(){
-        System.out.println("init 시작");
         //자동으로 만료하고 갱신하는 캐시 생성
         keyCache = Caffeine.newBuilder()
-                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .expireAfterWrite(90, TimeUnit.DAYS)
                 .scheduler(Scheduler.systemScheduler())
                 .removalListener(new RemovalListener<String, MasterKeyData>() {
                     @Override
                     public void onRemoval(String key, MasterKeyData value, RemovalCause cause) {
-                        log.info("제거 로직 발~동!!");
                         if (cause.wasEvicted()) { //자동 제거로 인해 발생했는지 확인
                             prevMasterKey = value; // 만료된 키 값을 prevMasterKey에 저장
                             keyCache.put(key, generateNewMasterKey()); // 새 키를 캐시에 저장
-                            log.info("새로운 키 저장 완료~! : " + keyCache.getIfPresent("curMasterKey"));
+                            log.info("Master Key Changed : "+keyCache.getIfPresent(key));
                         }
                     }
                 })
@@ -48,8 +46,6 @@ public class MasterKeyService {
 
         //초기 curMasterKey값 생성 및 저장
         keyCache.put("curMasterKey", generateNewMasterKey());
-
-        System.out.println("제대로 초기화되었나확인. 키값 : "+keyCache.getIfPresent("curMasterKey"));
     }
 
 
@@ -75,6 +71,12 @@ public class MasterKeyService {
         public MasterKeyData(byte[] value, byte[] iv){
             this.value = value;
             this.iv = iv;
+        }
+
+        @Override
+        public String toString(){
+            StringBuilder sb = new StringBuilder();
+            return sb.append(value).append(iv).toString();
         }
     }
 

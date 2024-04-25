@@ -53,6 +53,8 @@ public class TotpService {
 
 	public byte[] generateSecretKeyQR() throws WriterException, IOException {
 		Long memberId = 1L;
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
 		// qr 정보
 		int width = 200;
@@ -67,7 +69,13 @@ public class TotpService {
 		byte[] encryptedTotpKey = keyService.encryptSecret(base64EncodedTotpKey,
 			Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()),
 			Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
-		// todo db에 암호화 한 totpKey, dataKey, ivKey 저장 !!
+
+		// db에 암호화 한 totpKey, dataKey, ivKey 저장 !!
+		member.setEncryptedTotpKey(encryptedTotpKey);
+		member.setEncryptedTotpDataKey(Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()));
+		member.setEncryptedTotpIvKey(Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
+		memberRepository.save(member);
+
 
 		// QR Code - BitMatrix: qr code 정보 생성
 		BitMatrix bitMatrix = new MultiFormatWriter()

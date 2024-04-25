@@ -7,7 +7,6 @@ import world.pasds.back.team.entity.Team;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,5 +19,6 @@ public class Role extends BaseEntity {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Setter
     private String name;
 }

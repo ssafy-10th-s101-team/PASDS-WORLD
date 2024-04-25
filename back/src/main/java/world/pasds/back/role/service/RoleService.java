@@ -7,7 +7,11 @@ import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.member.entity.Member;
+import world.pasds.back.member.entity.MemberRole;
+import world.pasds.back.member.entity.MemberTeam;
 import world.pasds.back.member.repository.MemberRepository;
+import world.pasds.back.member.repository.MemberRoleRepository;
+import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.entity.dto.request.CreateRoleRequestDto;
@@ -17,6 +21,7 @@ import world.pasds.back.role.entity.dto.response.getRoleResponseDto;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
+import world.pasds.back.team.entity.dto.request.AssignRoleRequestDto;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.util.ArrayList;
@@ -31,6 +36,8 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final MemberRepository memberRepository;
+    private final MemberRoleRepository memberRoleRepository;
+    private final MemberTeamRepository memberTeamRepository;
 
     @Transactional
     public List<getRoleResponseDto> getRole(Long teamId, Long memberId) {
@@ -112,5 +119,37 @@ public class RoleService {
         Role role = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
 
         roleRepository.delete(role);
+    }
+
+    @Transactional
+    public void assignRole(AssignRoleRequestDto requestDto, Long memberId) {
+        Member assignedMember = memberRepository.findById(requestDto.getAssignedMemberId()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+        Role role = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+
+        // 팀장인지 확인
+        if (!team.getHeader().equals(member)) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        // 팀에 속한 멤버인지 확인
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(assignedMember, team);
+        if (findMemberAndTeam == null) {
+            throw new BusinessException(ExceptionCode.TEAM_MEMBER_NOT_FOUND);
+        }
+
+        // 이미 역할을 부여받은 멤버인지 확인
+        MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndRole(assignedMember, role);
+        if (findMemberAndRole == null) {
+            MemberRole memberRole = MemberRole.builder()
+                    .member(assignedMember)
+                    .role(role)
+                    .build();
+            memberRoleRepository.save(memberRole);
+        } else {
+            findMemberAndRole.setRole(role);
+            memberRoleRepository.save(findMemberAndRole);
+        }
     }
 }

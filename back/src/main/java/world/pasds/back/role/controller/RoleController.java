@@ -10,6 +10,7 @@ import world.pasds.back.role.entity.dto.request.DeleteRoleRequestDto;
 import world.pasds.back.role.entity.dto.request.UpdateRoleRequestDto;
 import world.pasds.back.role.entity.dto.response.getRoleResponseDto;
 import world.pasds.back.role.service.RoleService;
+import world.pasds.back.team.entity.dto.request.AssignRoleRequestDto;
 
 import java.util.List;
 
@@ -41,6 +42,12 @@ public class RoleController {
     @PostMapping("/delete")
     public ResponseEntity<?> deleteRole(@RequestBody DeleteRoleRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         roleService.deleteRole(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/assign-role")
+    public ResponseEntity<?> assignRole(@RequestBody AssignRoleRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        roleService.assignRole(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

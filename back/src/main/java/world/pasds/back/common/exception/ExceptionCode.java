@@ -23,6 +23,8 @@ public enum ExceptionCode {
     TEAM_NOT_FOUND(404, "Team not found"),
     TEAM_UNAUTHORIZED(401, "Unauthorized team control"),
 
+    TEAM_MEMBER_NOT_FOUND(404, "Member not found in team"),
+
     PRIVATE_DATA_UNAUTHORIZED(401, "Unauthorized PrivateData control"),
 
     BAD_REQUEST(400, "Bad Request"),

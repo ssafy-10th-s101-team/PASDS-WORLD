@@ -2,6 +2,7 @@ package world.pasds.back.invitaion.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
@@ -28,6 +29,7 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -179,6 +181,41 @@ public class InvitationService {
             /**
              * Todo sender에게 초대 만료 알림 보내기
              */
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void checkInvitation(Member member, String email) {
+        List<Invitation> invitationList = invitationRepository.findAllByInvitedMemberEmail(email);
+
+        for (Invitation invitation : invitationList) {
+            if (invitation != null && invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
+                Organization organization = invitation.getOrganization();
+                if (organization != null) {
+                    MemberOrganization memberOrganization = MemberOrganization.builder()
+                            .member(member)
+                            .organization(organization)
+                            .build();
+                    memberOrganizationRepository.save(memberOrganization);
+                    Team team = invitation.getTeam();
+                    Role role = invitation.getRole();
+                    if (team != null && role != null) {
+                        MemberTeam memberTeam = MemberTeam.builder()
+                                .member(member)
+                                .team(team)
+                                .build();
+                        memberTeamRepository.save(memberTeam);
+
+                        MemberRole memberRole = MemberRole.builder()
+                                .member(member)
+                                .role(role)
+                                .build();
+                        memberRoleRepository.save(memberRole);
+                    }
+                }
+
+                invitationRepository.delete(invitation);
+            }
         }
     }
 }

@@ -29,17 +29,17 @@ public class KeyService {
 
 	private final AesUtil aesUtil;
 	private final RestTemplate restTemplate;
-	private final String kmsUrl = "http://--domain--/kms/api";
+	private final String KMS_URL = "http://--domain--/kms/api";
 
 	public KmsEncryptionKeysResponseDto generateKeys() {
 		ResponseEntity<KmsEncryptionKeysResponseDto> response = restTemplate
-			.getForEntity(kmsUrl+"/generate-key", KmsEncryptionKeysResponseDto.class);
+			.getForEntity(KMS_URL+"/generate-key", KmsEncryptionKeysResponseDto.class);
 		return response.getBody();
 	}
 
 	public KmsDecryptionKeysResponseDto getKeys(KmsDecryptionKeysRequestDto requestDto) {
 		ResponseEntity<KmsDecryptionKeysResponseDto> response = restTemplate
-			.postForEntity(kmsUrl+"/get-key", requestDto, KmsDecryptionKeysResponseDto.class);
+			.postForEntity(KMS_URL+"/get-key", requestDto, KmsDecryptionKeysResponseDto.class);
 		return response.getBody();
 	}
 

@@ -14,12 +14,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.world.pasds.ui.theme.PasdsworldTheme
+import android.util.Base64
+import java.nio.ByteBuffer
+import java.security.InvalidKeyException
+import java.security.NoSuchAlgorithmException
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 class GenerateTotpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val totpCode = retrieveTotpKey() ?: "코드가 없습니다" // 키가 없을 경우 사용할 기본값
+        val totpKey = retrieveTotpKey() ?: "코드가 없습니다"
+        val currentDateTime = LocalDateTime.now()
+        val totpCode = if (totpKey != "코드가 없습니다") {
+            generateTotpCode(totpKey, currentDateTime)
+        } else {
+            totpKey
+        }
 
         setContent {
             PasdsworldTheme {
@@ -89,6 +103,31 @@ class GenerateTotpActivity : ComponentActivity() {
     fun retrieveTotpKey(): String? {
         val sharedPreferences = getSharedPreferences("totpKeyPrefs", MODE_PRIVATE)
         return sharedPreferences.getString("totpKey", null) // 키가 없을 경우 null 반환
+    }
+
+    fun generateTotpCode(totpKey: String, serverTime: LocalDateTime): String {
+        try {
+            val time = serverTime.toEpochSecond(ZoneOffset.UTC) / 30
+            val timeData = ByteBuffer.allocate(8).putLong(time).array()
+
+            val secretKey = SecretKeySpec(Base64.decode(totpKey, Base64.DEFAULT), "HmacSHA256")
+            val mac = Mac.getInstance("HmacSHA256")
+            mac.init(secretKey)
+            val hash = mac.doFinal(timeData)
+
+            val offset = hash.last().toInt() and 0xf
+            val binary = ((hash[offset].toInt() and 0x7f) shl 24) or
+                    ((hash[offset + 1].toInt() and 0xff) shl 16) or
+                    ((hash[offset + 2].toInt() and 0xff) shl 8) or
+                    (hash[offset + 3].toInt() and 0xff)
+
+            val otp = binary % 1000000
+            return String.format("%06d", otp)
+        } catch (e: NoSuchAlgorithmException) {
+            throw RuntimeException("HmacSHA256 algorithm not supported", e)
+        } catch (e: InvalidKeyException) {
+            throw RuntimeException("Invalid key exception", e)
+        }
     }
 
 }

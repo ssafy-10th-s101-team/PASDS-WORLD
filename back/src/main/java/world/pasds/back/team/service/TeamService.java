@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
-import world.pasds.back.common.service.EmailService;
+import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberOrganization;
 import world.pasds.back.member.entity.MemberTeam;
@@ -37,7 +37,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final OrganizationRepository organizationRepository;
     private final PrivateDataRepository privateDataRepository;
-    private final EmailService emailService;
+    private final InvitationService invitationService;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(GetTeamsRequestDto requestDto, Long memberId) {
@@ -116,23 +116,22 @@ public class TeamService {
         /**
          * Todo 팀 초대권한 확인
          */
-        Member findMember = memberRepository.findByEmail(requestDto.getInviteMemberEmail());
+        Member sender = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member receiver = memberRepository.findByEmail(requestDto.getInviteMemberEmail());
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
-        // 초대 대상이 우리 회원이 아닌 경우
-        if (findMember == null) {
-            /**
-             * Todo 팀 초대 링크 이메일 전송
-             */
-            emailService.sendSimpleMessage(requestDto.getInviteMemberEmail(), "invite to " + organization.getName(), "welcome! 조직 초대링크");
-        } else {
-            MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(findMember, organization);
+        invitationService.inviteMemberToTeam(organization, team, sender, requestDto.getInviteMemberEmail());
 
-            // 초대 대상이 조직원이 아닌 경우
-            if (findMemberAndOrganization == null) {
-                emailService.sendSimpleMessage(requestDto.getInviteMemberEmail(), "invite to " + organization.getName(), "welcome! 팀 초대링크");
-            } else {
+        // 우리 회원인 경우
+        if (receiver != null) {
+            MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(receiver, organization);
+            if (findMemberAndOrganization != null) {    // 이미 우리 회원인 경우
                 throw new BusinessException(ExceptionCode.BAD_REQUEST);
+            } else {
+                /**
+                 * Todo 알림 보내기
+                 */
             }
         }
     }

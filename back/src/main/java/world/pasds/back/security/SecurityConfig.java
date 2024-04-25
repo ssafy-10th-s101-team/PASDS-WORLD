@@ -18,9 +18,15 @@ import java.util.List;
 public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
+<<<<<<< HEAD:back/src/main/java/world/pasds/back/security/SecurityConfig.java
             "/app/api/member/test",
             "/app/api/member/signup",
             "/app/api/member/login"
+=======
+            "/app/api/member/signup"
+            , "/app/api/member/test",
+            "/**",
+>>>>>>> 90056268c49490e210aff0d25effe3bca1ef7e88:back/src/main/java/world/pasds/back/config/SecurityConfig.java
     };
 
     @Bean

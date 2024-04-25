@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
 import MemberView from '@/views/MemberView.vue'
 import HomeView from '@/views/HomeView.vue'
+import OrganizationView from '@/views/OrganizationView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,19 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
+    },
+    {
+      path: '/organization',
+      name: '/Organization',
+      component: OrganizationView,
+      redirect: { name: 'OrganizationMain' },
+      children: [
+        {
+          path: 'main',
+          name: 'OrganizationMain',
+          component: () => import('@/components/organization/OrganizationMain.vue')
+        }
+      ]
     }
   ]
 })

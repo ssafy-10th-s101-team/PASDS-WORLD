@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="mt-5">
-      <router-link>
+      <router-link to="/organization">
         <BaseButton buttonText="조직 관리" />
       </router-link>
     </div>

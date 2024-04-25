@@ -31,7 +31,7 @@
                   ></path>
                 </svg>
               </button>
-              <ul id="dropdown-example" class="hidden py-2 space-y-2">
+              <ul id="dropdown-example" class="py-2 space-y-2">
                 <li>
                   <a
                     href="#"

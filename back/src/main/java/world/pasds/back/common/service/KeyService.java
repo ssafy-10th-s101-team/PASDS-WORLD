@@ -43,23 +43,11 @@ public class KeyService {
 		return response.getBody();
 	}
 
-	public String decryptSecret(byte[] secret, byte[] dataKey, byte[] iv) throws
-		InvalidAlgorithmParameterException,
-		NoSuchPaddingException,
-		IllegalBlockSizeException,
-		NoSuchAlgorithmException,
-		BadPaddingException,
-		InvalidKeyException {
+	public String decryptSecret(byte[] secret, byte[] dataKey, byte[] iv) {
 		return aesUtil.decrypt(secret, dataKey, iv);
 	}
 
-	public byte[] encryptSecret(String secret, byte[] dataKey, byte[] iv) throws
-		InvalidAlgorithmParameterException,
-		NoSuchPaddingException,
-		IllegalBlockSizeException,
-		NoSuchAlgorithmException,
-		BadPaddingException,
-		InvalidKeyException {
+	public byte[] encryptSecret(String secret, byte[] dataKey, byte[] iv) {
 		return aesUtil.encrypt(secret, dataKey,iv);
 	}
 

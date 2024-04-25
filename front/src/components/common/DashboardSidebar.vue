@@ -15,7 +15,7 @@
                 @click="toggleDropdown('dropdown-example')"
               >
                 <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item
-                  >모든 그룹</span
+                  >모든 조직</span
                 >
                 <svg
                   sidebar-toggle-item
@@ -61,7 +61,7 @@
                 href="#"
                 class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-samsung-blue hover:text-white dark:hover:bg-gray-700"
               >
-                <span class="flex-1 ml-3 whitespace-nowrap">그룹 추가</span>
+                <span class="flex-1 ml-3 whitespace-nowrap">조직 추가 +</span>
               </a>
             </li>
             <!-- <li>

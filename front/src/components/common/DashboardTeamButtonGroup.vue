@@ -24,7 +24,9 @@
       </div>
     </div>
     <div class="mt-5">
-      <BaseButton buttonText="팀 추가" />
+      <router-link>
+        <BaseButton buttonText="조직 관리" />
+      </router-link>
     </div>
   </div>
 </template>

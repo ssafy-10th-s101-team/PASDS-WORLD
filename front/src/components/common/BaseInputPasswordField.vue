@@ -1,27 +1,7 @@
 <template>
   <div class="mb-6">
-    <!-- 회원가입 상황일 때 -->
-    <div v-if="pwType === 'signup'">
-      <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-        >비밀번호</label
-      >
-      <input
-        type="password"
-        id="password"
-        v-model="password"
-        @input="validatePassword"
-        :class="{ 'border-red-500': !isPasswordValid }"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        placeholder="•••••••••"
-        required
-      />
-      <div v-if="!isPasswordValid" class="text-red-500 text-sm">
-        비밀번호는 대문자, 소문자, 특수문자(@$!%*?&), 숫자를 포함하고 10자리 이상이어야 합니다.
-      </div>
-    </div>
-
     <!-- Private info 상황일 때 -->
-    <div v-else-if="pwType === 'privateInfo'" class="relative">
+    <div v-if="pwType === 'privateInfo'" class="relative">
       <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
         >Password</label
       >

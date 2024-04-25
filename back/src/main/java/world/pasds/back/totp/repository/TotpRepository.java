@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import world.pasds.back.member.entity.Member;
 
 @Repository
-public interface TotpRepository extends JpaRepository<Member,Long > {
+public interface TotpRepository extends JpaRepository<Member,Long> {
 	@Query("select m.encryptedTotpDataKey from Member m where m.id = :id")
 	Optional<byte[]> findEncryptedTotpDataKeyByMemberId(@Param("id") Long id);
 

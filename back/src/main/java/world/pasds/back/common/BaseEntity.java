@@ -1,6 +1,8 @@
 package world.pasds.back.common;
 
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -32,4 +34,5 @@ public abstract class BaseEntity {
 
 	@LastModifiedBy
 	private String modifiedBy;
+
 }

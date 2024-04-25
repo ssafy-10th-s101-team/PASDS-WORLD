@@ -128,9 +128,7 @@ public class TotpService {
 			Base64.getDecoder().decode(totpDecryptionKeys.getIv()));
 	}
 
-	private String generateTotpCode(byte[] totpKey, LocalDateTime serverTime) throws
-		NoSuchAlgorithmException,
-		InvalidKeyException {
+	private String generateTotpCode(byte[] totpKey, LocalDateTime serverTime) {
 		// time = (UT - T0) / (time_step)
 		// UT : 1970-01-01 이후 경과된 시간
 		// T0 : 서버 시작 시간 (0L)
@@ -142,7 +140,7 @@ public class TotpService {
 		return String.format("%06d", hotp(totpKey, timeData));			// 6자리 숫자 코드
 	}
 
-	private int hotp(byte[] totpKey, byte[] time) throws NoSuchAlgorithmException, InvalidKeyException {
+	private int hotp(byte[] totpKey, byte[] time) {
 		byte[] hash = hmacAndBase64(totpKey, time);
 		int offset = hash[hash.length - 1] & 0xf;
 		int binary = (hash[offset] & 0x7f) << 24 | (hash[offset + 1] & 0xff) << 16 |
@@ -150,17 +148,20 @@ public class TotpService {
 		return binary % 1000000;						// 6자리 숫자 코드
 	}
 
-	private byte[] hmacAndBase64(byte[] totpKey, byte[] time) throws
-		NoSuchAlgorithmException,
-		InvalidKeyException {
+	private byte[] hmacAndBase64(byte[] totpKey, byte[] time) {
+		try {
+			//1. SecretKeySpec 클래스를 사용한 키 생성
+			SecretKeySpec secretKey = new SecretKeySpec(Base64.getDecoder().decode(totpKey), "HmacSHA256");
 
-		//1. SecretKeySpec 클래스를 사용한 키 생성
-		SecretKeySpec secretKey = new SecretKeySpec(totpKey, "HmacSHA256");
-
+			//2. 지정된  MAC 알고리즘을 구현하는 Mac 객체를 작성합니다.
+			Mac mac = Mac.getInstance("HmacSHA256");
 			// 키를 사용해 Mac 객체를 초기화
 			mac.init(secretKey);
 
-			// 암호화 하려는 데이터의 바이트의 배열을 처리해 MAC 조작을 종료
+			//3. 키를 사용해 이 Mac 객체를 초기화
+			mac.init(secretKey);
+
+			//3. 암호화 하려는 데이터의 바이트의 배열을 처리해 MAC 조작을 종료
 			return  mac.doFinal(time);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			throw new BusinessException(ExceptionCode.TOTP_CODE_GENERATION_ERROR);

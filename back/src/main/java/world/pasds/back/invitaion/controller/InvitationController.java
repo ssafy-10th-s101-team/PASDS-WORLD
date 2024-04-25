@@ -33,13 +33,13 @@ public class InvitationController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/accept")
+    @PostMapping("/accept-team")
     public ResponseEntity<?> acceptTeamInvite(@RequestBody AcceptTeamInviteRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         invitationService.acceptTeamInvite(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/reject")
+    @PostMapping("/reject-team")
     public ResponseEntity<?> rejectTeamInvite(@RequestBody RejectTeamInviteRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         invitationService.rejectTeamInvite(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();

@@ -25,7 +25,7 @@ public enum ExceptionCode {
 
     PRIVATE_DATA_UNAUTHORIZED(401, "Unauthorized PrivateData control"),
 
-<<<<<<< HEAD
+
     BAD_REQUEST(400, "Bad Request"),
     FORBIDDEN(503, "Forbidden"),
 
@@ -35,24 +35,23 @@ public enum ExceptionCode {
     JWT_UNSUPPORTED(404, "Unsupported JWT token"),
     JWT_MALFORMED(404, "Invalid JWT token"),
     JWT_SIGNATURE(404, "Invalid JWT signature"),
-    JWT_ARGUMENT(404, "JWT claims string is empty");
-=======
+    JWT_ARGUMENT(404, "JWT claims string is empty"),
+
     KEY_ERROR(500,"key error"),
 
     TOTP_CODE_GENERATION_ERROR(500,"Totp code generation error"),
 
     TOTP_CODE_NOT_SAME(409, "Totp code not same"),
 
-    BAD_REQUEST(400, "Bad Request"),
-    FORBIDDEN(503, "Forbidden"),
+
 
     ROLE_NOT_FOUND(404, "Role not found"),
 
 
-    TEAM_NAME_CONFLICT(403, "Team name already exists"),
+
 
     INTERNAL_SERVER_ERROR(500,"Something wrong in server");
->>>>>>> 90056268c49490e210aff0d25effe3bca1ef7e88
+
 
     @Getter
     private int status;

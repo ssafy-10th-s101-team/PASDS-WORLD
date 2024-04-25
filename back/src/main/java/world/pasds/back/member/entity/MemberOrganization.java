@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import world.pasds.back.common.BaseEntity;
 import world.pasds.back.organization.entity.Organization;
 
 @Entity
@@ -12,7 +13,7 @@ import world.pasds.back.organization.entity.Organization;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberOrganization {
+public class MemberOrganization extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

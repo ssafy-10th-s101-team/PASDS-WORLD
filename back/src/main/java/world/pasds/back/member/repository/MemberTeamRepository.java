@@ -10,4 +10,6 @@ import world.pasds.back.team.entity.Team;
 public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long> {
 
     MemberTeam findByMemberAndTeam(Member member, Team team);
+
+    MemberTeam findAllByMember(Member member);
 }

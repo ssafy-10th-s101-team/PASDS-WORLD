@@ -1,15 +1,14 @@
 package world.pasds.back.common.exception;
 
-import org.springframework.http.HttpStatus;
+import lombok.Getter;
 
-public abstract class BusinessException extends RuntimeException {
+public class BusinessException extends RuntimeException {
 
-	public BusinessException() {
-	}
+		@Getter
+		private ExceptionCode exceptionCode;
 
-	public BusinessException(final String message) {
-		super(message);
-	}
-
-	public abstract HttpStatus status();
+		public BusinessException(ExceptionCode exceptionCode) {
+			super(exceptionCode.getMessage());
+			this.exceptionCode = exceptionCode;
+		}
 }

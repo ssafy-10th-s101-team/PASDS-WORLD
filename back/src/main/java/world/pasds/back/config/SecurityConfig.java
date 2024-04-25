@@ -19,7 +19,8 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             "/app/api/member/signup"
-            , "/app/api/member/test"
+            , "/app/api/member/test",
+            "/**",
     };
 
 // Authentication: 인증: 사용자의 신원을 확인

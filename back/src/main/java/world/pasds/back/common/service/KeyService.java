@@ -19,7 +19,6 @@ import world.pasds.back.common.dto.KmsDecryptionKeysRequestDto;
 import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
 import world.pasds.back.common.util.AesUtil;
-import world.pasds.back.totp.repository.TotpRepository;
 
 @Service
 @Slf4j
@@ -29,7 +28,7 @@ public class KeyService {
 
 	private final AesUtil aesUtil;
 	private final RestTemplate restTemplate;
-	private final String KMS_URL = "http://--domain--/kms/api";
+	private final String KMS_URL = "http://localhost:8081/kms/api";
 
 	public KmsEncryptionKeysResponseDto generateKeys() {
 		ResponseEntity<KmsEncryptionKeysResponseDto> response = restTemplate
@@ -43,23 +42,11 @@ public class KeyService {
 		return response.getBody();
 	}
 
-	public String decryptSecret(byte[] secret, byte[] dataKey, byte[] iv) throws
-		InvalidAlgorithmParameterException,
-		NoSuchPaddingException,
-		IllegalBlockSizeException,
-		NoSuchAlgorithmException,
-		BadPaddingException,
-		InvalidKeyException {
+	public byte[] decryptSecret(byte[] secret, byte[] dataKey, byte[] iv) {
 		return aesUtil.decrypt(secret, dataKey, iv);
 	}
 
-	public byte[] encryptSecret(String secret, byte[] dataKey, byte[] iv) throws
-		InvalidAlgorithmParameterException,
-		NoSuchPaddingException,
-		IllegalBlockSizeException,
-		NoSuchAlgorithmException,
-		BadPaddingException,
-		InvalidKeyException {
+	public byte[] encryptSecret(byte[] secret, byte[] dataKey, byte[] iv) {
 		return aesUtil.encrypt(secret, dataKey,iv);
 	}
 

@@ -27,6 +27,7 @@ public enum ExceptionCode {
 
     BAD_REQUEST(400, "Bad Request"),
     FORBIDDEN(503, "Forbidden"),
+    ROLE_NOT_FOUND(404, "Role not found"),
 
     TEAM_NAME_CONFLICT(403, "Team name already exists");
 

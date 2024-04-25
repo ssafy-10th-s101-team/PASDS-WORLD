@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import world.pasds.back.common.BaseEntity;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.role.entity.Role;
 import world.pasds.back.team.entity.Team;
 
 import java.time.LocalDateTime;
@@ -37,5 +38,9 @@ public class Invitation extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @OneToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
 }

@@ -143,7 +143,7 @@ public class TotpService {
 		int offset = hash[hash.length - 1] & 0xf;
 		int binary = (hash[offset] & 0x7f) << 24 | (hash[offset + 1] & 0xff) << 16 |
 			(hash[offset + 2] & 0xff) << 8 | (hash[offset + 3] & 0xff);
-		return binary % 100000;						// 6자리 숫자 코드
+		return binary % 1000000;						// 6자리 숫자 코드
 	}
 
 	private byte[] hmacAndBase64(String totpKey, byte[] time) {

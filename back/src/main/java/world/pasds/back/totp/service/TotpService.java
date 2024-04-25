@@ -51,7 +51,9 @@ public class TotpService {
 	private final KeyService keyService;
 	private final AesUtil aesUtil;
 
-	public byte[] generateSecretKeyQR() throws WriterException, IOException {
+	public byte[] generateSecretKeyQR() throws
+		WriterException,
+		IOException{
 		Long memberId = 1L;
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -66,7 +68,7 @@ public class TotpService {
 
 
 		KmsEncryptionKeysResponseDto totpEncryptionKeys = keyService.generateKeys();
-		byte[] encryptedTotpKey = keyService.encryptSecret(base64EncodedTotpKey,
+		byte[] encryptedTotpKey = keyService.encryptSecret(totpKey,
 			Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()),
 			Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
 
@@ -92,7 +94,7 @@ public class TotpService {
 	public void validateTotpCode(String inputTotpCode) {
 		Long memberId = 1L;
 
-		String totpKey = getDecryptedTotpKey(memberId);
+		byte[] totpKey = getDecryptedTotpKey(memberId);
 		String totpCode = generateTotpCode(totpKey, LocalDateTime.now());
 
 		// 생성한 totp code 와 받은 totp code 가 같은 지 확인 & 검증
@@ -101,7 +103,7 @@ public class TotpService {
 		}
 	}
 
-	private String getDecryptedTotpKey(Long memberId) {
+	private byte[] getDecryptedTotpKey(Long memberId) {
 
 		byte[] encryptedTotpDataKey = totpRepository.findEncryptedTotpDataKeyByMemberId(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.KEY_ERROR));
@@ -126,7 +128,9 @@ public class TotpService {
 			Base64.getDecoder().decode(totpDecryptionKeys.getIv()));
 	}
 
-	private String generateTotpCode(String totpKey, LocalDateTime serverTime) {
+	private String generateTotpCode(byte[] totpKey, LocalDateTime serverTime) throws
+		NoSuchAlgorithmException,
+		InvalidKeyException {
 		// time = (UT - T0) / (time_step)
 		// UT : 1970-01-01 이후 경과된 시간
 		// T0 : 서버 시작 시간 (0L)
@@ -138,7 +142,7 @@ public class TotpService {
 		return String.format("%06d", hotp(totpKey, timeData));			// 6자리 숫자 코드
 	}
 
-	private int hotp(String totpKey, byte[] time) {
+	private int hotp(byte[] totpKey, byte[] time) throws NoSuchAlgorithmException, InvalidKeyException {
 		byte[] hash = hmacAndBase64(totpKey, time);
 		int offset = hash[hash.length - 1] & 0xf;
 		int binary = (hash[offset] & 0x7f) << 24 | (hash[offset + 1] & 0xff) << 16 |
@@ -146,13 +150,12 @@ public class TotpService {
 		return binary % 1000000;						// 6자리 숫자 코드
 	}
 
-	private byte[] hmacAndBase64(String totpKey, byte[] time) {
-		try {
-			// SecretKeySpec 클래스를 사용한 키 생성
-			SecretKeySpec secretKey = new SecretKeySpec(Base64.getDecoder().decode(totpKey), "HmacSHA256");
+	private byte[] hmacAndBase64(byte[] totpKey, byte[] time) throws
+		NoSuchAlgorithmException,
+		InvalidKeyException {
 
-			// 지정된  MAC 알고리즘을 구현하는 Mac 객체
-			Mac mac = Mac.getInstance("HmacSHA256");
+		//1. SecretKeySpec 클래스를 사용한 키 생성
+		SecretKeySpec secretKey = new SecretKeySpec(totpKey, "HmacSHA256");
 
 			// 키를 사용해 Mac 객체를 초기화
 			mac.init(secretKey);

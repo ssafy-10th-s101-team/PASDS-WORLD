@@ -33,9 +33,13 @@ public enum ExceptionCode {
 
     BAD_REQUEST(400, "Bad Request"),
     FORBIDDEN(503, "Forbidden"),
+
     ROLE_NOT_FOUND(404, "Role not found"),
 
-    TEAM_NAME_CONFLICT(403, "Team name already exists");
+
+    TEAM_NAME_CONFLICT(403, "Team name already exists"),
+
+    INTERNAL_SERVER_ERROR(500,"Something wrong in server");
 
     @Getter
     private int status;

@@ -25,6 +25,12 @@ public enum ExceptionCode {
 
     PRIVATE_DATA_UNAUTHORIZED(401, "Unauthorized PrivateData control"),
 
+    KEY_ERROR(500,"key error"),
+
+    TOTP_CODE_GENERATION_ERROR(500,"Totp code generation error"),
+
+    TOTP_CODE_NOT_SAME(409, "Totp code not same"),
+
     BAD_REQUEST(400, "Bad Request"),
     FORBIDDEN(503, "Forbidden"),
 

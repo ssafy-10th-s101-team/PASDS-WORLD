@@ -18,6 +18,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import world.pasds.back.common.exception.BusinessException;
+import world.pasds.back.common.exception.ExceptionCode;
+
 public class AesUtil {
 
 	//키 생성

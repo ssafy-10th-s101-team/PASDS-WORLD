@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
-import world.pasds.back.common.service.EmailService;
+import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberOrganization;
 import world.pasds.back.member.entity.MemberTeam;
@@ -33,7 +33,7 @@ public class OrganizationService {
     private final MemberOrganizationRepository memberOrganizationRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
-    private final EmailService emailService;
+    private final InvitationService invitationService;
     private final MemberTeamRepository memberTeamRepository;
 
     @Transactional
@@ -75,17 +75,21 @@ public class OrganizationService {
     }
 
     public void inviteMemberToOrganization(InviteMemberToOrganizationRequestDto requestDto, Long memberId) {
+        Member sender = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         /**
          * Todo 권한 확인
          */
 
+        invitationService.inviteMemberToOrganization(findOrganization, sender, requestDto.getEmail());
 
-        /**
-         * Todo 조직초대 링크 전송
-         */
-        emailService.sendSimpleMessage(requestDto.getEmail(), "invite to " + findOrganization.getName(), "welcome!");
+        Member receiver = memberRepository.findByEmail(requestDto.getEmail());
+        if (receiver != null) {
+            /**
+             * Todo 알림 구현
+             */
+        }
     }
 
     public void removeMemberFromOrganization(RemoveMemberFromOrganizationRequestDto requestDto, Long memberId) {

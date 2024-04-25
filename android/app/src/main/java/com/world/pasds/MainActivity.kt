@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Base64
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,7 +22,6 @@ import androidx.core.content.ContextCompat
 import com.google.zxing.integration.android.IntentIntegrator
 import com.journeyapps.barcodescanner.CaptureActivity
 import com.world.pasds.ui.theme.PasdsworldTheme
-import kotlin.math.log
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -105,21 +102,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     fun saveQRCodeResult(result: String) {
+//        Toast.makeText(this, "result: String = $result", Toast.LENGTH_SHORT).show()
 
-        // 문자열을 바이트 배열로 변환
-        val bytes = result.toByteArray(Charsets.UTF_8) // UTF-8 인코딩을 사용한다고 가정
-
-        // 바이트 배열을 Base64 인코딩된 문자열로 변환
-        val encodedResult = Base64.encodeToString(bytes, Base64.DEFAULT)
-
-        Log.d("MainActivity", encodedResult)
-
+        // 바이트 배열을 Base64 인코딩된 문자열로 재변환하지 않고 바로 저장
         val sharedPreferences = getSharedPreferences("totpKeyPrefs", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        // Base64 인코딩된 문자열을 저장
-        editor.putString("totpKey", encodedResult)
+        editor.putString("totpKey", result)
+
         val wasSuccessful = editor.commit() // 데이터를 동기적으로 저장합니다.
 
         if (wasSuccessful) {
@@ -127,19 +117,8 @@ class MainActivity : ComponentActivity() {
         } else {
             Toast.makeText(this, "저장에 실패했습니다ㅜㅜ", Toast.LENGTH_SHORT).show()
         }
-
-
-//        val sharedPreferences = getSharedPreferences("totpKeyPrefs", MODE_PRIVATE)
-//        val editor = sharedPreferences.edit()
-//        editor.putString("totpKey", result)
-//        val wasSuccessful = editor.commit() // 데이터를 동기적으로 저장합니다.
-//
-//        if (wasSuccessful) {
-//            Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
-//        } else {
-//            Toast.makeText(this, "저장에 실패했습니다ㅜㅜ", Toast.LENGTH_SHORT).show()
-//        }
     }
+
 
     fun navigateToGenerateTotpActivity() {
         val intent = Intent(this, GenerateTotpActivity::class.java)

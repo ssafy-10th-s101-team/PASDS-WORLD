@@ -6,6 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.dto.request.SignupRequestDto;
 import world.pasds.back.member.dto.response.SignupResponseDto;
 import world.pasds.back.member.entity.Member;
@@ -19,6 +20,7 @@ public class MemberService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
+    private final InvitationService invitationService;
 
     @Value("${security.pepper}")
     private String pepper;
@@ -66,6 +68,10 @@ public class MemberService {
 //                .build();
 //        memberRepository.save(newMember);
 
+        /**
+         * 회원가입시 받은 초대 모두 가입시키기
+         */
+//        invitationService.checkInvitation(newMember, signupRequestDto.getEmail());
         return new SignupResponseDto();
 
     }

@@ -1,7 +1,7 @@
 package world.pasds.back.team.entity.dto.response;
 
 import lombok.AllArgsConstructor;
-import world.pasds.back.team.entity.DataType;
+import world.pasds.back.privateData.entity.DataType;
 
 @AllArgsConstructor
 public class GetPrivateDataListResponseDto {

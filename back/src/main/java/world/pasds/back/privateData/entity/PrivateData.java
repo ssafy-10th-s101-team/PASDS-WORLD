@@ -1,4 +1,4 @@
-package world.pasds.back.team.entity;
+package world.pasds.back.privateData.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,23 +6,29 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import world.pasds.back.common.BaseEntity;
-import world.pasds.back.role.entity.Role;
+import world.pasds.back.team.entity.Team;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PrivateDataRole extends BaseEntity {
+public class PrivateData extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "privatedata_id")
-    private PrivateData privateData;
+    @JoinColumn(name = "team_id")
+    private Team team;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @Enumerated(EnumType.STRING)
+    private DataType type;
+
+    private String title;
+
+    @Lob
+    private byte[] content;
+
+    private String memo;
 }

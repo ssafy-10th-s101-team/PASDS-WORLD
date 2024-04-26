@@ -74,15 +74,36 @@ public class TeamService {
     @Transactional
     public List<GetPrivateDataListResponseDto> getPrivateDataList(GetPrivateDataListRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
-        /**
-         * Todo 권한확인
-         */
+        // 팀 멤버인지 확인
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);
+        if (findMemberAndTeam == null) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
 
-        List<PrivateData> privateDataList = privateDataRepository.findAllByTeam(team);
-        return privateDataList.stream().map(pd -> new GetPrivateDataListResponseDto(organization.getId(), team.getId(), team.getName())).collect(Collectors.toList());
+        // 우리 팀 비밀 목록 조회
+        List<PrivateData> privateData = privateDataRepository.findAllByTeam(team);
+
+        // 팀내에서 역할을 부여받은 사용자인지 확인
+        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        if (findMemberRole == null) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        Role role = findMemberRole.getRole();
+
+        // 내가 조회 가능한 비밀 목록 추가
+        List<PrivateData> canReadData = new ArrayList<>();
+        for (PrivateData data : privateData) {
+            if (privateDataRoleRepository.existsByPrivateDataAndRole(data, role)) { // 비밀에 나의 역할이 읽을 수 있는지 확인
+                if (roleAuthorityRepository.checkAuthority(role, 2L)) {
+                    canReadData.add(data);
+                }
+            }
+        }
+
+        return canReadData.stream().map(pd -> new GetPrivateDataListResponseDto(team.getId(), pd.getId(), pd.getTitle(), pd.getType(), pd.getCreatedBy())).collect(Collectors.toList());
     }
 
     @Transactional

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hibernate.query.sqm.tree.SqmNode.log;
 
-@Service
+//@Service
 public class RedisJwtSecretKeyListener extends KeyExpirationEventMessageListener {
     @Value("${security.jwt.refresh-token-expiration-ms}")
     private int refreshTokenExpirationMs;

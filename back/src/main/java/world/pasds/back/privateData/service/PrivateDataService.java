@@ -13,6 +13,7 @@ import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.privateData.entity.DataType;
 import world.pasds.back.privateData.entity.dto.request.CreatePrivateDataRequestDto;
+import world.pasds.back.privateData.entity.dto.request.UpdatePrivateDataRequestDto;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -187,6 +188,62 @@ public class PrivateDataService {
         // 비밀_역할 저장
         PrivateDataRole pdr = PrivateDataRole.builder()
                 .privateData(privateData)
+                .role(setRole)
+                .build();
+        privateDataRoleRepository.save(pdr);
+    }
+
+    @Transactional
+    public void updatePrivateDataRequestDto(UpdatePrivateDataRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 비밀 수정 가능한지 권한 확인
+        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        Role role = findMemberRole.getRole();
+
+        if (!roleAuthorityRepository.checkAuthority(role, 3L)) {
+            throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
+        }
+
+        PrivateData findPrivateData = privateDataRepository.findById(requestDto.getId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+
+        /**
+         * KMS에게 암호화 키 달라고 한 뒤
+         * 비밀 암호화하여 저장
+         */
+        byte[] encryptedDataKey = team.getEncryptedDataKey();
+        byte[] encryptedIv = team.getEncryptedIv();
+        byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
+
+        PrivateData newPrivateData = null;
+
+        if (findPrivateData.getType().equals(DataType.PW)) {
+            newPrivateData = PrivateData.builder()
+                    .team(team)
+                    .type(findPrivateData.getType())
+                    .title(requestDto.getTitle())
+                    .content(encryptedPrivateData)
+                    .memo(requestDto.getMemo())
+                    .privateDataId(requestDto.getPrivateDataId())
+                    .url(requestDto.getUrl())
+                    .build();
+        } else {
+            newPrivateData = PrivateData.builder()
+                    .team(team)
+                    .type(findPrivateData.getType())
+                    .title(requestDto.getTitle())
+                    .content(encryptedPrivateData)
+                    .memo(requestDto.getMemo())
+                    .build();
+        }
+
+        // 설정하고자 하는 역할 조회
+        Role setRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+
+        // 비밀_역할 저장
+        PrivateDataRole pdr = PrivateDataRole.builder()
+                .privateData(newPrivateData)
                 .role(setRole)
                 .build();
         privateDataRoleRepository.save(pdr);

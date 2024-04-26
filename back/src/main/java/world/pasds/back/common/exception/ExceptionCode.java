@@ -23,6 +23,8 @@ public enum ExceptionCode {
     TEAM_NOT_FOUND(404, "Team not found"),
     TEAM_UNAUTHORIZED(401, "Unauthorized team control"),
 
+    TEAM_MEMBER_NOT_FOUND(404, "Member not found in team"),
+
     PRIVATE_DATA_UNAUTHORIZED(401, "Unauthorized PrivateData control"),
 
     KEY_ERROR(500,"key error"),
@@ -35,6 +37,7 @@ public enum ExceptionCode {
     FORBIDDEN(503, "Forbidden"),
 
     ROLE_NOT_FOUND(404, "Role not found"),
+    ROLE_EXISTS(409, "Role exists"),
 
 
     TEAM_NAME_CONFLICT(403, "Team name already exists"),

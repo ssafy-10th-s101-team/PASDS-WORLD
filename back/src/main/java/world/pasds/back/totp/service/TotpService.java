@@ -51,10 +51,10 @@ public class TotpService {
 	private final KeyService keyService;
 	private final AesUtil aesUtil;
 
-	public byte[] generateSecretKeyQR() throws
+	public byte[] generateSecretKeyQR(Long memberId) throws
 		WriterException,
 		IOException{
-		Long memberId = 1L;
+
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 

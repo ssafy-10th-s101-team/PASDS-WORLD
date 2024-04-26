@@ -24,4 +24,8 @@ public class MemberController {
     public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
         return ResponseEntity.status(HttpStatus.OK).body(memberService.signup(signupRequestDto));
     }
+
+//    @PostMapping("/first-login")
+
+
 }

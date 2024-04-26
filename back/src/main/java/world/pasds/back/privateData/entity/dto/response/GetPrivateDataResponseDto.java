@@ -1,4 +1,4 @@
-package world.pasds.back.team.entity.dto.response;
+package world.pasds.back.privateData.entity.dto.response;
 
 import lombok.AllArgsConstructor;
 

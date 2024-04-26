@@ -1,4 +1,4 @@
-package world.pasds.back.team.entity.dto.request;
+package world.pasds.back.privateData.entity.dto.request;
 
 import lombok.Getter;
 

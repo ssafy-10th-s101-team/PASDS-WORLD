@@ -60,9 +60,11 @@
               <a
                 href="#"
                 class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-samsung-blue hover:text-white dark:hover:bg-gray-700"
+                @click="toggleHidden('organizationCreationModal')"
               >
                 <span class="flex-1 ml-3 whitespace-nowrap">조직 추가 +</span>
               </a>
+              <OrganizationCreationModal />
             </li>
             <!-- <li>
               <a
@@ -147,6 +149,7 @@
 
 <script setup>
 import { useCommonStore } from '@/stores/common'
+import OrganizationCreationModal from './OrganizationCreationModal.vue'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 </script>

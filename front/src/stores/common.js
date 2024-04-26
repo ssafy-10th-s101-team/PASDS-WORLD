@@ -3,9 +3,9 @@ import { defineStore } from 'pinia'
 
 export const useCommonStore = defineStore('common', () => {
   const toggleHidden = (id) => {
-    const dropdown = document.getElementById(id)
-    if (dropdown) {
-      dropdown.classList.toggle('hidden')
+    const obj = document.getElementById(id)
+    if (obj) {
+      obj.classList.toggle('hidden')
     }
   }
 

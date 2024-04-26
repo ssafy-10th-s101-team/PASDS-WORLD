@@ -3,16 +3,16 @@
   <div class="max-w-2xl mx-auto">
     <!-- Main modal -->
     <div
-      id="modal"
+      :id="modalId"
       aria-hidden="true"
-      class="hidden overflow-x-hidden overflow-y-auto fixed h-modal md:h-full top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center"
+      class="hidden overflow-x-hidden overflow-y-auto fixed h-modal md:h-full fixed -translate-x-1/2, top-1/4 left-1/2 z-50 justify-center items-center"
     >
       <div class="relative w-full max-w-md px-4 h-full md:h-auto">
         <!-- Modal content -->
         <div class="bg-white rounded-lg shadow relative dark:bg-gray-700">
           <div class="flex justify-end p-2">
             <button
-              @click="toggleHidden('modal')"
+              @click="toggleHidden(modalId)"
               type="button"
               class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
               data-modal-toggle="modal"
@@ -42,6 +42,14 @@
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+
+const props = defineProps({
+  modalId: {
+    type: String,
+    required: true
+  }
+})
+const modalId = props.modalId
 </script>
 
 <style scoped></style>

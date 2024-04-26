@@ -11,6 +11,7 @@ import world.pasds.back.member.entity.MemberTeam;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
+import world.pasds.back.privateData.entity.DataType;
 import world.pasds.back.privateData.entity.dto.request.CreatePrivateDataRequestDto;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
@@ -77,7 +78,7 @@ public class PrivateDataService {
             }
         }
 
-        return canReadData.stream().map(pd -> new GetPrivateDataListResponseDto(team.getId(), pd.getId(), pd.getTitle(), pd.getType(), pd.getCreatedBy())).collect(Collectors.toList());
+        return canReadData.stream().map(pd -> new GetPrivateDataListResponseDto(team.getId(), pd.getId(), pd.getTitle(), pd.getType(), pd.getCreatedBy(), pd.getPrivateDataId(), pd.getUrl())).collect(Collectors.toList());
     }
 
     @Transactional
@@ -157,13 +158,27 @@ public class PrivateDataService {
         byte[] encryptedIv = team.getEncryptedIv();
         byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
 
-        PrivateData privateData = PrivateData.builder()
-                .team(team)
-                .type(requestDto.getType())
-                .title(requestDto.getTitle())
-                .content(encryptedPrivateData)
-                .memo(requestDto.getMemo())
-                .build();
+        PrivateData privateData = null;
+
+        if (requestDto.getType().equals(DataType.PW)) {
+            privateData = PrivateData.builder()
+                    .team(team)
+                    .type(requestDto.getType())
+                    .title(requestDto.getTitle())
+                    .content(encryptedPrivateData)
+                    .memo(requestDto.getMemo())
+                    .privateDataId(requestDto.getPrivateDataId())
+                    .url(requestDto.getUrl())
+                    .build();
+        } else {
+            privateData = PrivateData.builder()
+                    .team(team)
+                    .type(requestDto.getType())
+                    .title(requestDto.getTitle())
+                    .content(encryptedPrivateData)
+                    .memo(requestDto.getMemo())
+                    .build();
+        }
         privateDataRepository.save(privateData);
 
         // 설정하고자 하는 역할 조회

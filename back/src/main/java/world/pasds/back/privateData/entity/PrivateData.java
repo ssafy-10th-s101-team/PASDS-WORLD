@@ -31,4 +31,8 @@ public class PrivateData extends BaseEntity {
     private byte[] content;
 
     private String memo;
+
+    private String privateDataId;
+
+    private String url;
 }

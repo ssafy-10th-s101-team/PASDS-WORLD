@@ -10,5 +10,7 @@ public class CreatePrivateDataRequestDto {
     private String title;
     private String content;
     private String memo;
+    private String privateDataId;
+    private String url;
     private Long roleId;
 }

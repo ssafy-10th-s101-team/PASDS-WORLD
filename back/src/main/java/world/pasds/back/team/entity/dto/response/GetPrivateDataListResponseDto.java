@@ -10,4 +10,6 @@ public class GetPrivateDataListResponseDto {
     private String title;
     private DataType type;
     private String createdBy;
+    private String dataId;
+    private String url;
 }

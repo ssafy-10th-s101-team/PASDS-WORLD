@@ -7,37 +7,32 @@
           type="button"
           class="rounded-l-lg border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
         >
-          개발
+          전체
         </button>
-        <button
+        <!-- <button
           type="button"
           class="border-t border-b border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
         >
-          영업
-        </button>
+          초대함
+        </button> -->
         <button
           type="button"
           class="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
         >
-          마케팅
+          초대함
         </button>
       </div>
     </div>
-    <div class="mt-5" @click="toggleHidden('modal')">
-      <BaseButton buttonText="팀 설정" />
-    </div>
-    <div class="absolute center">
-      <OrganizationCreationModal />
+    <div class="mt-5">
+      <router-link :to="{ name: 'teamManagement' }">
+        <BaseButton buttonText="초대하기 +" />
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import OrganizationCreationModal from './OrganizationCreationModal.vue'
 import BaseButton from './BaseButton.vue'
-import { useCommonStore } from '@/stores/common'
-const commonStore = useCommonStore()
-const { toggleHidden } = commonStore
 </script>
 
 <style scoped></style>

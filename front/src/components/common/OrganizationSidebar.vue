@@ -12,7 +12,7 @@
                 class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700"
                 aria-controls="dropdown-example"
                 data-collapse-toggle="dropdown-example"
-                @click="toggleDropdown('dropdown-example')"
+                @click="toggleHidden('dropdown-example')"
               >
                 <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item
                   >S101</span
@@ -33,18 +33,18 @@
               </button>
               <ul id="dropdown-example" class="py-2 space-y-2">
                 <li>
-                  <a
-                    href="#"
+                  <router-link
+                    :to="{ name: 'organizationTeam' }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >팀관리</a
+                    >팀관리</router-link
                   >
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <router-link
+                    :to="{ name: 'organizationMember' }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >구성원</a
-                  >
+                    >구성원
+                  </router-link>
                 </li>
                 <li>
                   <a
@@ -140,7 +140,7 @@
 <script setup>
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
-const { toggleDropdown } = commonStore
+const { toggleHidden } = commonStore
 </script>
 
 <style scoped></style>

@@ -12,7 +12,7 @@
                 class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700"
                 aria-controls="dropdown-example"
                 data-collapse-toggle="dropdown-example"
-                @click="toggleDropdown('dropdown-example')"
+                @click="toggleHidden('dropdown-example')"
               >
                 <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item
                   >모든 조직</span
@@ -50,7 +50,7 @@
                   <a
                     href="#"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >삼성화재</a
+                    >삼성 SDS</a
                   >
                 </li>
               </ul>
@@ -148,7 +148,7 @@
 <script setup>
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
-const { toggleDropdown } = commonStore
+const { toggleHidden } = commonStore
 </script>
 
 <style scoped></style>

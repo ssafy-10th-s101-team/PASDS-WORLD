@@ -16,16 +16,16 @@ const router = createRouter({
       path: '/member',
       name: 'member',
       component: MemberView,
-      redirect: { name: 'MemberLogin' },
+      redirect: { name: 'memberLogin' },
       children: [
         {
           path: 'login',
-          name: 'MemberLogin',
+          name: 'memberLogin',
           component: () => import('@/components/member/MemberLogin.vue')
         },
         {
           path: 'signup',
-          name: 'MemberSignup',
+          name: 'memberSignup',
           component: () => import('@/components/member/MemberSignup.vue')
         }
       ]
@@ -34,11 +34,11 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
-      redirect: { name: 'DashboardMain' },
+      redirect: { name: 'dashboardMain' },
       children: [
         {
           path: 'vault',
-          name: 'DashboardMain',
+          name: 'dashboardMain',
           component: () => import('@/components/dashboard/DashboardMain.vue')
         }
         // {
@@ -54,14 +54,24 @@ const router = createRouter({
     },
     {
       path: '/organization',
-      name: '/Organization',
+      name: 'organization',
       component: OrganizationView,
-      redirect: { name: 'OrganizationMain' },
+      redirect: { name: 'organizationTeam' },
       children: [
         {
-          path: 'main',
-          name: 'OrganizationMain',
+          path: 'team',
+          name: 'organizationTeam',
           component: () => import('@/components/organization/OrganizationMain.vue')
+        },
+        {
+          path: 'member',
+          name: 'organizationMember',
+          component: () => import('@/components/organization/OrganizationMember.vue')
+        },
+        {
+          path: 'team/management',
+          name: 'teamManagement',
+          component: () => import('@/components/organization/TeamManagement.vue')
         }
       ]
     }

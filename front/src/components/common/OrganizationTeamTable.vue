@@ -8,7 +8,7 @@
             <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-700">
               <thead class="bg-gray-100 dark:bg-gray-700">
                 <tr>
-                  <th scope="col" class="p-4 w-1/6">
+                  <th scope="col" class="p-4 w-1/6 sr-only">
                     <div class="flex items-center">
                       <input
                         id="checkbox-all"
@@ -43,7 +43,7 @@
                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
               >
                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td class="p-4 w-4">
+                  <td class="p-4 w-4 sr-only">
                     <div class="flex items-center">
                       <input
                         id="checkbox-table-1"
@@ -62,12 +62,12 @@
                   <td
                     class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
                   ></td>
-                  <td class="py-4 px-6 text-sm text-right whitespace-nowrap">
+                  <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . . </a>
                   </td>
                 </tr>
                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td class="p-4 w-4">
+                  <td class="p-4 w-4 sr-only">
                     <div class="flex items-center">
                       <input
                         id="checkbox-table-2"
@@ -86,12 +86,12 @@
                   <td
                     class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
                   ></td>
-                  <td class="py-4 px-6 text-sm text-right whitespace-nowrap">
+                  <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . .</a>
                   </td>
                 </tr>
                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td class="p-4 w-4">
+                  <td class="p-4 w-4 sr-only">
                     <div class="flex items-center">
                       <input
                         id="checkbox-table-3"
@@ -110,7 +110,7 @@
                   <td
                     class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
                   ></td>
-                  <td class="py-4 px-6 text-sm text-right whitespace-nowrap">
+                  <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . .</a>
                   </td>
                 </tr>

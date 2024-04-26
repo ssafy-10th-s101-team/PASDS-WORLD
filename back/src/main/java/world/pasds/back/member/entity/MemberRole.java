@@ -1,10 +1,7 @@
 package world.pasds.back.member.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import world.pasds.back.common.BaseEntity;
 import world.pasds.back.role.entity.Role;
 
@@ -22,7 +19,9 @@ public class MemberRole extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Setter
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
 }

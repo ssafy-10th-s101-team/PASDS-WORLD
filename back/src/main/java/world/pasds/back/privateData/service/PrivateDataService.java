@@ -12,8 +12,7 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.privateData.entity.DataType;
-import world.pasds.back.privateData.entity.dto.request.CreatePrivateDataRequestDto;
-import world.pasds.back.privateData.entity.dto.request.UpdatePrivateDataRequestDto;
+import world.pasds.back.privateData.entity.dto.request.*;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -21,8 +20,6 @@ import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.team.entity.Team;
-import world.pasds.back.privateData.entity.dto.request.GetPrivateDataListRequestDto;
-import world.pasds.back.privateData.entity.dto.request.GetPrivateDataRequestDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
 import world.pasds.back.team.repository.PrivateDataRepository;
@@ -247,5 +244,22 @@ public class PrivateDataService {
                 .role(setRole)
                 .build();
         privateDataRoleRepository.save(pdr);
+    }
+
+    @Transactional
+    public void deletePrivateDataRequestDto(DeletePrivateDataRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 비밀 생성 가능한지 권한 확인
+        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        Role role = findMemberRole.getRole();
+
+        if (!roleAuthorityRepository.checkAuthority(role, 3L)) {
+            throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
+        }
+
+        PrivateData privateData = privateDataRepository.findById(requestDto.getId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        privateDataRepository.delete(privateData);
     }
 }

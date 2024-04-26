@@ -5,11 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
-import world.pasds.back.privateData.entity.dto.request.CreatePrivateDataRequestDto;
-import world.pasds.back.privateData.entity.dto.request.UpdatePrivateDataRequestDto;
+import world.pasds.back.privateData.entity.dto.request.*;
 import world.pasds.back.privateData.service.PrivateDataService;
-import world.pasds.back.privateData.entity.dto.request.GetPrivateDataListRequestDto;
-import world.pasds.back.privateData.entity.dto.request.GetPrivateDataRequestDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
 
@@ -43,6 +40,12 @@ public class PrivateDataController {
     @PostMapping("/update")
     public ResponseEntity<?> updatePrivateData(@RequestBody UpdatePrivateDataRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         privateDataService.updatePrivateDataRequestDto(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> deletePrivateData(@RequestBody DeletePrivateDataRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        privateDataService.deletePrivateDataRequestDto(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

@@ -24,6 +24,7 @@ public enum ExceptionCode {
     TEAM_UNAUTHORIZED(401, "Unauthorized team control"),
 
     PRIVATE_DATA_UNAUTHORIZED(401, "Unauthorized PrivateData control"),
+    PRIVATE_DATA_NOT_FOUND(404, "PrivateData not found"),
 
     KEY_ERROR(500,"key error"),
 

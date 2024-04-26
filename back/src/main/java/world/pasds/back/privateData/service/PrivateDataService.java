@@ -255,7 +255,7 @@ public class PrivateDataService {
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
-        if (!roleAuthorityRepository.checkAuthority(role, 3L)) {
+        if (!roleAuthorityRepository.checkAuthority(role, 4L)) {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 

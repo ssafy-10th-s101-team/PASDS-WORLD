@@ -113,7 +113,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         // totp 검사
         Map<String, String> requestBody = objectMapper.readValue(request.getInputStream(), Map.class);
         String totpCode = requestBody.get("totpCode");
-        if (!isValidTotp(totpCode)) {  // 예: isValidTotp 실제 구현 필요
+        if (!isValidTotp(totpCode)) {
             respondWithError(response, "Invalid TOTP code.", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -179,6 +179,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         response.sendError(status, message);
     }
 
+    // TODO: 실제 TOTP 검사 로직
     private boolean isValidTotp(String totpCode) {
         // This method should implement the logic to verify a TOTP code.
         // Here we assume it is a placeholder.

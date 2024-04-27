@@ -28,10 +28,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // 인증 안거치게 전부 열어 놨습니다 실제로는 "/**" 지우고 서버 운영
     private static final String[] PUBLIC_ENDPOINTS = {
             "/app/api/member/test",
             "/app/api/member/signup",
-//            "/**"
+            "/**"
     };
 
     private AntPathRequestMatcher[] getRequestMatchers() {
@@ -45,6 +46,7 @@ public class SecurityConfig {
 
     @Bean
     public BCryptPasswordEncoder bcryptPasswordEncoder() {
+        // TODO: 숫자 얼마가 제일 안전할까?
         return new BCryptPasswordEncoder(12);
     }
 
@@ -105,7 +107,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // TODO: 실제 서비스 도메인 추가 ? kms도 추가?
+        // TODO: 실제 서비스 도메인 추가 ? kms도 추가???
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "https://your-production-site.com"

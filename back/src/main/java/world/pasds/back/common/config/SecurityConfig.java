@@ -7,59 +7,76 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import world.pasds.back.common.filter.FirstLoginAuthenticationFilter;
-//import world.pasds.back.common.filter.SecondLoginAuthenticationFilter;
-import world.pasds.back.common.util.CustomUserDetailsService;
+import world.pasds.back.common.filter.CustomAuthenticationFilter;
+import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
+import world.pasds.back.member.service.CustomUserDetailsService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] AUTHENTICATED_ENDPOINTS = {
-            "app/api/member/first-login",
-            "app/api/member/second-login"
-    };
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/**",
+            "/app/api/member/test",
+            "/app/api/member/signup",
+//            "/**"
     };
 
-    private final CustomUserDetailsService customUserDetailsService;
-
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
-        this.customUserDetailsService = customUserDetailsService;
+    private AntPathRequestMatcher[] getRequestMatchers() {
+        return Arrays.stream(PUBLIC_ENDPOINTS)
+                .map(AntPathRequestMatcher::new)
+                .toArray(AntPathRequestMatcher[]::new);
     }
 
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
     @Bean
-    public BCryptPasswordEncoder createBCryptPasswordEncoder() {
+    public BCryptPasswordEncoder bcryptPasswordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 
     @Bean
-    public AuthenticationManager configureAuthenticationManager(HttpSecurity http) throws Exception {
+    public AuthenticationManager buildAuthenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
         auth.userDetailsService(customUserDetailsService)
-                .passwordEncoder(createBCryptPasswordEncoder());
+                .passwordEncoder(bcryptPasswordEncoder());
         return auth.build();
     }
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private CookieProvider cookieProvider;
+
+    @Value("${security.pepper}")
+    private String passwordPepper;
+
     @Bean
-    public SecurityFilterChain configureSecurityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+    public CustomAuthenticationFilter customAuthenticationFilter(AuthenticationManager authenticationManager) {
+        return new CustomAuthenticationFilter(authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper);
+    }
+
+    @Bean
+    public SecurityFilterChain configureSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .sessionManagement((sessionManagement) -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
+                // TODO: 실제서비스에서 CSRF 어떻게 해야하지?
                 .csrf((csrf) -> {
                     csrf.disable();
                 })
@@ -73,22 +90,26 @@ public class SecurityConfig {
                     httpBasic.disable();
                 })
                 .authorizeHttpRequests((authorizeHttpRequests) -> {
-                    authorizeHttpRequests.requestMatchers(AUTHENTICATED_ENDPOINTS).authenticated();
                     authorizeHttpRequests.requestMatchers(PUBLIC_ENDPOINTS).permitAll();
+                    authorizeHttpRequests.anyRequest().authenticated();
                 })
                 .cors((cors) -> {
-                    cors.configurationSource(createCorsConfigurationSource());
+                    cors.configurationSource(corsConfigurationSource());
                 })
-                .addFilterBefore(new FirstLoginAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
-//                .addFilterBefore(new SecondLoginAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(customAuthenticationFilter(buildAuthenticationManager(http)),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
-    public CorsConfigurationSource createCorsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // TODO: 실제 서비스 도메인 추가 ? kms도 추가?
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://your-production-site.com"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("Content-Type"));

@@ -1,9 +1,13 @@
 package world.pasds.back.common.util;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import world.pasds.back.member.entity.CustomUserDetails;
 
 import java.util.Date;
 import java.util.UUID;
@@ -15,86 +19,79 @@ public class JwtTokenProvider {
     private String secretKey;
 
     @Value("${security.jwt.temporary-token-expiration-ms}")
-    private Long temporaryTokenExpirationMs;
+    private int temporaryTokenExpirationMs;
 
     @Value("${security.jwt.access-token-expiration-ms}")
-    private Long accessTokenExpirationMs;
+    private int accessTokenExpirationMs;
 
     @Value("${security.jwt.refresh-token-expiration-ms}")
-    private Long refreshTokenExpirationMs;
+    private int refreshTokenExpirationMs;
 
     public enum TokenType {
         TEMPORARY, ACCESS, REFRESH
     }
 
-    public String generateJwtToken(Authentication authentication, TokenType tokenType) {
-        long expirationMs = 0;
-        String tokenTypeClaim = "";
+    public String generateToken(Long memberId, TokenType tokenType) {
 
+        String tokenId = UUID.randomUUID().toString();
+        int expirationMs = 0;
         switch (tokenType) {
             case TEMPORARY:
                 expirationMs = temporaryTokenExpirationMs;  // 임시 토큰 만료 시간
-                tokenTypeClaim = "temporaryToken";
                 break;
             case ACCESS:
                 expirationMs = accessTokenExpirationMs;     // 액세스 토큰 만료 시간
-                tokenTypeClaim = "accessToken";
                 break;
             case REFRESH:
                 expirationMs = refreshTokenExpirationMs;    // 리프레시 토큰 만료 시간
-                tokenTypeClaim = "refreshToken";
                 break;
         }
 
-        String tokenId = UUID.randomUUID().toString();
-
         // TODO: Redis 저장 로직 추가
-        // 예: redisService.storeToken(tokenId, expirationMs);
+        // TODO: memberId.toString() _ tokenType.name() : tokenId , 만료 시간: expirationMs
+        // TODO: 12345_TEMPORARY : 42be7a28-f96d-46b2-b111-2ad44d309525 , 만료 시간: expirationMs
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
-                .setId(tokenId)
-                .claim("type", tokenTypeClaim)
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
+                .setSubject(memberId.toString())
+                .setId(tokenId)
+                .claim("tokenType", tokenType.name())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .compact();
     }
 
-    public String generateTemporaryJwtToken(Authentication authentication) {
-        return generateJwtToken(authentication, TokenType.TEMPORARY);
+    public String generateTemporaryToken(Long memberId) {
+        return generateToken(memberId, TokenType.TEMPORARY);
     }
 
-    public String generateAccessJwtToken(Authentication authentication) {
-        return generateJwtToken(authentication, TokenType.ACCESS);
+    public String generateAccessToken(Long memberId) {
+        return generateToken(memberId, TokenType.ACCESS);
     }
 
-    public String generateRefreshJwtToken(Authentication authentication) {
-        return generateJwtToken(authentication, TokenType.REFRESH);
+    public String generateRefreshToken(Long memberId) {
+        return generateToken(memberId, TokenType.REFRESH);
     }
 
-//    public void validateJwtToken(String token) {
-//        // 서명, 만료 시간 검증
-//        try {
-//            Jwts.parserBuilder()
-//                    .setSigningKey(secretKey)
-//                    .build()
-//                    .parseClaimsJws(token);
-//        } catch (ExpiredJwtException e) {
-//            throw new BusinessException(ExceptionCode.JWT_EXPIRED);
-//        } catch (UnsupportedJwtException e) {
-//            throw new BusinessException(ExceptionCode.JWT_UNSUPPORTED);
-//        } catch (MalformedJwtException e) {
-//            throw new BusinessException(ExceptionCode.JWT_MALFORMED);
-//        } catch (SignatureException e) {
-//            throw new BusinessException(ExceptionCode.JWT_SIGNATURE);
-//        } catch (IllegalArgumentException e) {
-//            throw new BusinessException(ExceptionCode.JWT_ARGUMENT);
-//        }
-//
-//        // TODO: ATK 만료니까 RTK 가져와
-//
-//        // TODO: Redis "memberId_type" 찾아
-//
-//        // TODO: Redis "memberId_type" 찾아서 TokenId 같은지 확인 해봐
-//    }
+    public Authentication getAuthentication(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+            Long memberId = Long.parseLong(claims.getSubject());
+
+            // TODO: Redis 검사 로직 추가
+
+            CustomUserDetails customUserDetails = new CustomUserDetails(memberId);
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    customUserDetails, null, customUserDetails.getAuthorities()
+            );
+
+            return authentication;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

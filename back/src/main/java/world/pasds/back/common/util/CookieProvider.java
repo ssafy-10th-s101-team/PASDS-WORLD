@@ -3,42 +3,48 @@ package world.pasds.back.common.util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CookieProvider {
+    @Value("${cookie.path}")
+    private String cookiePath;
 
-    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
+
+    @Value("${cookie.httpOnly}")
+    private boolean cookieHttpOnly;
+
+    public void addCookie(HttpServletResponse response, String name, String value) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setPath("/"); // 도메인의 모든 페이지에서 사용 간으
-        cookie.setMaxAge(maxAge);
-        cookie.setSecure(false); // HTTPS 환경에서만 사용하도록 설정
-        cookie.setHttpOnly(true); // 자바 스크립트로 접근 불가능
+        cookie.setMaxAge(-1);
+        cookie.setPath(cookiePath);
+        cookie.setSecure(cookieSecure);
+        cookie.setHttpOnly(cookieHttpOnly);
         response.addCookie(cookie);
     }
 
-    public static Cookie getCookie(HttpServletRequest request, String name) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if (cookie.getName().equals(name)) {
-                    return cookie;
-                }
-            }
-        }
-        return null;
+    public void removeCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0);
+        cookie.setPath(cookiePath);
+        cookie.setSecure(cookieSecure);
+        cookie.setHttpOnly(cookieHttpOnly);
+        response.addCookie(cookie);
     }
 
-    public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
+    public String getCookieValue(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
+                if (name.equals(cookie.getName())) {
+                    return cookie.getValue();
                 }
             }
         }
+        return null;  // 쿠키를 찾지 못한 경우 null 반환
     }
+
 }

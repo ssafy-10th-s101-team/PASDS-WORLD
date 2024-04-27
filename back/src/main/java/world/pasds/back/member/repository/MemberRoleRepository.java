@@ -2,8 +2,12 @@ package world.pasds.back.member.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberRole;
+import world.pasds.back.role.entity.Role;
 
 @Repository
 public interface MemberRoleRepository extends JpaRepository<MemberRole, Long> {
+
+    MemberRole findByMemberAndRole(Member member, Role role);
 }

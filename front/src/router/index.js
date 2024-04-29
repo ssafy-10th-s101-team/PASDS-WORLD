@@ -27,6 +27,11 @@ const router = createRouter({
           path: 'signup',
           name: 'memberSignup',
           component: () => import('@/components/member/MemberSignup.vue')
+        },
+        {
+          path: 'forgot-password',
+          name: 'memberForgotPassword',
+          component: () => import('@/components/member/MemberForgotPassword.vue')
         }
       ]
     },
@@ -67,11 +72,6 @@ const router = createRouter({
           path: 'member',
           name: 'organizationMember',
           component: () => import('@/components/organization/OrganizationMember.vue')
-        },
-        {
-          path: 'team/management',
-          name: 'teamManagement',
-          component: () => import('@/components/organization/TeamManagement.vue')
         }
       ]
     }

@@ -17,14 +17,16 @@
         </button>
         <div class="flex justify-between text-sm text-gray-500 dark:text-gray-300">
           <router-link
-            to="/member/signup"
+            :to="{ name: 'memberSignup' }"
             class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
           >
             회원가입</router-link
           >
 
-          <a href="#" class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-            >비밀번호 찾기</a
+          <router-link
+            :to="{ name: 'memberForgotPassword' }"
+            class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
+            >비밀번호 찾기</router-link
           >
         </div>
       </form>

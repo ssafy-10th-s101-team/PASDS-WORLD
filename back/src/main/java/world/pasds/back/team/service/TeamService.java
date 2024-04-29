@@ -152,8 +152,14 @@ public class TeamService {
 
     @Transactional
     public void deleteTeam(DeleteTeamRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-        if (team.getHeader().getId() != memberId) {
+
+        // 권한 확인 - 조직장 혹은 팀장
+        Role role = roleRepository.findByTeamAndName(team, "HEADER");
+        MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndRole(member, role);
+
+        if (findMemberAndRole == null) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
         teamRepository.delete(team);

@@ -22,6 +22,7 @@ public enum ExceptionCode {
 
     ORGANIZATION_NOT_FOUND(404, "Organization not found"),
     ORGANIZATION_UNAUTHORIZED(401, "Unauthorized organization control"),
+    ORGANIZATION_MEMBER_NOT_FOUND(404, "Member not found in organization"),
 
     TEAM_NOT_FOUND(404, "Team not found"),
     TEAM_UNAUTHORIZED(401, "Unauthorized team control"),

@@ -11,5 +11,5 @@ import java.util.List;
 public interface TeamRepository extends JpaRepository<Team, Long> {
     List<Team> findAllByOrganization(Organization organization);
 
-    Boolean existsByName(String name);
+    Boolean existsByOrganizationAndName(Organization organization, String name);
 }

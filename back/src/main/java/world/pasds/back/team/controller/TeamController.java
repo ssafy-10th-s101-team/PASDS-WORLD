@@ -6,7 +6,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.team.entity.dto.request.*;
-import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.service.TeamService;
 
@@ -22,12 +21,6 @@ public class TeamController {
     @GetMapping("")
     public ResponseEntity<?> getTeams(@RequestBody GetTeamsRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetTeamsResponseDto> response = teamService.getTeams(requestDto, userDetails.getMemberId());
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/list")
-    public ResponseEntity<?> getPrivateDataList(@RequestBody GetPrivateDataListRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetPrivateDataListResponseDto> response = teamService.getPrivateDataList(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

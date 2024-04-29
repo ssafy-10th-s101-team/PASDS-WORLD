@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import world.pasds.back.common.BaseEntity;
 import world.pasds.back.role.entity.Role;
+import world.pasds.back.team.entity.Team;
 
 @Entity
 @Getter
@@ -24,4 +25,7 @@ public class MemberRole extends BaseEntity {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @OneToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 }

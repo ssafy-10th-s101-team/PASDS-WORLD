@@ -14,18 +14,14 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.repository.OrganizationRepository;
-import world.pasds.back.team.entity.PrivateData;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.*;
-import world.pasds.back.team.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
-import world.pasds.back.team.repository.PrivateDataRepository;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +32,6 @@ public class TeamService {
     private final MemberOrganizationRepository memberOrganizationRepository;
     private final TeamRepository teamRepository;
     private final OrganizationRepository organizationRepository;
-    private final PrivateDataRepository privateDataRepository;
     private final InvitationService invitationService;
 
     @Transactional
@@ -56,20 +51,6 @@ public class TeamService {
         }
 
         return response;
-    }
-
-    @Transactional
-    public List<GetPrivateDataListResponseDto> getPrivateDataList(GetPrivateDataListRequestDto requestDto, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
-        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-
-        /**
-         * Todo 권한확인
-         */
-
-        List<PrivateData> privateDataList = privateDataRepository.findAllByTeam(team);
-        return privateDataList.stream().map(pd -> new GetPrivateDataListResponseDto(organization.getId(), team.getId(), team.getName())).collect(Collectors.toList());
     }
 
     @Transactional

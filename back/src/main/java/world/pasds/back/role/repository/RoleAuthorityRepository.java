@@ -8,7 +8,7 @@ import world.pasds.back.role.entity.RoleAuthority;
 import java.util.List;
 
 @Repository
-public interface RoleAuthorityRepository extends JpaRepository<RoleAuthority, Long> {
+public interface RoleAuthorityRepository extends JpaRepository<RoleAuthority, Long>, RoleAuthorityCustomRepository {
 
     List<RoleAuthority> findAllByRole(Role role);
 }

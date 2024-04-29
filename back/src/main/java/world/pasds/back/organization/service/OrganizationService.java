@@ -14,6 +14,8 @@ import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
+import world.pasds.back.notification.entity.NotificationType;
+import world.pasds.back.notification.service.NotificationService;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.entity.dto.request.*;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
@@ -38,6 +40,7 @@ public class OrganizationService {
     private final MemberTeamRepository memberTeamRepository;
     private final MemberRoleRepository memberRoleRepository;
     private final RoleRepository roleRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void createOrganization(CreateOrganizationRequestDto requestDto, Long memberId) {
@@ -55,6 +58,10 @@ public class OrganizationService {
                 .member(findMember)
                 .build();
         memberOrganizationRepository.save(mo);
+
+        /**
+         * Todo: 조직 생성시 MY TEAM 자동 생성
+         */
     }
 
     @Transactional
@@ -91,9 +98,7 @@ public class OrganizationService {
 
         Member receiver = memberRepository.findByEmail(requestDto.getEmail());
         if (receiver != null) {
-            /**
-             * Todo 알림 구현
-             */
+            notificationService.notify(sender, receiver, "팀 초대", "팀 초대 메시지", NotificationType.USER, null);
         }
     }
 

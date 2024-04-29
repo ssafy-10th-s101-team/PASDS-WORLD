@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import world.pasds.back.common.dto.KmsDecryptionKeysRequestDto;
 import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
+import world.pasds.back.common.dto.KmsReEncryptionKeysDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.AesUtil;
@@ -72,5 +73,11 @@ public class KeyService {
 
     public String getPrevJwtSecretKey() {
         return (String) redisTemplate.opsForValue().get("prevJwtSecretKey");
+    }
+
+    public KmsReEncryptionKeysDto reEncrypt(KmsReEncryptionKeysDto requestDto){
+        ResponseEntity<KmsReEncryptionKeysDto> response = restTemplate
+                .postForEntity(KMS_URL + "/reencrypt-key", requestDto, KmsReEncryptionKeysDto.class);
+        return response.getBody();
     }
 }

@@ -1,13 +1,17 @@
 package world.pasds.back.team.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import world.pasds.back.common.dto.KmsReEncryptionKeysDto;
 import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberOrganization;
@@ -32,11 +36,13 @@ import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TeamService {
 
     private final MemberRepository memberRepository;
@@ -46,6 +52,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final OrganizationRepository organizationRepository;
     private final InvitationService invitationService;
+    private final KeyService keyService;
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final AuthorityRepository authorityRepository;
@@ -300,5 +307,42 @@ public class TeamService {
 
         team.setName(requestDto.getNewName());
         teamRepository.save(team);
+    }
+
+
+    @Async
+    @Transactional
+    public void refreshByMasterKey(){
+
+        //team 목록 가져오기..
+        Long startId = 0L;
+        Long endId = 1000L;
+        while(true) {
+            List<Team> teams = teamRepository.findByIdBetween(startId, endId);
+            if (!teams.isEmpty()) {
+                for(Team team : teams){
+
+                    //team에서 encryptedDataKey, encryptedIvKey 가져오기.
+                    KmsReEncryptionKeysDto requestDto = new KmsReEncryptionKeysDto();
+                    requestDto.setEncryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()));
+                    requestDto.setEncryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()));
+
+                    //data key 재암호화 요청.
+                    KmsReEncryptionKeysDto responseDto = keyService.reEncrypt(requestDto);
+
+                    //재암호화된 data key들 갱신
+                    team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
+                    team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+                    teamRepository.save(team);
+
+                    //로그 찍기
+                    log.info("member {}'s TeamDataKey re-encrypted", team.getId());
+                }
+                startId = endId;
+                endId += 1000L;
+            } else {
+                break;
+            }
+        }
     }
 }

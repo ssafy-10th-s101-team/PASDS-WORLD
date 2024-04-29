@@ -12,4 +12,6 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     List<Team> findAllByOrganization(Organization organization);
 
     Boolean existsByOrganizationAndName(Organization organization, String name);
+
+    List<Team> findByIdBetween(Long startId, Long endId);
 }

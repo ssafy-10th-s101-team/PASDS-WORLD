@@ -11,6 +11,9 @@ public enum ExceptionCode {
     EMAIL_NOT_FOUND(404, "Email not found"),
     EMAIL_INVALID_FORMAT(400, "Email invalid format"),
 
+    EMAIL_CODE_NOT_SAME(409, "Email code not same"),
+    EMAIL_CODE_GENERATION_ERROR(500,"Email code generation error"),
+
     PASSWORD_SAME(409, "Password is same as before"),
     PASSWORD_INVALID_FORMAT(400, "Password invalid format"),
     PASSWORD_CONFIRM_INVALID(400, "Password confirm invalid"),
@@ -51,11 +54,7 @@ public enum ExceptionCode {
     ROLE_NOT_FOUND(404, "Role not found"),
     ROLE_EXISTS(409, "Role exists"),
 
-
-
-
     INTERNAL_SERVER_ERROR(500,"Something wrong in server");
-
 
     @Getter
     private int status;

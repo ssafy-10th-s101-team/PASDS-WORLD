@@ -1,7 +1,7 @@
 <template>
   <BaseModal modalId="organizationTeamManagementModal">
     <!-- 버튼 -->
-    <div class="max-w-2xl mx-auto flex justify-start pl-6">
+    <div class="max-w-2xl mx-auto flex justify-start justify-between px-6">
       <div class="max-w-lg">
         <div class="inline-flex shadow-sm rounded-md mt-5" role="group">
           <button
@@ -20,6 +20,9 @@
             팀 정보
           </button>
         </div>
+      </div>
+      <div v-if="currentTab === 'info'" class="mt-5" @click="openInviteModal">
+        <BaseButton buttonText="초대" />
       </div>
     </div>
     <!-- 버튼 끝 -->
@@ -103,11 +106,11 @@
             id="dropdownMember"
           >
             <!-- <div class="px-4 py-3">
-              <span class="block text-sm">Bonnie Green</span>
-              <span class="block text-sm font-medium text-gray-900 truncate"
-                >name@flowbite.com</span
-              >
-            </div> -->
+                <span class="block text-sm">Bonnie Green</span>
+                <span class="block text-sm font-medium text-gray-900 truncate"
+                  >name@flowbite.com</span
+                >
+              </div> -->
             <ul class="py-1" aria-labelledby="dropdown">
               <li>
                 <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
@@ -166,11 +169,11 @@
             id="dropdownRole"
           >
             <!-- <div class="px-4 py-3">
-              <span class="block text-sm">Bonnie Green</span>
-              <span class="block text-sm font-medium text-gray-900 truncate"
-                >name@flowbite.com</span
-              >
-            </div> -->
+                <span class="block text-sm">Bonnie Green</span>
+                <span class="block text-sm font-medium text-gray-900 truncate"
+                  >name@flowbite.com</span
+                >
+              </div> -->
             <ul class="py-1" aria-labelledby="dropdown">
               <li>
                 <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2">역할</a>
@@ -203,31 +206,31 @@
       </button>
 
       <!-- <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-    Not registered?
-    <a href="#" class="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
-</div> -->
+      Not registered?
+      <a href="#" class="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
+  </div> -->
     </form>
   </BaseModal>
 
   <!-- + 기호 -->
   <!-- <div>
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 16 16"
-    fill="currentColor"
-    class="w-3 h-3"
-  >
-    <path
-      d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"
-    />
-  </svg>
-</div> -->
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      class="w-3 h-3"
+    >
+      <path
+        d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"
+      />
+    </svg>
+  </div> -->
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import BaseModal from './BaseModal.vue'
-import BaseInputTextField from './BaseInputTextField.vue'
+import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
 const teamName = ref('현재 팀 이름')

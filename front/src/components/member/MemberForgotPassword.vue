@@ -10,13 +10,13 @@
           <BaseButton buttonText="송신" />
         </div>
       </div>
-      <div id="OTP" class="invisible grid gap-6 mb-6 lg:grid-cols-2">
+      <div id="OTP" class="hidden grid gap-6 mb-6 lg:grid-cols-2">
         <BaseInputTextField inputText="OTP 인증" placeHolder="이메일로 받은 코드를 입력하세요" />
         <div class="flex items-end justify-start" @click="showOTPAlert">
           <BaseButton buttonText="확인" />
         </div>
       </div>
-      <div id="password" class="invisible grid gap-6 mb-6 lg:grid-cols-1">
+      <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
             >비밀번호</label
@@ -76,6 +76,9 @@ import BaseAlert from '../common/BaseAlert.vue'
 import BaseInputTextField from '../common/BaseInputTextField.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { ref } from 'vue'
+import { useCommonStore } from '@/stores/common'
+const commonStore = useCommonStore()
+const { removeHidden } = commonStore
 
 // alert toggle
 const EmailAlert = ref(false)
@@ -85,18 +88,16 @@ const showEmailAlert = () => {
   setTimeout(() => {
     EmailAlert.value = false
   }, 3000)
-  makeVisible('OTP')
+  removeHidden('OTP')
 }
 const showOTPAlert = () => {
   OTPAlert.value = true
   setTimeout(() => {
     OTPAlert.value = false
   }, 3000)
-  makeVisible('password')
+  removeHidden('password')
 }
-const makeVisible = (id) => {
-  document.getElementById(id).classList.remove('invisible')
-}
+
 // password check
 const password = ref('')
 const password2 = ref('')

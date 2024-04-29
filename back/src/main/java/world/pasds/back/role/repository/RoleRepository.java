@@ -13,4 +13,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     List<Role> findAllByTeam(Team team);
 
     boolean existsByTeamAndName(Team team, String name);
+
+    Role findByTeamAndName(Team team, String name);
 }

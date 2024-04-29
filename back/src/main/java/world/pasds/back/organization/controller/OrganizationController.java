@@ -5,10 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
-import world.pasds.back.organization.entity.dto.request.CreateOrganizationRequestDto;
-import world.pasds.back.organization.entity.dto.request.DeleteOrganizationRequestDto;
-import world.pasds.back.organization.entity.dto.request.InviteMemberToOrganizationRequestDto;
-import world.pasds.back.organization.entity.dto.request.RemoveMemberFromOrganizationRequestDto;
+import world.pasds.back.organization.entity.dto.request.*;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
 import world.pasds.back.organization.service.OrganizationService;
 
@@ -33,6 +30,12 @@ public class OrganizationController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/rename")
+    public ResponseEntity<?> renameOrganization(@RequestBody RenameOrganizationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        organizationService.renameOrganization(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/delete")
     public ResponseEntity<?> deleteOrganization(@RequestBody DeleteOrganizationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         organizationService.deleteOrganization(requestDto, userDetails.getMemberId());
@@ -48,6 +51,18 @@ public class OrganizationController {
     @PostMapping("/remove")
     public ResponseEntity<?> removeMemberFromOrganization(@RequestBody RemoveMemberFromOrganizationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         organizationService.removeMemberFromOrganization(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/leave")
+    public ResponseEntity<?> leaveTeam(@RequestBody LeaveOrganizationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        organizationService.leaveTeam(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/assign")
+    public ResponseEntity<?> assignNewHeader(@RequestBody AssignNewHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        organizationService.assignNewHeader(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

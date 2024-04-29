@@ -8,17 +8,20 @@ import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberOrganization;
+import world.pasds.back.member.entity.MemberRole;
 import world.pasds.back.member.entity.MemberTeam;
 import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
+import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
+import world.pasds.back.notification.entity.NotificationType;
+import world.pasds.back.notification.service.NotificationService;
 import world.pasds.back.organization.entity.Organization;
-import world.pasds.back.organization.entity.dto.request.CreateOrganizationRequestDto;
-import world.pasds.back.organization.entity.dto.request.DeleteOrganizationRequestDto;
-import world.pasds.back.organization.entity.dto.request.InviteMemberToOrganizationRequestDto;
-import world.pasds.back.organization.entity.dto.request.RemoveMemberFromOrganizationRequestDto;
+import world.pasds.back.organization.entity.dto.request.*;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
 import world.pasds.back.organization.repository.OrganizationRepository;
+import world.pasds.back.role.entity.Role;
+import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.repository.TeamRepository;
 
@@ -35,6 +38,9 @@ public class OrganizationService {
     private final TeamRepository teamRepository;
     private final InvitationService invitationService;
     private final MemberTeamRepository memberTeamRepository;
+    private final MemberRoleRepository memberRoleRepository;
+    private final RoleRepository roleRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void createOrganization(CreateOrganizationRequestDto requestDto, Long memberId) {
@@ -52,6 +58,10 @@ public class OrganizationService {
                 .member(findMember)
                 .build();
         memberOrganizationRepository.save(mo);
+
+        /**
+         * Todo: 조직 생성시 MY TEAM 자동 생성
+         */
     }
 
     @Transactional
@@ -63,9 +73,10 @@ public class OrganizationService {
 
     @Transactional
     public void deleteOrganization(DeleteOrganizationRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
-        if (findOrganization.getHeader().getId() != memberId) {
+        if (findOrganization.getHeader().equals(member)) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
@@ -74,6 +85,7 @@ public class OrganizationService {
         organizationRepository.delete(findOrganization);
     }
 
+    @Transactional
     public void inviteMemberToOrganization(InviteMemberToOrganizationRequestDto requestDto, Long memberId) {
         Member sender = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
@@ -86,12 +98,11 @@ public class OrganizationService {
 
         Member receiver = memberRepository.findByEmail(requestDto.getEmail());
         if (receiver != null) {
-            /**
-             * Todo 알림 구현
-             */
+            notificationService.notify(sender, receiver, "팀 초대", "팀 초대 메시지", NotificationType.USER, null);
         }
     }
 
+    @Transactional
     public void removeMemberFromOrganization(RemoveMemberFromOrganizationRequestDto requestDto, Long memberId) {
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
@@ -116,5 +127,83 @@ public class OrganizationService {
             MemberTeam findTeamMember = memberTeamRepository.findByMemberAndTeam(removeMember, team);
             memberTeamRepository.delete(findTeamMember);
         }
+    }
+
+    @Transactional
+    public void leaveTeam(LeaveOrganizationRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 조직장은 떠나기가 없음, 조직해체만 가능
+        if (organization.getHeader().equals(member)) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        }
+        List<Team> teamList = teamRepository.findAllByOrganization(organization);
+
+        for (Team team : teamList) {
+            MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);
+            MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(member, team);
+            if (findMemberAndTeam != null) {
+                memberTeamRepository.delete(findMemberAndTeam);
+            }
+
+            if (findMemberAndRole != null) {
+                memberRoleRepository.delete(findMemberAndRole);
+            }
+        }
+        MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, organization);
+        memberOrganizationRepository.delete(findMemberAndOrganization);
+    }
+
+    @Transactional
+    public void renameOrganization(RenameOrganizationRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 조직명 변경은 조직장만 가능
+        if (!organization.getHeader().equals(member)) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        }
+
+        if (organization.getName().equals(requestDto.getNewName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
+        organization.setName(requestDto.getNewName());
+        organizationRepository.save(organization);
+    }
+
+    @Transactional
+    public void assignNewHeader(AssignNewHeaderRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member newHeader = memberRepository.findById(requestDto.getNewHeaderId()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 조직장 위임은 조직장만 가능
+        if (!organization.getHeader().equals(member)) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        }
+
+        MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(newHeader, organization);
+        // 조직장 위임은 현재 우리 조직원에게만 가능
+        if (findMemberAndOrganization == null) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_MEMBER_NOT_FOUND);
+        }
+
+        // 기존 조직장은 모든 팀에서 "GUEST"로 변경
+        // 새로운 조직장은 모든 팀에서 "HEADER"로 변경
+        List<Team> teamList = teamRepository.findAllByOrganization(organization);
+        for (Team team : teamList) {
+            Role guest = roleRepository.findByTeamAndName(team, "GUEST");
+            Role header = roleRepository.findByTeamAndName(team, "HEADER");
+            MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(member, team);
+            MemberRole findNewHeaderAndRole = memberRoleRepository.findByMemberAndTeam(newHeader, team);
+            findMemberAndRole.setRole(guest);
+            findNewHeaderAndRole.setRole(header);
+
+            memberRoleRepository.save(findMemberAndRole);
+            memberRoleRepository.save(findNewHeaderAndRole);
+        }
+
     }
 }

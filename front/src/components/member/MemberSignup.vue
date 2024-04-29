@@ -44,10 +44,10 @@
             placeholder="•••••••••"
             required
           />
-          <div v-if="!password || !isPasswordValid" class="text-red-500 text-sm">
-            대소문자, 특수기호, 숫자를 포함한 10자리 이상이어야 합니다.
+          <div v-if="password.length == 0 || !isPasswordValid" class="text-red-500 text-sm">
+            대소문자, 특수기호, 숫자를 포함한 10자리 이상이어야 합니다
           </div>
-          <div v-else class="text-green-500 text-sm">비밀번호가 정상입니다</div>
+          <div v-else class="text-green-500 text-sm">비밀번호가 유효합니다</div>
         </div>
 
         <!-- 비밀번호 확인 입력 필드 -->
@@ -65,11 +65,9 @@
             required
           />
           <div v-if="!isPasswordSame && confirmPassword" class="text-red-500 text-sm">
-            비밀번호가 일치하지 않습니다.
+            비밀번호가 일치하지 않습니다
           </div>
-          <div v-else-if="isPasswordSame" class="text-green-500 text-sm">
-            비밀번호가 일치합니다.
-          </div>
+          <div v-else-if="isPasswordSame" class="text-green-500 text-sm">비밀번호가 일치합니다</div>
         </div>
 
         <!-- 닉네임 입력 필드 -->
@@ -86,10 +84,10 @@
             placeholder="홍길동"
             required
           />
-          <div v-if="!nickname || !isNicknameValid" class="text-red-500 text-sm">
-            2자리 이상 20자리 이하이어야 합니다.
+          <div v-if="!isNicknameValid" class="text-red-500 text-sm">
+            2자리 이상 20자리 이하이어야 합니다
           </div>
-          <div v-else class="text-green-500 text-sm">올바른 닉네임입니다</div>
+          <div v-else class="text-green-500 text-sm">닉네임이 유효합니다</div>
         </div>
       </div>
       <div class="flex justify-center">
@@ -107,31 +105,32 @@
 <script setup>
 import { ref } from 'vue'
 import { useMemberStore } from '../../stores/member'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { localAxios } from '../../utils/http-commons.js'
-
-const email = ref('')
-const emailVerified = ref(false)
-
-const password = ref('')
-const isPasswordValid = ref(true)
-
-const confirmPassword = ref('')
-const isPasswordSame = ref(false)
-
-const nickname = ref('')
-const isNicknameValid = ref(false)
 
 const memberStore = useMemberStore()
 const router = useRouter()
 
-const handleEmailVerification = () => {
-  console.log('Email for verification:', email.value)
-  emailVerified.value = true // 이메일 인증 성공 시 필드 비활성화
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const nickname = ref('')
+
+const emailVerified = ref(false)
+const isPasswordValid = ref(true)
+const isPasswordSame = ref(false)
+const isNicknameValid = ref(false)
+
+const handleEmailVerification = async () => {
+  try {
+    emailVerified.value = true // 임시로 설정
+  } catch (error) {
+    alert('이메일 인증에 실패했습니다.')
+  }
 }
 
 const validatePassword = () => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{10,}$/
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/
   isPasswordValid.value = regex.test(password.value)
 }
 
@@ -145,6 +144,10 @@ const validateNickname = () => {
 }
 
 const submitForm = async function () {
+  if (!emailVerified.value) {
+    alert('이메일 인증이 필요합니다.')
+    return
+  }
   try {
     const body = {
       email: email.value,
@@ -152,18 +155,8 @@ const submitForm = async function () {
       confirmPassword: confirmPassword.value,
       nickname: nickname.value
     }
-
     const response = await localAxios.post(`/member/signup`, body)
-
-    console.log(response)
-    console.log(response.data)
-    console.log(response.data.tmp)
-
-    // Save tmp to the store and navigate
     memberStore.tmp = response.data.tmp
-
-    console.log(memberStore.tmp)
-
     router.push({ name: 'memberSignup2' })
   } catch (error) {
     alert(error.response.data.message)

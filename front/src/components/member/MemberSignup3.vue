@@ -1,9 +1,14 @@
 <template>
   <div class="flex justify-center items-center h-screen bg-white">
     <div class="text-center">
-      <img src="@/assets/images/pasdsworld_v1_qr.png" alt="QR Code" class="mx-auto" />
+      <img src="@/assets/images/secret_key_qr_example.png" alt="QR Code" class="mx-auto" />
+      <div>
+        "MemberSignup.vue에서 response로 받아서 member.js Store에 넣어둔 totpKey QR코드 사진
+        들이밀기"
+      </div>
+      <div>memberStore.tmp 는 지금 -> {{ memberStore.tmp }}</div>
       <h2 class="text-lg font-semibold text-gray-800 mt-4">
-        QR 코드를 스캔하여 본인 인증 앱을 다운로드하세요
+        앱에서 QR 코드를 스캔하여 앱을 연동하세요
       </h2>
       <button
         @click="goToNextStep"
@@ -16,12 +21,15 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useMemberStore } from '../../stores/member'
 
 const router = useRouter()
+const memberStore = useMemberStore()
 
 function goToNextStep() {
-  router.push({ name: 'memberSignup3' })
+  router.push({ name: 'memberSignup4' })
 }
 </script>
 

@@ -56,7 +56,7 @@ public class InvitationService {
                 .organization(organization)
                 .build();
         invitationRepository.save(invitation);
-        emailService.sendSimpleMessage(receiverEmail,
+        emailService.sendMessage(receiverEmail,
                 "Invite to " + organization.getName(),
                 "From " + sender.getNickname() + "(" + sender.getEmail() + ")" + " invite to " + organization.getName() + "\n" + DOMAIN);
     }
@@ -71,7 +71,7 @@ public class InvitationService {
                 .team(team)
                 .build();
         invitationRepository.save(invitation);
-        emailService.sendSimpleMessage(receiverEmail,
+        emailService.sendMessage(receiverEmail,
                 "Invite to " + organization.getName() + " " + team.getName(),
                 "From " + sender.getNickname() + "(" + sender.getEmail() + ")" + " invite to " + organization.getName() + " " + team.getName() + "\n" + DOMAIN + "\n" + "초대받은 이메일로 회원가입을 진행해주세요.");
     }

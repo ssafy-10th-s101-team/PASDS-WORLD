@@ -1,6 +1,6 @@
 <template>
   <!-- This is an example component -->
-  <div class="max-w-2xl mx-auto">
+  <div class="max-w-2xl mx-auto p-16">
     <!-- <div class="max-w-2xl mx-auto"> -->
     <div
       class="bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
@@ -17,14 +17,16 @@
         </button>
         <div class="flex justify-between text-sm text-gray-500 dark:text-gray-300">
           <router-link
-            to="/signup"
+            :to="{ name: 'memberSignup' }"
             class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
           >
             회원가입</router-link
           >
 
-          <a href="#" class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-            >비밀번호 찾기</a
+          <router-link
+            :to="{ name: 'memberForgotPassword' }"
+            class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
+            >비밀번호 찾기</router-link
           >
         </div>
       </form>

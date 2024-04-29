@@ -3,15 +3,17 @@
     <form
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">회원가입</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 찾기</h3>
       <div class="grid gap-6 mb-6 lg:grid-cols-2">
         <BaseInputTextField inputText="e-mail" placeHolder="name@domain.com" />
         <div class="flex items-end justify-start">
-          <button>
+          <button @click="toggleHidden('OTP')">
             <BaseButton buttonText="이메일 인증" />
           </button>
         </div>
-
+        <div id="OTP" class="hidden">
+          <input type="text" v-model="otp" @input="limitToSixDigits" />
+        </div>
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
             >비밀번호</label
@@ -51,15 +53,13 @@
             비밀번호가 일치합니다.
           </div>
         </div>
-
-        <BaseInputTextField inputText="닉네임" placeHolder="홍길동" />
       </div>
       <div class="flex justify-center">
         <button
           type="submit"
           class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
-          회원가입
+          비밀번호 변경
         </button>
       </div>
     </form>
@@ -71,11 +71,19 @@ import BaseInputPasswordField from '../common/BaseInputPasswordField.vue'
 import BaseInputTextField from '../common/BaseInputTextField.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { ref } from 'vue'
+import { useCommonStore } from '@/stores/common'
+const otp = ref('')
 
+// 숫자가 아닌 문자를 제거하고, 최대 6자리까지만 유지하는 함수
+const limitToSixDigits = () => {
+  otp.value = otp.value.replace(/\D/g, '').slice(0, 6)
+}
 const password = ref('')
 const password2 = ref('')
 const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const validatePassword = (event) => {
   event.preventDefault()
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/

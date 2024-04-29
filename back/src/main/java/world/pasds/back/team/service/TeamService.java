@@ -229,4 +229,76 @@ public class TeamService {
         MemberRole removeMemberRole = memberRoleRepository.findByMemberAndTeam(removeMember, team);
         memberRoleRepository.delete(removeMemberRole);
     }
+
+    @Transactional
+    public void leaveTeam(LeaveTeamRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 팀장은 떠나기가 없음, 팀해체만 가능
+        if (team.getHeader().equals(member)) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        // 팀원인지 확인
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);
+        if (findMemberAndTeam == null) {
+            throw new BusinessException(ExceptionCode.TEAM_MEMBER_NOT_FOUND);
+        }
+        memberTeamRepository.delete(findMemberAndTeam);
+        MemberRole removeMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        memberRoleRepository.delete(removeMemberRole);
+    }
+
+    @Transactional
+    public void assignNewHeader(AssignNewTeamHeaderRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member newHeader = memberRepository.findById(requestDto.getNewHeaderId()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 팀장 위임은 팀장만 가능
+        if (!team.getHeader().equals(member)) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(newHeader, team);
+        // 팀장 위임은 현재 우리 팀원에게만 가능
+        if (findMemberAndTeam == null) {
+            throw new BusinessException(ExceptionCode.TEAM_MEMBER_NOT_FOUND);
+        }
+        Role guest = roleRepository.findByTeamAndName(team, "GUEST");
+        Role header = roleRepository.findByTeamAndName(team, "HEADER");
+        MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        MemberRole findNewHeaderAndRole = memberRoleRepository.findByMemberAndTeam(newHeader, team);
+        findMemberAndRole.setRole(guest);
+        findNewHeaderAndRole.setRole(header);
+
+        memberRoleRepository.save(findMemberAndRole);
+        memberRoleRepository.save(findNewHeaderAndRole);
+    }
+
+    @Transactional
+    public void renameTeam(RenameTeamRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 팀명 변경은 팀장만 가능
+        if (!team.getHeader().equals(member)) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        List<Team> teamList = teamRepository.findAllByOrganization(team.getOrganization());
+        for (Team t : teamList) {
+            if (t.getName().equals(requestDto.getNewName())) {
+                throw new BusinessException(ExceptionCode.TEAM_NAME_CONFLICT);
+            }
+        }
+
+        if (team.getName().equals(requestDto.getNewName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
+        team.setName(requestDto.getNewName());
+        teamRepository.save(team);
+    }
 }

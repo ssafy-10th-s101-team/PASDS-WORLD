@@ -1,10 +1,7 @@
 package world.pasds.back.team.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import world.pasds.back.common.BaseEntity;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.organization.entity.Organization;
@@ -29,6 +26,7 @@ public class Team extends BaseEntity {
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+    @Setter
     private String name;
 
     private Integer roleCount;

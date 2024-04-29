@@ -6,14 +6,17 @@
       <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 찾기</h3>
       <div class="grid gap-6 mb-6 lg:grid-cols-2">
         <BaseInputTextField inputText="e-mail" placeHolder="name@domain.com" />
-        <div class="flex items-end justify-start">
-          <button @click="toggleHidden('OTP')">
-            <BaseButton buttonText="이메일 인증" />
-          </button>
+        <div class="flex items-end justify-start" @click="showEmailAlert">
+          <BaseButton buttonText="송신" />
         </div>
-        <div id="OTP" class="hidden">
-          <input type="text" v-model="otp" @input="limitToSixDigits" />
+      </div>
+      <div id="OTP" class="invisible grid gap-6 mb-6 lg:grid-cols-2">
+        <BaseInputTextField inputText="OTP 인증" placeHolder="이메일로 받은 코드를 입력하세요" />
+        <div class="flex items-end justify-start" @click="showOTPAlert">
+          <BaseButton buttonText="확인" />
         </div>
+      </div>
+      <div id="password" class="invisible grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
             >비밀번호</label
@@ -53,37 +56,52 @@
             비밀번호가 일치합니다.
           </div>
         </div>
-      </div>
-      <div class="flex justify-center">
-        <button
-          type="submit"
-          class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          비밀번호 변경
-        </button>
+        <div class="flex justify-center">
+          <button
+            type="submit"
+            class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            비밀번호 변경
+          </button>
+        </div>
       </div>
     </form>
+    <baseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요" v-if="EmailAlert" />
+    <baseAlert alertText="인증되었습니다" v-if="OTPAlert" />
   </div>
 </template>
 
 <script setup>
-import BaseInputPasswordField from '../common/BaseInputPasswordField.vue'
+import BaseAlert from '../common/BaseAlert.vue'
 import BaseInputTextField from '../common/BaseInputTextField.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { ref } from 'vue'
-import { useCommonStore } from '@/stores/common'
-const otp = ref('')
 
-// 숫자가 아닌 문자를 제거하고, 최대 6자리까지만 유지하는 함수
-const limitToSixDigits = () => {
-  otp.value = otp.value.replace(/\D/g, '').slice(0, 6)
+// alert toggle
+const EmailAlert = ref(false)
+const OTPAlert = ref(false)
+const showEmailAlert = () => {
+  EmailAlert.value = true
+  setTimeout(() => {
+    EmailAlert.value = false
+  }, 3000)
+  makeVisible('OTP')
 }
+const showOTPAlert = () => {
+  OTPAlert.value = true
+  setTimeout(() => {
+    OTPAlert.value = false
+  }, 3000)
+  makeVisible('password')
+}
+const makeVisible = (id) => {
+  document.getElementById(id).classList.remove('invisible')
+}
+// password check
 const password = ref('')
 const password2 = ref('')
 const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
-const commonStore = useCommonStore()
-const { toggleHidden } = commonStore
 const validatePassword = (event) => {
   event.preventDefault()
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/

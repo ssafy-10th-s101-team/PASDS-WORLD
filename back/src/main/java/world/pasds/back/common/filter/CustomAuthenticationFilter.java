@@ -95,7 +95,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         // 성공 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String temporaryJwtToken = jwtTokenProvider.generateTemporaryToken(customUserDetails.getMemberId());
-        cookieProvider.addCookie(response, "TEMPORARY", temporaryJwtToken);
+        cookieProvider.addCookie(response, TEMPORARY_TOKEN, temporaryJwtToken);
 
         respondWithText(response, customUserDetails.getNickname(), HttpServletResponse.SC_OK);
     }
@@ -137,8 +137,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private void handleLogout(HttpServletResponse response) throws IOException {
 
         // TODO: Redis 토큰 삭제 로직
-        cookieProvider.removeCookie(response, "ACCESS");
-        cookieProvider.removeCookie(response, "REFRESH");
+        cookieProvider.removeCookie(response, ACCESS_TOKEN);
+        cookieProvider.removeCookie(response, REFRESH_TOKEN);
         respondWithText(response, "Logged out successfully", HttpServletResponse.SC_OK);
     }
 

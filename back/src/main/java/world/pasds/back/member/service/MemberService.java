@@ -59,6 +59,11 @@ public class MemberService {
 
         // TODO: 하은 TOTP
 
+        SignupResponseDto signupResponseDto = SignupResponseDto
+                .builder()
+                .tmp("123456")
+                .build();
+
         // 비밀번호 암호화하여 저장
         String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
         Member newMember = new Member().builder()
@@ -72,7 +77,8 @@ public class MemberService {
          * 회원가입시 받은 초대 모두 가입시키기
          */
 //        invitationService.checkInvitation(newMember, signupRequestDto.getEmail());
-        return new SignupResponseDto();
+
+        return signupResponseDto;
 
     }
 }

@@ -50,7 +50,7 @@ public class TotpController {
 	}
 
 	@PostMapping("/email-verification-requests")
-	public ResponseEntity<?> sendCodeToEmail(@RequestBody @Valid @Email String email) {
+	public ResponseEntity<?> sendCodeToEmail(@RequestBody String email) {
 		// todo memberService layer 에서 호출
 		totpService.sendCodeToEmail(email);
 		return ResponseEntity.ok().build();

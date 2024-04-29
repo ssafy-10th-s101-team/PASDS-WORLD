@@ -1,10 +1,14 @@
 package world.pasds.back.team.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import world.pasds.back.common.dto.KmsReEncryptionKeysDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberOrganization;
@@ -14,6 +18,7 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.repository.OrganizationRepository;
+import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.*;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
@@ -21,10 +26,12 @@ import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TeamService {
 
     private final MemberRepository memberRepository;
@@ -33,7 +40,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final OrganizationRepository organizationRepository;
     private final InvitationService invitationService;
-
+    private final KeyService keyService;
     @Transactional
     public List<GetTeamsResponseDto> getTeams(GetTeamsRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -129,5 +136,42 @@ public class TeamService {
         }
         MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(findMember, team);
         memberTeamRepository.delete(findMemberAndTeam);
+    }
+
+
+    @Async
+    @Transactional
+    public void refreshByMasterKey(){
+
+        //team 목록 가져오기..
+        Long startId = 0L;
+        Long endId = 1000L;
+        while(true) {
+            List<Team> teams = teamRepository.findByIdBetween(startId, endId);
+            if (!teams.isEmpty()) {
+                for(Team team : teams){
+
+                    //team에서 encryptedDataKey, encryptedIvKey 가져오기.
+                    KmsReEncryptionKeysDto requestDto = new KmsReEncryptionKeysDto();
+                    requestDto.setEncryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()));
+                    requestDto.setEncryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()));
+
+                    //data key 재암호화 요청.
+                    KmsReEncryptionKeysDto responseDto = keyService.reEncrypt(requestDto);
+
+                    //재암호화된 data key들 갱신
+                    team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
+                    team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+                    teamRepository.save(team);
+
+                    //로그 찍기
+                    log.info("member {}'s TeamDataKey re-encrypted", team.getId());
+                }
+                startId = endId;
+                endId += 1000L;
+            } else {
+                break;
+            }
+        }
     }
 }

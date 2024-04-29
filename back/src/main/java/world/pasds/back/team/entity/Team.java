@@ -1,10 +1,7 @@
 package world.pasds.back.team.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import world.pasds.back.common.BaseEntity;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.organization.entity.Organization;
@@ -35,9 +32,11 @@ public class Team extends BaseEntity {
 
     private Integer secretCount;
 
+    @Setter
     @Column(length = 32, columnDefinition = "BINARY(32)")
     private byte[] encryptedDataKey;
 
+    @Setter
     @Column(length = 32, columnDefinition = "BINARY(32)")
     private byte[] encryptedIv;
 

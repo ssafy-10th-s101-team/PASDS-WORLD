@@ -7,7 +7,7 @@
     >
       <form class="space-y-6" action="#">
         <h3 class="text-xl text-gray-900 dark:text-white">로그인</h3>
-        <BaseInputTextField inputText="e-mail" placeHolder="name@domain.com" />
+        <BaseInputTextField inputText="email" placeHolder="name@domain.com" />
         <BaseInputPasswordField />
         <button
           type="submit"

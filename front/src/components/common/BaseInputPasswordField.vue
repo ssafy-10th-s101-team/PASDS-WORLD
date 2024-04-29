@@ -57,7 +57,7 @@
 
     <div v-else>
       <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-        >Password</label
+        >password</label
       >
       <input
         type="password"

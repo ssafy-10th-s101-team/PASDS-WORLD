@@ -60,13 +60,13 @@ public class MemberService {
         // TODO: 하은 TOTP
 
         // 비밀번호 암호화하여 저장
-//        String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
-//        Member newMember = new Member().builder()
-//                .email(signupRequestDto.getEmail())
-//                .password(encryptedPassword)
-//                .nickname(signupRequestDto.getNickname())
-//                .build();
-//        memberRepository.save(newMember);
+        String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
+        Member newMember = new Member().builder()
+                .email(signupRequestDto.getEmail())
+                .password(encryptedPassword)
+                .nickname(signupRequestDto.getNickname())
+                .build();
+        memberRepository.save(newMember);
 
         /**
          * 회원가입시 받은 초대 모두 가입시키기

@@ -15,7 +15,7 @@ public enum ExceptionCode {
     PASSWORD_INVALID_FORMAT(400, "Password invalid format"),
     PASSWORD_CONFIRM_INVALID(400, "Password confirm invalid"),
 
-    NICKNAME_INVALID_FORMAT(400,"Nickname invalid format"),
+    NICKNAME_INVALID_FORMAT(400, "Nickname invalid format"),
 
     ORGANIZATION_NOT_FOUND(404, "Organization not found"),
     ORGANIZATION_UNAUTHORIZED(401, "Unauthorized organization control"),
@@ -28,22 +28,34 @@ public enum ExceptionCode {
     PRIVATE_DATA_UNAUTHORIZED(401, "Unauthorized PrivateData control"),
     PRIVATE_DATA_NOT_FOUND(404, "PrivateData not found"),
 
+
+    BAD_REQUEST(400, "Bad Request"),
+    FORBIDDEN(503, "Forbidden"),
+
+    TEAM_NAME_CONFLICT(403, "Team name already exists"),
+
+    JWT_EXPIRED(401, "Expired JWT token"),
+    JWT_UNSUPPORTED(404, "Unsupported JWT token"),
+    JWT_MALFORMED(404, "Invalid JWT token"),
+    JWT_SIGNATURE(404, "Invalid JWT signature"),
+    JWT_ARGUMENT(404, "JWT claims string is empty"),
+
     KEY_ERROR(500,"key error"),
 
     TOTP_CODE_GENERATION_ERROR(500,"Totp code generation error"),
 
     TOTP_CODE_NOT_SAME(409, "Totp code not same"),
 
-    BAD_REQUEST(400, "Bad Request"),
-    FORBIDDEN(503, "Forbidden"),
+
 
     ROLE_NOT_FOUND(404, "Role not found"),
     ROLE_EXISTS(409, "Role exists"),
 
 
-    TEAM_NAME_CONFLICT(403, "Team name already exists"),
+
 
     INTERNAL_SERVER_ERROR(500,"Something wrong in server");
+
 
     @Getter
     private int status;

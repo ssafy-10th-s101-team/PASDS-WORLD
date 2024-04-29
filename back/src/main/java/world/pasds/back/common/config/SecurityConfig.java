@@ -1,53 +1,84 @@
-    package world.pasds.back.common.config;
+package world.pasds.back.common.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import world.pasds.back.common.filter.CustomAuthenticationFilter;
+import world.pasds.back.common.util.CookieProvider;
+import world.pasds.back.common.util.JwtTokenProvider;
+import world.pasds.back.member.service.CustomUserDetailsService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] AUTH_WHITELIST = {
-            "/app/api/member/signup"
-            , "/app/api/member/test",
-            "/**",
+    // 인증 안거치게 전부 열어 놨습니다 실제로는 "/**" 지우고 서버 운영
+    private static final String[] PUBLIC_ENDPOINTS = {
+            "/app/api/member/test",
+            "/app/api/member/signup",
+            "/**"
     };
 
-// Authentication: 인증: 사용자의 신원을 확인
-// Authorization: 인가: 사용자가 특정 작업을 수행할 권한이 있는지
+    private AntPathRequestMatcher[] getRequestMatchers() {
+        return Arrays.stream(PUBLIC_ENDPOINTS)
+                .map(AntPathRequestMatcher::new)
+                .toArray(AntPathRequestMatcher[]::new);
+    }
 
-// csrf: CSRF 토큰을 요구
-// authorizeHttpRequests: 접근 제어
-// httpBasic: 기본 인증 헤더에 사용자 이름과 비밀번호를 인코딩하여 포함
-// formLogin: 기본 로그인 페이지를 제공
-
-// 설정 순서가 실제 행동 순서가 아니다
-
-// 기본설정들
-// 세션 관리
-// CSRF 보호 활성화
-// 기본 로그인 및 로그아웃 페이지
-// HTTP 기본 인증
-// 접근 제어
-// 정적 리소스의 보안 무시
-// 인증 메커니즘 구성
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public BCryptPasswordEncoder bcryptPasswordEncoder() {
+        // TODO: 숫자 얼마가 제일 안전할까?
+        return new BCryptPasswordEncoder(12);
+    }
+
+    @Bean
+    public AuthenticationManager buildAuthenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
+        auth.userDetailsService(customUserDetailsService)
+                .passwordEncoder(bcryptPasswordEncoder());
+        return auth.build();
+    }
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private CookieProvider cookieProvider;
+
+    @Value("${security.pepper}")
+    private String passwordPepper;
+
+    @Bean
+    public CustomAuthenticationFilter customAuthenticationFilter(AuthenticationManager authenticationManager) {
+        return new CustomAuthenticationFilter(authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper);
+    }
+
+    @Bean
+    public SecurityFilterChain configureSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .sessionManagement((sessionManagement) -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
+                // TODO: 실제서비스에서 CSRF 어떻게 해야하지?
                 .csrf((csrf) -> {
                     csrf.disable();
                 })
@@ -61,48 +92,31 @@ public class SecurityConfig {
                     httpBasic.disable();
                 })
                 .authorizeHttpRequests((authorizeHttpRequests) -> {
-                    authorizeHttpRequests.requestMatchers(AUTH_WHITELIST).permitAll();
+                    authorizeHttpRequests.requestMatchers(PUBLIC_ENDPOINTS).permitAll();
                     authorizeHttpRequests.anyRequest().authenticated();
                 })
                 .cors((cors) -> {
                     cors.configurationSource(corsConfigurationSource());
                 })
-
-                // TODO: JWT 필터
-                // TODO: JWT 필터하고 나서 권한 부여 필터?????
-
+                .addFilterBefore(customAuthenticationFilter(buildAuthenticationManager(http)),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
-    }
-
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        int strength = 12; // 비밀번호 해싱 강도 설정
-        return new BCryptPasswordEncoder(strength);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
+        // TODO: 실제 서비스 도메인 추가 ? kms도 추가???
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173"
-//                "/**"
-        )); // 허용할 오리진
-
-        configuration.setAllowedMethods(List.of("GET", "POST")); // 허용할 HTTP 메서드
-
+                "http://localhost:5173",
+                "https://your-production-site.com"
+        ));
+        configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowCredentials(true);
-        // 이 설정은 브라우저에게 인증 정보(예: 쿠키, HTTP 인증 및 클라이언트 SSL 인증서)와
-        // 함께 요청을 보내도록 허용할지 여부를 지정합니다.
-        // true로 설정하면, 인증 정보를 포함한 요청이 가능합니다.
+        configuration.setAllowedHeaders(List.of("Content-Type"));
 
-        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-
-        // CORS 설정을 URL 패턴에 매핑
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        // 모든 경로에 대해 위에서 정의된 configuration 설정을 적용하겠다
         source.registerCorsConfiguration("/**", configuration);
 
         return source;

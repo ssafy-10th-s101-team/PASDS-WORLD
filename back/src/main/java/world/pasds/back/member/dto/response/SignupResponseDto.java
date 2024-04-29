@@ -4,5 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class SignupResponseDto {
+    // TODO: TOTP key 반환
     private String tmp;
 }

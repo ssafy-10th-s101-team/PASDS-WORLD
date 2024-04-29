@@ -46,7 +46,7 @@ public enum ExceptionCode {
 
     TOTP_CODE_NOT_SAME(409, "Totp code not same"),
 
-
+    NOTIFICATION_NOT_FOUND(404, "Notification not found"),
 
     ROLE_NOT_FOUND(404, "Role not found"),
     ROLE_EXISTS(409, "Role exists"),

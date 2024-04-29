@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -18,6 +20,7 @@ import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.EmailService;
 import world.pasds.back.common.service.KeyService;
 import world.pasds.back.common.util.AesUtil;
 import world.pasds.back.common.dto.KmsDecryptionKeysRequestDto;
@@ -49,11 +53,14 @@ public class TotpService {
 	private final MemberRepository memberRepository;
 	private final TotpRepository totpRepository;
 	private final KeyService keyService;
+	private final EmailService emailService;
 	private final AesUtil aesUtil;
 
-	public byte[] generateSecretKeyQR(Long memberId) throws
-		WriterException,
-		IOException{
+	private static final String AUTH_CODE_PREFIX = "AuthCode ";
+	@Value("${spring.mail.auth-code-expiration-millis}")
+	private long authCodeExpirationMillis;
+
+	public byte[] generateSecretKeyQR(Long memberId) {
 
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -166,6 +173,33 @@ public class TotpService {
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			throw new BusinessException(ExceptionCode.TOTP_CODE_GENERATION_ERROR);
 		}
+	}
+
+	public void validateEmailCode(String email, String authCode) {
+		String redisAuthCode = emailService.getRedisAuthCode(AUTH_CODE_PREFIX + email);
+		if (!emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode)){
+			throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
+		};
+	}
+
+	public void sendCodeToEmail(String toEmail) {
+		String subject = "[PASDSWORLD] 이메일 인증 코드입니다.";
+		String authCode = createCode();
+		// 인증 번호 전송
+		emailService.sendMessage(toEmail, subject, authCode);
+		// 이메일 인증 요청 시 인증 번호 Redis 에 저장 ( key = "AuthCode " + Email / value = AuthCode )
+		emailService.setRedisAuthCode(AUTH_CODE_PREFIX + toEmail,
+			authCode, Duration.ofMillis(authCodeExpirationMillis));
+	}
+
+	private String createCode() {
+		int length = 8;
+		SecureRandom secureRandom = new SecureRandom();
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < length; i++) {
+			sb.append(secureRandom.nextInt(10));
+		}
+		return sb.toString();
 	}
 
 }

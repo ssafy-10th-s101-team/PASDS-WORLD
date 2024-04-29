@@ -2,10 +2,8 @@ package world.pasds.kms.datakey.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import world.pasds.kms.datakey.dto.DecryptionKeysRequestDto;
-import world.pasds.kms.datakey.dto.DecryptionKeysResponseDto;
-import world.pasds.kms.datakey.dto.EncryptionKeysResponseDto;
-import world.pasds.kms.datakey.dto.RegenerateKeysResponseDto;
+import org.springframework.transaction.annotation.Transactional;
+import world.pasds.kms.datakey.dto.*;
 import world.pasds.kms.datakey.model.MasterKeyData;
 import world.pasds.kms.masterkey.service.MasterKeyService;
 import world.pasds.kms.util.AesUtil;
@@ -28,11 +26,12 @@ public class DataKeyService {
         byte[] encryptedDataKey = aesUtil.encrypt(dataKey,masterKey,masterIv);
         byte[] encryptedIv = aesUtil.encrypt(iv,masterKey,masterIv);
 
-        EncryptionKeysResponseDto dto = new EncryptionKeysResponseDto();
-        dto.setDataKey(Base64.getEncoder().encodeToString(dataKey));
-        dto.setIv(Base64.getEncoder().encodeToString(iv));
-        dto.setEncryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey));
-        dto.setEncryptedIv(Base64.getEncoder().encodeToString(encryptedIv));
+        EncryptionKeysResponseDto dto = EncryptionKeysResponseDto.builder()
+                .dataKey(Base64.getEncoder().encodeToString(dataKey))
+                .iv(Base64.getEncoder().encodeToString(iv))
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
 
         return dto;
     }
@@ -45,15 +44,39 @@ public class DataKeyService {
         byte[] dataKey = aesUtil.decrypt(Base64.getDecoder().decode(requestDto.getEncryptedDataKey()),masterKey,masterIv);
         byte[] iv = aesUtil.decrypt(Base64.getDecoder().decode(requestDto.getEncryptedIv()),masterKey,masterIv);
 
-        DecryptionKeysResponseDto dto = new DecryptionKeysResponseDto();
+        DecryptionKeysResponseDto dto = DecryptionKeysResponseDto.builder()
+                .dataKey(Base64.getEncoder().encodeToString(dataKey))
+                .iv(Base64.getEncoder().encodeToString(iv))
+                .build();
 
-        dto.setDataKey(Base64.getEncoder().encodeToString(dataKey));
-        dto.setIv(Base64.getEncoder().encodeToString(iv));
         return dto;
     }
 
-    public RegenerateKeysResponseDto regenerateKey(DecryptionKeysRequestDto requestDto) {
+    public RegenerateKeysResponseDto reGenerateKey(DecryptionKeysRequestDto requestDto) {
         //TODO
         return null;
+    }
+
+    @Transactional
+    public ReEncryptionDto reEncryptKey(ReEncryptionDto requestDto){
+        //MasterKey 가져오기
+        MasterKeyData prevMasterKey = masterKeyService.getPrevMasterKey();
+        MasterKeyData curMasterKey = masterKeyService.getCurMasterKey();
+
+        //prev로 원본 데이터 키 받기
+        byte[] dataKey = aesUtil.decrypt(Base64.getDecoder().decode(requestDto.getEncryptedDataKey()),prevMasterKey.getValue(),prevMasterKey.getIv());
+        byte[] iv = aesUtil.decrypt(Base64.getDecoder().decode(requestDto.getEncryptedIv()),prevMasterKey.getValue(),prevMasterKey.getIv());
+
+        //cur로 다시 암호화하기
+        byte[] encryptedDataKey = aesUtil.encrypt(dataKey, curMasterKey.getValue(),curMasterKey.getIv());
+        byte[] encryptedIv = aesUtil.encrypt(iv, curMasterKey.getValue(),curMasterKey.getIv());
+
+        //reponseDto에 담아서 넣기
+        ReEncryptionDto responseDto = ReEncryptionDto.builder()
+                        .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                        .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                        .build();
+
+        return responseDto;
     }
 }

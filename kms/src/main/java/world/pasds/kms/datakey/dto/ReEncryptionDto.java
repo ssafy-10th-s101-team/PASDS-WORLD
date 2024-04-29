@@ -4,11 +4,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @Builder
-public class DecryptionKeysResponseDto {
-    private String dataKey;
-    private String iv;
-
+public class ReEncryptionDto {
+    String encryptedDataKey;
+    String encryptedIv;
 }

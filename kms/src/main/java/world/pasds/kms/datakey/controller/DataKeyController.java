@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import world.pasds.kms.datakey.dto.DecryptionKeysRequestDto;
-import world.pasds.kms.datakey.dto.DecryptionKeysResponseDto;
-import world.pasds.kms.datakey.dto.EncryptionKeysResponseDto;
-import world.pasds.kms.datakey.dto.RegenerateKeysResponseDto;
+import world.pasds.kms.datakey.dto.*;
 import world.pasds.kms.datakey.service.DataKeyService;
 
 @RestController
@@ -29,8 +26,15 @@ public class DataKeyController {
     }
 
     @PostMapping("/regenerate-key")
-    public ResponseEntity<RegenerateKeysResponseDto> regenerateKey(@RequestBody DecryptionKeysRequestDto requestDto){
-        RegenerateKeysResponseDto response = dataKeyService.regenerateKey(requestDto);
+    public ResponseEntity<RegenerateKeysResponseDto> reGenerateKey(@RequestBody DecryptionKeysRequestDto requestDto){
+        RegenerateKeysResponseDto response = dataKeyService.reGenerateKey(requestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping("/reencrypt-key")
+    public ResponseEntity<ReEncryptionDto> reEncryptKey(@RequestBody ReEncryptionDto dto){
+        ReEncryptionDto response = dataKeyService.reEncryptKey(dto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

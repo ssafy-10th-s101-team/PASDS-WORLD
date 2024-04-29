@@ -203,15 +203,30 @@ public class TeamService {
 
     @Transactional
     public void removeMemberFromTeam(RemoveMemberFromTeamRequestDto requestDto, Long memberId) {
-        /**
-         * Todo 팀원 추방권한 확인
-         */
-        Member findMember = memberRepository.findByEmail(requestDto.getRemoveMemberEmail());
-        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-        if (findMember == null) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member removeMember = memberRepository.findByEmail(requestDto.getRemoveMemberEmail());
+        if (removeMember == null) {
             throw new BusinessException(ExceptionCode.MEMBER_NOT_FOUND);
         }
-        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(findMember, team);
+
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 팀 추방권한 확인
+        Authority inviteAuthority = authorityRepository.findByName(AuthorityName.TEAM_REMOVE);
+        MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        Role role = memberRole.getRole();
+        RoleAuthority findRoleAndAuthority = roleAuthorityRepository.findByRoleAndAuthority(role, inviteAuthority);
+        if (findRoleAndAuthority == null) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        // 추방할 사람이 팀원인지 확인
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(removeMember, team);
+        if (findMemberAndTeam == null) {
+            throw new BusinessException(ExceptionCode.TEAM_MEMBER_NOT_FOUND);
+        }
         memberTeamRepository.delete(findMemberAndTeam);
+        MemberRole removeMemberRole = memberRoleRepository.findByMemberAndTeam(removeMember, team);
+        memberRoleRepository.delete(removeMemberRole);
     }
 }

@@ -16,7 +16,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final RedisTemplate redisTemplate;
 
-    public void sendEmail(String toEmail, String subject, String text){
+    public void sendMessage(String toEmail, String subject, String text){
         SimpleMailMessage emailForm = createEmailForm(toEmail, subject, text);
         mailSender.send(emailForm);
     }

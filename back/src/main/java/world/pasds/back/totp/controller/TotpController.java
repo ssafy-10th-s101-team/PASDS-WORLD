@@ -1,16 +1,6 @@
 package world.pasds.back.totp.controller;
 
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,18 +41,11 @@ public class TotpController {
 			.body(totpService.generateSecretKeyQR(1L));
 	}
 
-	// @GetMapping("/re-share-key")
-	// public ResponseEntity<?> reGenerateSecretKey() {
-	// 	// todo 이메일 인증 otp 검증
-	// 	return ResponseEntity.ok()
-	// 		.contentType(MediaType.IMAGE_PNG)
-	// 		.body(totpService.regenerateSecretKeyQR());
-	// }
 
-
-	@GetMapping("/validate-code")
+	@PostMapping("/validate-code")
 	public ResponseEntity<?> validateTotpCode(@RequestBody String totpCode) {
-		totpService.validateTotpCode(totpCode);
+		// todo memberService layer 에서 호출
+		totpService.validateTotpCode(1L, totpCode);
 		return ResponseEntity.ok().build();
 	}
 

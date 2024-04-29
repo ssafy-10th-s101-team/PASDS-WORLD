@@ -3,21 +3,15 @@ package world.pasds.back.totp.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.Optional;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -64,42 +58,48 @@ public class TotpService {
 
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-
-		// qr 정보
-		int width = 200;
-		int height = 200;
-
-		// totp key 생성
+		// totp key
 		byte[] totpKey = aesUtil.keyGenerator();
-		String base64EncodedTotpKey = Base64.getEncoder().encodeToString(totpKey);
+		saveTotpKeySets(totpKey, member);
 
+		// qr code
+		return generateQRCode(Base64.getEncoder().encodeToString(totpKey));
+	}
 
+	private void saveTotpKeySets(byte[] totpKey, Member member) {
+		// key 요청
 		KmsEncryptionKeysResponseDto totpEncryptionKeys = keyService.generateKeys();
 		byte[] encryptedTotpKey = keyService.encryptSecret(totpKey,
 			Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()),
 			Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
 
-		// db에 암호화 한 totpKey, dataKey, ivKey 저장 !!
+		// db에 암호화 한 totpKey, dataKey, iv 저장
 		member.setEncryptedTotpKey(encryptedTotpKey);
 		member.setEncryptedTotpDataKey(Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()));
 		member.setEncryptedTotpIvKey(Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
 		memberRepository.save(member);
-
-
-		// QR Code - BitMatrix: qr code 정보 생성
-		BitMatrix bitMatrix = new MultiFormatWriter()
-			.encode(base64EncodedTotpKey, BarcodeFormat.QR_CODE, width, height);
-
-		// QR Code - Image 생성: 일회성 stream
-		// 일회성 아니면 File
-		ByteArrayOutputStream qr = new ByteArrayOutputStream();
-		MatrixToImageWriter.writeToStream(bitMatrix, "PNG", qr);
-		return qr.toByteArray();
 	}
 
+	private byte[] generateQRCode(String base64EncodedTotpKey) {
+		try {
+			// qr 정보
+			int width = 200;
+			int height = 200;
+			// QR Code - BitMatrix: qr code 정보 생성
+			BitMatrix bitMatrix = new MultiFormatWriter()
+				.encode(base64EncodedTotpKey, BarcodeFormat.QR_CODE, width, height);
+			// QR Code - Image 생성: 일회성 stream
+			// 일회성 아니면 File
+			ByteArrayOutputStream qr = new ByteArrayOutputStream();
+			MatrixToImageWriter.writeToStream(bitMatrix, "PNG", qr);
+			return qr.toByteArray();
+		} catch (WriterException | IOException e) {
+			throw new BusinessException(ExceptionCode.KEY_ERROR);
+		}
 
-	public void validateTotpCode(String inputTotpCode) {
-		Long memberId = 1L;
+	}
+
+	public void validateTotpCode(Long memberId, String inputTotpCode) {
 
 		byte[] totpKey = getDecryptedTotpKey(memberId);
 		String totpCode = generateTotpCode(totpKey, LocalDateTime.now());
@@ -159,16 +159,13 @@ public class TotpService {
 		try {
 			//1. SecretKeySpec 클래스를 사용한 키 생성
 			SecretKeySpec secretKey = new SecretKeySpec(Base64.getDecoder().decode(totpKey), "HmacSHA256");
-
 			//2. 지정된  MAC 알고리즘을 구현하는 Mac 객체를 작성합니다.
 			Mac mac = Mac.getInstance("HmacSHA256");
 			// 키를 사용해 Mac 객체를 초기화
 			mac.init(secretKey);
-
 			//3. 키를 사용해 이 Mac 객체를 초기화
 			mac.init(secretKey);
-
-			//3. 암호화 하려는 데이터의 바이트의 배열을 처리해 MAC 조작을 종료
+			//4. 암호화 하려는 데이터의 바이트의 배열을 처리해 MAC 조작을 종료
 			return  mac.doFinal(time);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			throw new BusinessException(ExceptionCode.TOTP_CODE_GENERATION_ERROR);

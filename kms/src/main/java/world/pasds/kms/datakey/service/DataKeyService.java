@@ -26,11 +26,12 @@ public class DataKeyService {
         byte[] encryptedDataKey = aesUtil.encrypt(dataKey,masterKey,masterIv);
         byte[] encryptedIv = aesUtil.encrypt(iv,masterKey,masterIv);
 
-        EncryptionKeysResponseDto dto = new EncryptionKeysResponseDto();
-        dto.setDataKey(Base64.getEncoder().encodeToString(dataKey));
-        dto.setIv(Base64.getEncoder().encodeToString(iv));
-        dto.setEncryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey));
-        dto.setEncryptedIv(Base64.getEncoder().encodeToString(encryptedIv));
+        EncryptionKeysResponseDto dto = EncryptionKeysResponseDto.builder()
+                .dataKey(Base64.getEncoder().encodeToString(dataKey))
+                .iv(Base64.getEncoder().encodeToString(iv))
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
 
         return dto;
     }
@@ -43,10 +44,11 @@ public class DataKeyService {
         byte[] dataKey = aesUtil.decrypt(Base64.getDecoder().decode(requestDto.getEncryptedDataKey()),masterKey,masterIv);
         byte[] iv = aesUtil.decrypt(Base64.getDecoder().decode(requestDto.getEncryptedIv()),masterKey,masterIv);
 
-        DecryptionKeysResponseDto dto = new DecryptionKeysResponseDto();
+        DecryptionKeysResponseDto dto = DecryptionKeysResponseDto.builder()
+                .dataKey(Base64.getEncoder().encodeToString(dataKey))
+                .iv(Base64.getEncoder().encodeToString(iv))
+                .build();
 
-        dto.setDataKey(Base64.getEncoder().encodeToString(dataKey));
-        dto.setIv(Base64.getEncoder().encodeToString(iv));
         return dto;
     }
 
@@ -70,9 +72,10 @@ public class DataKeyService {
         byte[] encryptedIv = aesUtil.encrypt(iv, curMasterKey.getValue(),curMasterKey.getIv());
 
         //reponseDto에 담아서 넣기
-        ReEncryptionDto responseDto = new ReEncryptionDto();
-        responseDto.setEncryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey));
-        responseDto.setEncryptedIv(Base64.getEncoder().encodeToString(encryptedIv));
+        ReEncryptionDto responseDto = ReEncryptionDto.builder()
+                        .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                        .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                        .build();
 
         return responseDto;
     }

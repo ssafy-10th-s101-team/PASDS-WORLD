@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
+import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
@@ -16,6 +17,8 @@ import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
+import world.pasds.back.notification.entity.NotificationType;
+import world.pasds.back.notification.service.NotificationService;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.role.entity.Role;
@@ -46,6 +49,7 @@ public class TeamService {
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final AuthorityRepository authorityRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(GetTeamsRequestDto requestDto, Long memberId) {
@@ -167,26 +171,33 @@ public class TeamService {
 
     @Transactional
     public void inviteMemberToTeam(InviteMemberToTeamRequestDto requestDto, Long memberId) {
-        /**
-         * Todo 팀 초대권한 확인
-         */
         Member sender = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Member receiver = memberRepository.findByEmail(requestDto.getInviteMemberEmail());
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
-        invitationService.inviteMemberToTeam(organization, team, sender, requestDto.getInviteMemberEmail());
+        // 팀 초대권한 확인
+        Authority inviteAuthority = authorityRepository.findByName(AuthorityName.TEAM_INVITE);
+        MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(sender, team);
+        Role role = memberRole.getRole();
+        RoleAuthority findRoleAndAuthority = roleAuthorityRepository.findByRoleAndAuthority(role, inviteAuthority);
+        if (findRoleAndAuthority == null) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
 
         // 우리 회원인 경우
         if (receiver != null) {
             MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(receiver, organization);
-            if (findMemberAndOrganization != null) {    // 이미 우리 회원인 경우
-                throw new BusinessException(ExceptionCode.BAD_REQUEST);
-            } else {
-                /**
-                 * Todo 알림 보내기
-                 */
+            if (findMemberAndOrganization != null) { // 이미 우리 조직인 경우
+                MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(receiver, team);
+                if (findMemberAndTeam != null) {    // 이미 우리 팀인 경우
+                    throw new BusinessException(ExceptionCode.TEAM_MEMBER_EXISTS);
+                }
             }
+            invitationService.inviteMemberToTeam(organization, team, sender, requestDto.getInviteMemberEmail());
+            notificationService.notify(sender, receiver, "팀 초대", "팀 초대", NotificationType.USER, null);
+        } else {
+            invitationService.inviteMemberToTeam(organization, team, sender, requestDto.getInviteMemberEmail());
         }
     }
 

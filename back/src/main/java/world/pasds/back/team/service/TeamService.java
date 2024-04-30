@@ -83,6 +83,11 @@ public class TeamService {
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         Member header = organization.getHeader();
 
+        // 개개인의 고유 팀명인 "MY TEAM" 으로 팀 생성 불가
+        if (isMyTeam(requestDto.getTeamName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         if (teamRepository.existsByOrganizationAndName(organization, requestDto.getTeamName())) {
             throw new BusinessException(ExceptionCode.TEAM_NAME_CONFLICT);
         }
@@ -166,6 +171,11 @@ public class TeamService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
+        // 고유 팀은 팀 삭제 불가
+        if (isMyTeam(team.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         // 권한 확인 - 조직장 혹은 팀장
         Role role = roleRepository.findByTeamAndName(team, "HEADER");
         MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndRole(member, role);
@@ -182,6 +192,11 @@ public class TeamService {
         Member receiver = memberRepository.findByEmail(requestDto.getInviteMemberEmail());
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 고유 팀은 팀원 초대 불가
+        if (isMyTeam(team.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
 
         // 팀 초대권한 확인
         Authority inviteAuthority = authorityRepository.findByName(AuthorityName.TEAM_INVITE);
@@ -218,6 +233,11 @@ public class TeamService {
 
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
+        // 고유 팀은 팀원 추방 불가
+        if (isMyTeam(team.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         // 팀 추방권한 확인
         Authority inviteAuthority = authorityRepository.findByName(AuthorityName.TEAM_REMOVE);
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
@@ -242,6 +262,11 @@ public class TeamService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
+        // 고유 팀은 팀 탈퇴 불가
+        if (isMyTeam(team.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         // 팀장은 떠나기가 없음, 팀해체만 가능
         if (team.getHeader().equals(member)) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
@@ -262,6 +287,11 @@ public class TeamService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Member newHeader = memberRepository.findById(requestDto.getNewHeaderId()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 고유 팀은 팀장 위임 불가
+        if (isMyTeam(team.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
 
         // 팀장 위임은 팀장만 가능
         if (!team.getHeader().equals(member)) {
@@ -289,6 +319,11 @@ public class TeamService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
+        // 고유 팀은 팀명변경 불가
+        if (isMyTeam(team.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         // 팀명 변경은 팀장만 가능
         if (!team.getHeader().equals(member)) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
@@ -312,15 +347,15 @@ public class TeamService {
 
     @Async
     @Transactional
-    public void refreshByMasterKey(){
+    public void refreshByMasterKey() {
 
         //team 목록 가져오기..
         Long startId = 0L;
         Long endId = 1000L;
-        while(true) {
+        while (true) {
             List<Team> teams = teamRepository.findByIdBetween(startId, endId);
             if (!teams.isEmpty()) {
-                for(Team team : teams){
+                for (Team team : teams) {
 
                     //team에서 encryptedDataKey, encryptedIvKey 가져오기.
                     KmsReEncryptionKeysDto requestDto = new KmsReEncryptionKeysDto();
@@ -345,4 +380,9 @@ public class TeamService {
             }
         }
     }
+
+    private boolean isMyTeam(String teamName) {
+        return "MY TEAM".equals(teamName);
+    }
+
 }

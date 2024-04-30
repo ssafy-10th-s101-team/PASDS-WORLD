@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import world.pasds.back.common.dto.KmsReEncryptionKeysDto;
+import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.KeyService;
@@ -152,12 +152,13 @@ public class TeamService {
                 for(Team team : teams){
 
                     //team에서 encryptedDataKey, encryptedIvKey 가져오기.
-                    KmsReEncryptionKeysDto requestDto = new KmsReEncryptionKeysDto();
-                    requestDto.setEncryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()));
-                    requestDto.setEncryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()));
+                    KmsKeyDto requestDto = KmsKeyDto.builder()
+                            .encryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()))
+                            .encryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()))
+                            .build();
 
                     //data key 재암호화 요청.
-                    KmsReEncryptionKeysDto responseDto = keyService.reEncrypt(requestDto);
+                    KmsKeyDto responseDto = keyService.reEncrypt(requestDto);
 
                     //재암호화된 data key들 갱신
                     team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
@@ -173,5 +174,10 @@ public class TeamService {
                 break;
             }
         }
+    }
+
+    @Transactional
+    @Async
+    public void rotateDataKey() {
     }
 }

@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import world.pasds.back.common.dto.KmsDecryptionKeysRequestDto;
 import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
-import world.pasds.back.common.dto.KmsReEncryptionKeysDto;
+import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.EmailService;
@@ -118,7 +117,7 @@ public class TotpService {
 		byte[] encryptedTotpIvKey = totpRepository.findEncryptedTotpIvKeyByMemberId(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.KEY_ERROR));
 
-		KmsDecryptionKeysRequestDto kmsRequest = KmsDecryptionKeysRequestDto
+		KmsKeyDto kmsRequest = KmsKeyDto
 			.builder()
 			.encryptedDataKey(Base64.getEncoder().encodeToString(encryptedTotpDataKey))
 			.encryptedIv(Base64.getEncoder().encodeToString(encryptedTotpIvKey))
@@ -210,16 +209,15 @@ public class TotpService {
 		while(true) {
 			List<Member> members = memberRepository.findByIdBetween(startId, endId);
 			if (!members.isEmpty()) {
-				System.out.println("db에 가서 조회한 결과 member row 개수  : " + members.size());
 				for(Member member : members){
-					System.out.println("memeber : " + member);
 					//members에서 encryptedTotpDataKey, encryptedTotpIvKey 가져오기.
-					KmsReEncryptionKeysDto requestDto = new KmsReEncryptionKeysDto();
-					requestDto.setEncryptedDataKey(Base64.getEncoder().encodeToString(member.getEncryptedTotpDataKey()));
-					requestDto.setEncryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIvKey()));
+					KmsKeyDto requestDto = KmsKeyDto.builder()
+							.encryptedDataKey(Base64.getEncoder().encodeToString(member.getEncryptedTotpDataKey()))
+							.encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIvKey()))
+							.build();
 
 					//data key 재암호화 요청.
-					KmsReEncryptionKeysDto responseDto = keyService.reEncrypt(requestDto);
+					KmsKeyDto responseDto = keyService.reEncrypt(requestDto);
 
 					//재암호화된 data key들 갱신
 					member.setEncryptedTotpDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));

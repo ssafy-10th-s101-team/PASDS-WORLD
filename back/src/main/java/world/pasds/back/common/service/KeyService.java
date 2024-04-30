@@ -7,10 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import world.pasds.back.common.dto.KmsDecryptionKeysRequestDto;
 import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
-import world.pasds.back.common.dto.KmsReEncryptionKeysDto;
+import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.AesUtil;
@@ -33,7 +32,7 @@ public class KeyService {
         return response.getBody();
     }
 
-    public KmsDecryptionKeysResponseDto getKeys(KmsDecryptionKeysRequestDto requestDto) {
+    public KmsDecryptionKeysResponseDto getKeys(KmsKeyDto requestDto) {
         ResponseEntity<KmsDecryptionKeysResponseDto> response = restTemplate
                 .postForEntity(KMS_URL + "/get-key", requestDto, KmsDecryptionKeysResponseDto.class);
         return response.getBody();
@@ -75,9 +74,9 @@ public class KeyService {
         return (String) redisTemplate.opsForValue().get("prevJwtSecretKey");
     }
 
-    public KmsReEncryptionKeysDto reEncrypt(KmsReEncryptionKeysDto requestDto){
-        ResponseEntity<KmsReEncryptionKeysDto> response = restTemplate
-                .postForEntity(KMS_URL + "/reencrypt-key", requestDto, KmsReEncryptionKeysDto.class);
+    public KmsKeyDto reEncrypt(KmsKeyDto requestDto){
+        ResponseEntity<KmsKeyDto> response = restTemplate
+                .postForEntity(KMS_URL + "/reencrypt-key", requestDto, KmsKeyDto.class);
         return response.getBody();
     }
 }

@@ -23,7 +23,9 @@ import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
+import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
 import world.pasds.back.team.repository.TeamRepository;
+import world.pasds.back.team.service.TeamService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,16 +43,31 @@ public class OrganizationService {
     private final MemberRoleRepository memberRoleRepository;
     private final RoleRepository roleRepository;
     private final NotificationService notificationService;
+    private final TeamService teamService;
 
     @Transactional
     public void createOrganization(CreateOrganizationRequestDto requestDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
-        // 개인 고유 조직과 같은 이름의 조직 생성 불가
-        if (isMyOrganization(requestDto.getName())) {
-            throw new BusinessException(ExceptionCode.BAD_REQUEST);
-        }
+        // 개인 고유 조직이 존재할 때
+        if (organizationRepository.existsByHeaderAndName(findMember, "MY ORGANIZATION")) {
+            // 개인 고유 조직과 같은 이름의 조직 생성 불가
+            if (isMyOrganization(requestDto.getName())) {
+                throw new BusinessException(ExceptionCode.BAD_REQUEST);
+            }
+            createAndSaveOrganizationWithMember(requestDto, findMember);
+        } else {
+            Organization o = createAndSaveOrganizationWithMember(requestDto, findMember);
 
+            CreateTeamRequestDto request = CreateTeamRequestDto.builder()
+                    .organizationId(o.getId())
+                    .teamName("MY TEAM")
+                    .build();
+            teamService.createTeam(request, memberId);
+        }
+    }
+
+    private Organization createAndSaveOrganizationWithMember(CreateOrganizationRequestDto requestDto, Member findMember) {
         Organization o = Organization.builder()
                 .header(findMember)
                 .name(requestDto.getName())
@@ -64,9 +81,7 @@ public class OrganizationService {
                 .build();
         memberOrganizationRepository.save(mo);
 
-        /**
-         * Todo: 조직 생성시 MY TEAM 자동 생성
-         */
+        return o;
     }
 
     @Transactional

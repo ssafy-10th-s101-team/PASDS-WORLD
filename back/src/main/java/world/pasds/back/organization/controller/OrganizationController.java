@@ -56,7 +56,7 @@ public class OrganizationController {
 
     @PostMapping("/leave")
     public ResponseEntity<?> leaveTeam(@RequestBody LeaveOrganizationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        organizationService.leaveTeam(requestDto, userDetails.getMemberId());
+        organizationService.leaveOrganization(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 

@@ -166,7 +166,7 @@ public class TotpService {
 
 		if (!emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode)){
 			throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
-		};
+		}
 	}
 
 	public void sendCodeToEmail(String toEmail) {

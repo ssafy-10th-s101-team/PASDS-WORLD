@@ -130,7 +130,7 @@ public class OrganizationService {
     }
 
     @Transactional
-    public void leaveTeam(LeaveOrganizationRequestDto requestDto, Long memberId) {
+    public void leaveOrganization(LeaveOrganizationRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 

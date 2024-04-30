@@ -83,9 +83,12 @@ public class TeamService {
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         Member header = organization.getHeader();
 
-        // 개개인의 고유 팀명인 "MY TEAM" 으로 팀 생성 불가
-        if (isMyTeam(requestDto.getTeamName())) {
-            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        // 개인 고유 조직에서 생성한 팀이 아닌 경우
+        if (!"MY ORGANIZATION".equals(organization.getName())) {
+            // 개개인의 고유 팀명인 "MY TEAM" 으로 팀 생성 불가
+            if (isMyTeam(requestDto.getTeamName())) {
+                throw new BusinessException(ExceptionCode.BAD_REQUEST);
+            }
         }
 
         if (teamRepository.existsByOrganizationAndName(organization, requestDto.getTeamName())) {

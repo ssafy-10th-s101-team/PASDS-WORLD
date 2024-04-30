@@ -1,11 +1,11 @@
 <template>
   <div>
-    <OrganizationTeamTable />
+    <TeamTable />
   </div>
 </template>
 
 <script setup>
-import OrganizationTeamTable from '@/components/common/OrganizationTeamTable.vue'
+import TeamTable from '@/components/common/TeamTable.vue'
 </script>
 
 <style scoped></style>

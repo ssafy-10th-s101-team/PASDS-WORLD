@@ -30,16 +30,16 @@
         </button>
       </div>
     </div>
-    <div class="mt-5" @click="toggleHidden('organizationTeamManagementModal')">
+    <div class="mt-5" @click="toggleHidden('TeamManagementModal')">
       <BaseButton buttonText="팀 설정" />
     </div>
   </div>
   <TeamCreationModal />
-  <OrganizationTeamManagementModal />
+  <TeamManagementModal />
 </template>
 
 <script setup>
-import OrganizationTeamManagementModal from './OrganizationTeamManagementModal.vue'
+import TeamManagementModal from './TeamManagementModal.vue'
 import TeamCreationModal from './TeamCreationModal.vue'
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'

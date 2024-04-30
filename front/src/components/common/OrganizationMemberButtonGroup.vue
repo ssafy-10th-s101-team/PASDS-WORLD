@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="mt-5">
-      <router-link :to="{ name: 'teamManagement' }">
+      <router-link :to="{ name: 'organizationMember' }">
         <BaseButton buttonText="초대하기 +" />
       </router-link>
     </div>

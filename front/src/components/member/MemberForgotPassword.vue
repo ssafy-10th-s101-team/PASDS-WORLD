@@ -66,8 +66,8 @@
         </div>
       </div>
     </form>
-    <baseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요" v-if="EmailAlert" />
-    <baseAlert alertText="인증되었습니다" v-if="OTPAlert" />
+    <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요" v-if="EmailAlert" />
+    <BaseAlert alertText="인증되었습니다" v-if="OTPAlert" />
   </div>
 </template>
 

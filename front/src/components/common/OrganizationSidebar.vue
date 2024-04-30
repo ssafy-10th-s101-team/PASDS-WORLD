@@ -7,30 +7,72 @@
         <div class="px-3 py-4 overflow-y-auto rounded bg-gray-50 dark:bg-gray-800">
           <ul class="space-y-2">
             <li>
-              <button
-                type="button"
-                class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700"
-                aria-controls="dropdown-example"
-                data-collapse-toggle="dropdown-example"
-                @click="toggleHidden('dropdown-example')"
-              >
-                <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item
-                  >S101</span
+              <div>
+                <button
+                  type="button"
+                  class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700"
+                  aria-controls="dropdown-example"
+                  data-collapse-toggle="dropdown-example"
+                  @click="toggleHidden('dropdownOrganization')"
                 >
-                <svg
-                  sidebar-toggle-item
-                  class="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
+                  <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item
+                    >S101</span
+                  >
+                  <svg
+                    sidebar-toggle-item
+                    class="w-6 h-6"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </button>
+                <!-- Dropdown menu -->
+                <div
+                  class="absolute hidden bg-white text-base z-50 list-none divide-y divide-gray-100 rounded shadow my-4"
+                  id="dropdownOrganization"
                 >
-                  <path
-                    fill-rule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </button>
+                  <!-- <div class="px-4 py-3">
+                <span class="block text-sm">Bonnie Green</span>
+                <span class="block text-sm font-medium text-gray-900 truncate"
+                >name@flowbite.com</span
+                >
+              </div> -->
+                  <ul class="py-1" aria-labelledby="dropdown">
+                    <li>
+                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
+                        >내가 속한 조직</a
+                      >
+                    </li>
+                    <li>
+                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
+                        >리스트를 보여줍니다</a
+                      >
+                    </li>
+                    <li>
+                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
+                        >추후 스크롤바로 구현합니다</a
+                      >
+                    </li>
+                    <li>
+                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
+                        >조직 이름이 바뀝니다</a
+                      >
+                    </li>
+                    <li>
+                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
+                        >CSS를 수정합니다</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
               <ul id="dropdown-example" class="py-2 space-y-2">
                 <li>
                   <router-link

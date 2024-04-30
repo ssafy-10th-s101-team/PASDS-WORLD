@@ -121,13 +121,8 @@
       </div>
     </div>
   </div>
-  <div class="flex justify-center">
-    <BaseButton buttonText="추가 +" />
-  </div>
 </template>
 
-<script setup>
-import BaseButton from './BaseButton.vue'
-</script>
+<script setup></script>
 
 <style scoped></style>

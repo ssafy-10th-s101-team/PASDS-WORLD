@@ -94,9 +94,20 @@
         </div>
       </div>
     </div>
+    <div class="mt-5 flex justify-center" @click="toggleHidden('organizationInvitationModal')">
+      <BaseButton buttonText="초대하기 +" />
+    </div>
   </div>
+
+  <OrganizationInvitationModal />
 </template>
 
-<script setup></script>
+<script setup>
+import BaseButton from './BaseButton.vue'
+import OrganizationInvitationModal from './OrganizationInvitationModal.vue'
+import { useCommonStore } from '@/stores/common'
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
+</script>
 
 <style scoped></style>

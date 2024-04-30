@@ -46,7 +46,7 @@
                   <ul class="py-1" aria-labelledby="dropdown">
                     <li>
                       <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
-                        >내가 속한 조직</a
+                        >내가 조직장인 조직</a
                       >
                     </li>
                     <li>

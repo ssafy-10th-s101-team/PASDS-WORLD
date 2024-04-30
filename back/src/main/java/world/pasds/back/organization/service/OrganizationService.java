@@ -46,6 +46,11 @@ public class OrganizationService {
     public void createOrganization(CreateOrganizationRequestDto requestDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
+        // 개인 고유 조직과 같은 이름의 조직 생성 불가
+        if (isMyOrganization(requestDto.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         Organization o = Organization.builder()
                 .header(findMember)
                 .name(requestDto.getName())
@@ -80,6 +85,11 @@ public class OrganizationService {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
+        // 개인 고유 조직은 조직 삭제 불가
+        if (isMyOrganization(findOrganization.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         List<Team> fidnTeamList = teamRepository.findAllByOrganization(findOrganization);
         teamRepository.deleteAll(fidnTeamList);
         organizationRepository.delete(findOrganization);
@@ -90,6 +100,11 @@ public class OrganizationService {
         Member sender = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 개인 고유 조직은 조직원 초대 불가
+        if (isMyOrganization(findOrganization.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
         /**
          * Todo 권한 확인
          */
@@ -108,6 +123,12 @@ public class OrganizationService {
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Member removeMember = memberRepository.findByEmail(requestDto.getEmail());
+
+        // 개인 고유 조직은 조직원 추방 불가
+        if (isMyOrganization(findOrganization.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         if (removeMember == null) {
             throw new BusinessException(ExceptionCode.MEMBER_NOT_FOUND);
         }
@@ -133,6 +154,11 @@ public class OrganizationService {
     public void leaveOrganization(LeaveOrganizationRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 개인 고유 조직은 조직 탈퇴 불가
+        if (isMyOrganization(organization.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
 
         // 조직장은 떠나기가 없음, 조직해체만 가능
         if (organization.getHeader().equals(member)) {
@@ -160,6 +186,11 @@ public class OrganizationService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
+        // 개인 고유 조직은 조직명 변경 불가
+        if (isMyOrganization(organization.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         // 조직명 변경은 조직장만 가능
         if (!organization.getHeader().equals(member)) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
@@ -178,6 +209,11 @@ public class OrganizationService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Member newHeader = memberRepository.findById(requestDto.getNewHeaderId()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 개인 고유 조직은 조직장 위임 불가
+        if (isMyOrganization(organization.getName())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
 
         // 조직장 위임은 조직장만 가능
         if (!organization.getHeader().equals(member)) {
@@ -205,5 +241,9 @@ public class OrganizationService {
             memberRoleRepository.save(findNewHeaderAndRole);
         }
 
+    }
+
+    private boolean isMyOrganization(String organizationName) {
+        return "MY ORGANIZATION".equals(organizationName);
     }
 }

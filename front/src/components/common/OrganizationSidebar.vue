@@ -89,10 +89,10 @@
                   </router-link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <router-link
+                    :to="{ name: 'organizationSetting' }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >설정</a
+                    >설정</router-link
                   >
                 </li>
               </ul>

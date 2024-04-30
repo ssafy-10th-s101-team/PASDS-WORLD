@@ -87,6 +87,11 @@ const router = createRouter({
           path: 'member',
           name: 'organizationMember',
           component: () => import('@/components/organization/OrganizationMember.vue')
+        },
+        {
+          path: 'setting',
+          name: 'organizationSetting',
+          component: () => import('@/components/organization/OrganizationSetting.vue')
         }
       ]
     }

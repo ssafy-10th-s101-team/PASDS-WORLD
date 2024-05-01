@@ -20,20 +20,20 @@ public class DataKeyController {
     }
 
     @PostMapping("/get-key")
-    public ResponseEntity<DecryptionKeysResponseDto> getKey(@RequestBody DecryptionKeysRequestDto requestDto){
+    public ResponseEntity<DecryptionKeysResponseDto> getKey(@RequestBody EncryptedDataKeyDto requestDto){
         DecryptionKeysResponseDto response = dataKeyService.getKey(requestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/regenerate-key")
-    public ResponseEntity<RegenerateKeysResponseDto> reGenerateKey(@RequestBody DecryptionKeysRequestDto requestDto){
+    public ResponseEntity<RegenerateKeysResponseDto> reGenerateKey(@RequestBody EncryptedDataKeyDto requestDto){
         RegenerateKeysResponseDto response = dataKeyService.reGenerateKey(requestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/reencrypt-key")
-    public ResponseEntity<ReEncryptionDto> reEncryptKey(@RequestBody ReEncryptionDto dto){
-        ReEncryptionDto response = dataKeyService.reEncryptKey(dto);
+    public ResponseEntity<EncryptedDataKeyDto> reEncryptKey(@RequestBody EncryptedDataKeyDto dto){
+        EncryptedDataKeyDto response = dataKeyService.reEncryptKey(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

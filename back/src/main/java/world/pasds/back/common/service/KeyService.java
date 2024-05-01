@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsKeyDto;
+import world.pasds.back.common.dto.KmsReGenerationKeysResponseDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.AesUtil;
@@ -77,6 +78,12 @@ public class KeyService {
     public KmsKeyDto reEncrypt(KmsKeyDto requestDto){
         ResponseEntity<KmsKeyDto> response = restTemplate
                 .postForEntity(KMS_URL + "/reencrypt-key", requestDto, KmsKeyDto.class);
+        return response.getBody();
+    }
+
+    public KmsReGenerationKeysResponseDto reGenerateKey(KmsKeyDto requestDto) {
+        ResponseEntity<KmsReGenerationKeysResponseDto> response = restTemplate
+                .postForEntity(KMS_URL + "/regenerate-key", requestDto, KmsReGenerationKeysResponseDto.class);
         return response.getBody();
     }
 }

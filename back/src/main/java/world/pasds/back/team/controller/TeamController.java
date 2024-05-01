@@ -30,6 +30,12 @@ public class TeamController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/rename")
+    public ResponseEntity<?> renameOrganization(@RequestBody RenameTeamRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.renameTeam(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/delete")
     public ResponseEntity<?> deleteTeam(@RequestBody DeleteTeamRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         teamService.deleteTeam(requestDto, userDetails.getMemberId());
@@ -45,6 +51,18 @@ public class TeamController {
     @PostMapping("/remove")
     public ResponseEntity<?> removeMemberFromTeam(@RequestBody RemoveMemberFromTeamRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         teamService.removeMemberFromTeam(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/leave")
+    public ResponseEntity<?> leaveTeam(@RequestBody LeaveTeamRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.leaveTeam(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/assign")
+    public ResponseEntity<?> assignNewHeader(@RequestBody AssignNewTeamHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.assignNewHeader(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

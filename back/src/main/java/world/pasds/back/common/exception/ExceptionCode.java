@@ -28,6 +28,7 @@ public enum ExceptionCode {
     TEAM_UNAUTHORIZED(401, "Unauthorized team control"),
 
     TEAM_MEMBER_NOT_FOUND(404, "Member not found in team"),
+    TEAM_MEMBER_EXISTS(409, "Member already exists in team"),
 
     PRIVATE_DATA_UNAUTHORIZED(401, "Unauthorized PrivateData control"),
     PRIVATE_DATA_NOT_FOUND(404, "PrivateData not found"),

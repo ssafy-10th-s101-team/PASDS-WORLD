@@ -26,6 +26,7 @@ public class Team extends BaseEntity {
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+    @Setter
     private String name;
 
     private Integer roleCount;

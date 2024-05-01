@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ReEncryptionDto {
+public class EncryptedDataKeyDto {
     String encryptedDataKey;
     String encryptedIv;
 }

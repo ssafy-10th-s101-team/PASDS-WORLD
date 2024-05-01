@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsKeyDto;
+import world.pasds.back.common.dto.KmsReGenerationKeysResponseDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.EmailService;
@@ -233,5 +234,62 @@ public class TotpService {
 				break;
 			}
 		}
+	}
+
+	@Async
+	@Transactional
+	public void rotateDataKey(){
+		//member 목록 가져오기..
+		Long startId = 0L;
+		Long endId = 1000L;
+
+		//멤버 풀스캔. 1000개씩 검색.
+		while(true){
+			List<Member> members = memberRepository.findByIdBetween(startId, endId);
+			if (!members.isEmpty()) {
+				for(Member member : members){
+
+					//만료여부확인
+					LocalDateTime expiredAt = member.getExpiredAt();
+
+					if(expiredAt.isAfter(LocalDateTime.now())) continue;
+
+					//만료시간이 지났으면 갱신로직 시작
+
+					//members에서 encryptedTotpDataKey, encryptedTotpIvKey 가져오기.
+					KmsKeyDto requestDto = KmsKeyDto.builder()
+							.encryptedDataKey(Base64.getEncoder().encodeToString(member.getEncryptedTotpDataKey()))
+							.encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIvKey()))
+							.build();
+
+					//기존 데이터 키 복호화 및 재발급 요청
+					KmsReGenerationKeysResponseDto responseDto = keyService.reGenerateKey(requestDto);
+
+					//totp key 복호화
+					byte[] totpKey = keyService.decryptSecret(member.getEncryptedTotpKey(),
+							Base64.getDecoder().decode(responseDto.getOldDataKey()),
+							Base64.getDecoder().decode(responseDto.getOldIv()));
+
+					//재암호화
+					byte[] encryptedTotpKey = keyService.encryptSecret(totpKey,
+							Base64.getDecoder().decode(responseDto.getNewDataKey()),
+							Base64.getDecoder().decode(responseDto.getNewIv()));
+
+					//재암호화된 data key들 갱신
+					member.setEncryptedTotpKey(encryptedTotpKey);
+					member.setEncryptedTotpDataKey(Base64.getDecoder().decode(responseDto.getEncryptedNewDataKey()));
+					member.setEncryptedTotpIvKey(Base64.getDecoder().decode(responseDto.getEncryptedNewIv()));
+					memberRepository.save(member);
+
+					//로그 찍기
+					log.info("member {}'s TotpDataKey re-generated", member.getId());
+				}
+				startId = endId;
+				endId += 1000L;
+			} else {
+				break;
+			}
+		}
+
 	}
 }

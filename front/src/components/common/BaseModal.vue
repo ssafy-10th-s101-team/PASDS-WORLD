@@ -5,7 +5,7 @@
     <div
       :id="modalId"
       aria-hidden="true"
-      class="hidden overflow-x-hidden overflow-y-auto fixed h-modal md:h-full fixed -translate-x-1/2, top-1/4 left-1/2 z-50 justify-center items-center"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
     >
       <div class="relative w-full max-w-md px-4 h-full md:h-auto">
         <!-- Modal content -->

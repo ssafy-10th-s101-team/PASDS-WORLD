@@ -202,12 +202,17 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <BaseButton buttonText="추가 +" />
+    <BaseButton buttonText="추가 +" @click="toggleHidden('privateInfoDetail')" />
   </div>
+  <DashboardPrivateInfoDeatil />
 </template>
 
 <script setup>
 import BaseButton from './BaseButton.vue'
+import { useCommonStore } from '@/stores/common'
+import DashboardPrivateInfoDeatil from './DashboardPrivateInfoDetail.vue'
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 </script>
 
 <style scoped></style>

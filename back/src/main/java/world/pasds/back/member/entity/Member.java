@@ -36,7 +36,8 @@ public class Member extends BaseEntity {
 
     @Setter
     @Column(length = 32, columnDefinition = "BINARY(32)")
-    private byte[] encryptedTotpIvKey;
+    private byte[] encryptedTotpIv;
 
+    @Setter
     private LocalDateTime expiredAt;
 }

@@ -25,7 +25,6 @@ public class TotpController {
 
 	@GetMapping("/share-key")
 	public ResponseEntity<?> generateSecretKey() {
-		// todo memberService layer 에서 호출
 		return ResponseEntity.ok()
 			.contentType(MediaType.IMAGE_PNG)
 			.body(totpService.generateSecretKeyQR(1L));
@@ -50,7 +49,6 @@ public class TotpController {
 
 	@PostMapping("/email-verification-requests")
 	public ResponseEntity<?> sendCodeToEmail(@RequestBody String email) {
-		// todo memberService layer 에서 호출
 		totpService.sendCodeToEmail(email);
 		return ResponseEntity.ok().build();
 	}

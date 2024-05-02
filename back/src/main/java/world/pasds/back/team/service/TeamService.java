@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import world.pasds.back.common.dto.KmsKeyDto;
-import world.pasds.back.common.dto.KmsReGenerationKeysResponseDto;
 import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
+import world.pasds.back.common.dto.KmsKeyDto;
+import world.pasds.back.common.dto.KmsReGenerationKeysResponseDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.KeyService;
@@ -56,11 +56,12 @@ public class TeamService {
     private final OrganizationRepository organizationRepository;
     private final InvitationService invitationService;
     private final KeyService keyService;
-    private final PrivateDataRepository privateDataRepository;
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final AuthorityRepository authorityRepository;
     private final NotificationService notificationService;
+
+    private final PrivateDataRepository privateDataRepository;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(GetTeamsRequestDto requestDto, Long memberId) {
@@ -457,5 +458,4 @@ public class TeamService {
     private boolean isMyTeam(String teamName) {
         return "MY TEAM".equals(teamName);
     }
-
 }

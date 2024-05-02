@@ -15,7 +15,6 @@
             type="email"
             id="email"
             v-model="email"
-            :disabled="emailVerified"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="name@domain.com"
             required
@@ -104,11 +103,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useMemberStore } from '../../stores/member'
 import { useRouter } from 'vue-router'
-import { localAxios } from '../../utils/http-commons.js'
+import { localAxios } from '@/utils/http-commons.js'
 
-const memberStore = useMemberStore()
 const router = useRouter()
 
 const email = ref('')
@@ -130,7 +127,9 @@ const handleEmailVerification = async () => {
 }
 
 const validatePassword = () => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/
+  const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?\/~`\-|\\=])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?\/~`\-|\\=]{10,}$/
+
   isPasswordValid.value = regex.test(password.value)
 }
 
@@ -156,7 +155,9 @@ const submitForm = async function () {
       nickname: nickname.value
     }
     const response = await localAxios.post(`/member/signup`, body)
-    memberStore.tmp = response.data.tmp
+
+    sessionStorage.setItem('totpKey', response.data.tmp)
+
     router.push({ name: 'memberSignup2' })
   } catch (error) {
     alert(error.response.data.message)

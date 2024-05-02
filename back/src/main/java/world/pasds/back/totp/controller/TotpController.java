@@ -40,8 +40,8 @@ public class TotpController {
 	}
 
 
-	@PostMapping("/verification-code")
-	public ResponseEntity<?> validateTotpCode(@RequestBody String totpCode) {
+	@PostMapping("/verification-totp-code")
+	public ResponseEntity<?> verificationTotpCode(@RequestBody String totpCode) {
 		// todo memberService layer 에서 호출
 		totpService.verificationTotpCode(1L, totpCode);
 		return ResponseEntity.ok().build();

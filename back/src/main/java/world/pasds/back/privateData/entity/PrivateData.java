@@ -1,10 +1,7 @@
 package world.pasds.back.privateData.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import world.pasds.back.common.BaseEntity;
 import world.pasds.back.team.entity.Team;
 
@@ -28,6 +25,7 @@ public class PrivateData extends BaseEntity {
     private String title;
 
     @Lob
+    @Setter
     private byte[] content;
 
     private String memo;

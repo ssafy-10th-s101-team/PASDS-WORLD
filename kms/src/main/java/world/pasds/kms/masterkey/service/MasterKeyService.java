@@ -2,6 +2,7 @@ package world.pasds.kms.masterkey.service;
 
 import com.github.benmanes.caffeine.cache.*;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class MasterKeyService {
     private final MasterKeyRepository masterKeyRepository;
     private final RestTemplate restTemplate;
     public Cache<String, MasterKeyData> keyCache;
+    @Getter
     private MasterKeyData prevMasterKey;
 
     public MasterKeyService(AesUtil aesUtil, MasterKeyRepository masterKeyRepository, RestTemplate restTemplate) {
@@ -37,7 +39,7 @@ public class MasterKeyService {
     public void init(){
         //자동으로 만료하고 갱신하는 캐시 생성
         keyCache = Caffeine.newBuilder()
-                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .expireAfterWrite(90, TimeUnit.DAYS)
                 .scheduler(Scheduler.systemScheduler())
                 .removalListener(new RemovalListener<String, MasterKeyData>() {
                     @Override
@@ -62,10 +64,6 @@ public class MasterKeyService {
     public MasterKeyData getCurMasterKey(){
 
         return keyCache.getIfPresent("curMasterKey");
-    }
-
-    public MasterKeyData getPrevMasterKey(){
-        return prevMasterKey;
     }
 
     //만료 시 새로운 Master 값 생성.

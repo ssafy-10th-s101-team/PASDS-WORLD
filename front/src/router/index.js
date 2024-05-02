@@ -52,6 +52,11 @@ const router = createRouter({
           path: 'login2',
           name: 'memberLogin2',
           component: () => import('@/components/member/MemberLogin2.vue')
+        },
+        {
+          path: 'my-page',
+          name: 'myPage',
+          component: () => import('@/components/member/MemberMyPage.vue')
         }
       ]
     },

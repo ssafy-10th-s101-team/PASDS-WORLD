@@ -12,12 +12,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import world.pasds.back.common.dto.FirstLoginResponseDto;
+import world.pasds.back.common.exception.BusinessException;
+import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.entity.CustomUserDetails;
 
 import java.io.IOException;
 import java.util.Map;
+
+import static world.pasds.back.common.exception.ExceptionCode.*;
 
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private static final String TEMPORARY_TOKEN = "TEMPORARY";
@@ -88,16 +93,28 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String email = requestBody.get("email");
         String pepperedPassword = requestBody.get("password") + passwordPepper;
 
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, pepperedPassword);
-        authRequest.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        Authentication authentication = authenticationManager.authenticate(authRequest);
+        Authentication authentication;
+
+        try {
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, pepperedPassword);
+            authRequest.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            authentication = authenticationManager.authenticate(authRequest);
+        } catch (Exception e) {
+            respondCaseFail(response, FIRST_LOGIN_AUTHENTICAT_FAIL);
+            return;
+        }
 
         // 성공 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String temporaryJwtToken = jwtTokenProvider.generateTemporaryToken(customUserDetails.getMemberId());
         cookieProvider.addCookie(response, TEMPORARY_TOKEN, temporaryJwtToken);
 
-        respondWithText(response, customUserDetails.getNickname(), HttpServletResponse.SC_OK);
+        FirstLoginResponseDto firstLoginResponseDto = FirstLoginResponseDto
+                .builder()
+                .nickname(customUserDetails.getNickname())
+                .build();
+
+        respondCaseSuccess(response, firstLoginResponseDto);
     }
 
     private void handleSecondLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -106,7 +123,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String temporaryToken = cookieProvider.getCookieValue(request, TEMPORARY_TOKEN);
         Authentication authentication = jwtTokenProvider.getAuthentication(temporaryToken);
         if (authentication == null) {
-            respondWithError(response, "Unauthorized access.", HttpServletResponse.SC_UNAUTHORIZED);
+            cookieProvider.removeCookie(response,TEMPORARY_TOKEN);
+            respondCaseFail(response, TEMPORARY_TOKEN_EXPIRED);
             return;
         }
 
@@ -114,7 +132,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         Map<String, String> requestBody = objectMapper.readValue(request.getInputStream(), Map.class);
         String totpCode = requestBody.get("totpCode");
         if (!isValidTotp(totpCode)) {
-            respondWithError(response, "Invalid TOTP code.", HttpServletResponse.SC_UNAUTHORIZED);
+            respondCaseFail(response,TOTP_CODE_NOT_SAME);
             return;
         }
 
@@ -130,7 +148,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails.getMemberId());
         cookieProvider.addCookie(response, REFRESH_TOKEN, refreshToken);
 
-        respondWithText(response, "Second login success", HttpServletResponse.SC_OK);
+        respondCaseSuccess(response,null);
 
     }
 
@@ -139,7 +157,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         // TODO: Redis 토큰 삭제 로직
         cookieProvider.removeCookie(response, ACCESS_TOKEN);
         cookieProvider.removeCookie(response, REFRESH_TOKEN);
-        respondWithText(response, "Logged out successfully", HttpServletResponse.SC_OK);
+        respondCaseSuccess(response,null);
     }
 
     private void handleDefaultCase(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
@@ -162,21 +180,27 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        respondWithError(response, "Unauthorized access.", HttpServletResponse.SC_UNAUTHORIZED);
+        respondCaseFail(response,REFRESH_TOKEN_EXPIRED);
     }
 
-    private void respondWithText(HttpServletResponse response, String text, int status) throws IOException {
-        response.setStatus(status);
-        response.setContentType("text/plain");
+    private void respondCaseSuccess(HttpServletResponse response, Object responseDto) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(text);
+        String json = new ObjectMapper().writeValueAsString(responseDto);
+        response.getWriter().write(json);
         response.getWriter().flush();
         response.getWriter().close();
     }
 
-    private void respondWithError(HttpServletResponse response, String message, int status) throws IOException {
-        response.sendError(status, message);
+    private void respondCaseFail(HttpServletResponse response, ExceptionCode exceptionCode) throws IOException {
+        response.setStatus(exceptionCode.getStatus());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String json = new ObjectMapper().writeValueAsString(new BusinessException(exceptionCode));
+        response.getWriter().write(json);
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 
     // TODO: 실제 TOTP 검사 로직

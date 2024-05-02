@@ -41,8 +41,8 @@ public class MemberService {
 
         // TODO: 이메일 인증을 거쳐 온 것(여기서는 어떻게 알지?)
 
-        // 비밀번호: 대문자, 소문자, 특수기호 숫자 최소 10자리 이상
-        String passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{10,}$";
+        // 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
         if (!signupRequestDto.getPassword().matches(passwordRegex)) {
             throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
         }

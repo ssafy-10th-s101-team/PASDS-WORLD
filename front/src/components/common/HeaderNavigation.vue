@@ -16,7 +16,16 @@
                 >조직관리</router-link
               >
             </div>
-            <div>
+            <div v-if="nickname">
+              <button
+                @click="logout"
+                class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+              >
+                로그아웃
+              </button>
+              <span>{{ nickname }}</span>
+            </div>
+            <div v-else>
               <router-link
                 :to="{ name: 'memberLogin' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
@@ -113,9 +122,29 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
+import { localAxios } from '@/utils/http-commons.js'
+
 const commonStore = useCommonStore()
 const { toggleDropdown } = commonStore
+
+const nickname = ref('')
+
+const logout = async () => {
+  try {
+    await localAxios.get(`/member/logout`)
+    sessionStorage.removeItem('nickname')
+    nickname.value = ''
+  } catch (error) {
+    console.error('Logout Error:', error)
+    alert('로그아웃 실패: ' + error.message)
+  }
+}
+
+onMounted(() => {
+  nickname.value = sessionStorage.getItem('nickname')
+})
 </script>
 
 <style scoped></style>

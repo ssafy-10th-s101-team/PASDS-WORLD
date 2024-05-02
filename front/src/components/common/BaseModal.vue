@@ -5,9 +5,11 @@
     <div
       :id="modalId"
       aria-hidden="true"
-      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg"
     >
-      <div class="relative w-full max-w-md px-4 h-full md:h-auto">
+      <div
+        class="relative w-full max-w-md px-4 h-full md:h-auto max-w-full max-h-full overflow-auto"
+      >
         <!-- Modal content -->
         <div class="bg-white rounded-lg shadow relative dark:bg-gray-700">
           <div class="flex justify-end p-2">

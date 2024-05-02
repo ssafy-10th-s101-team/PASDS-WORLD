@@ -11,27 +11,36 @@
         </button>
         <button
           type="button"
-          class="border-t border-b border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+          class="border-t border-b border-r border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
         >
           영업
         </button>
         <button
           type="button"
-          class="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+          class="border-t border-b border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
         >
           마케팅
         </button>
+        <button
+          @click="toggleHidden('teamCreationModal')"
+          type="button"
+          class="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+        >
+          팀생성 +
+        </button>
       </div>
     </div>
-    <div class="mt-5" @click="toggleHidden('organizationTeamManagementModal')">
+    <div class="mt-5" @click="toggleHidden('TeamManagementModal')">
       <BaseButton buttonText="팀 설정" />
     </div>
   </div>
-  <OrganizationTeamManagementModal />
+  <TeamCreationModal />
+  <TeamManagementModal />
 </template>
 
 <script setup>
-import OrganizationTeamManagementModal from './OrganizationTeamManagementModal.vue'
+import TeamManagementModal from './TeamManagementModal.vue'
+import TeamCreationModal from './TeamCreationModal.vue'
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()

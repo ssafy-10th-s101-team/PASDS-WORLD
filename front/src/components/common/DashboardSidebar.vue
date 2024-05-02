@@ -1,6 +1,6 @@
 <template>
-  <!-- <div class="grid grid-cols-auto-1fr"> -->
-  <div>
+  <div class="grid grid-cols-auto-1fr">
+    <!-- <div class="fixed z-50"> -->
     <!-- This is an example component -->
     <div class="max-w-2xl mx-auto lg:ml-0">
       <aside class="w-64" aria-label="Sidebar">

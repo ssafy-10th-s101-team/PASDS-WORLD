@@ -44,7 +44,7 @@
               class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-samsung-blue focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
               aria-controls="mobile-menu-2"
               aria-expanded="false"
-              @click="toggleDropdown('mobile-menu-2')"
+              @click="toggleHidden('mobile-menu-2')"
             >
               <span class="sr-only">Open main menu</span>
               <svg
@@ -127,7 +127,7 @@ import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 
 const commonStore = useCommonStore()
-const { toggleDropdown } = commonStore
+const { toggleDropdown, toggleHidden } = commonStore
 
 const nickname = ref('')
 

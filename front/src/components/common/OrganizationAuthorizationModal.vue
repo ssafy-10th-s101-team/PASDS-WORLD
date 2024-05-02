@@ -1,6 +1,5 @@
-`
 <template>
-  <BaseModal modalId="organizationTeamManagementModal">
+  <BaseModal modalId="organizationAuthorizationModal">
     <!-- 버튼 -->
     <div class="max-w-2xl mx-auto flex justify-start pl-6">
       <div class="max-w-lg">

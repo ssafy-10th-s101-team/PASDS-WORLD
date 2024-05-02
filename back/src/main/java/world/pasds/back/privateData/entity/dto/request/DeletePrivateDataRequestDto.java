@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class DeletePrivateDataRequestDto {
     private Long teamId;
-    private Long id;
+    private Long privateDataId;
 }

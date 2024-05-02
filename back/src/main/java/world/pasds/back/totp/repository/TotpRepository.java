@@ -17,6 +17,6 @@ public interface TotpRepository extends JpaRepository<Member,Long> {
 	@Query("select m.encryptedTotpKey from Member m where m.id = :id")
 	Optional<byte[]> findEncryptedTotpKeyByMemberId(@Param("id") Long id);
 
-	@Query("select m.encryptedTotpIvKey from Member m where m.id = :id")
-	Optional<byte[]> findEncryptedTotpIvKeyByMemberId(@Param("id") Long id);
+	@Query("select m.encryptedTotpIv from Member m where m.id = :id")
+    Optional<byte[]> findEncryptedTotpIvByMemberId(Long memberId);
 }

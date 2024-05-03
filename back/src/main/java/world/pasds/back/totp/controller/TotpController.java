@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import world.pasds.back.totp.dto.EmailCodeVerificationRequestDto;
+import world.pasds.back.totp.dto.EmailSendRequestDto;
+import world.pasds.back.totp.dto.TotpCodeVerificationRequestDto;
 import world.pasds.back.totp.service.TotpService;
 
 @RestController
@@ -41,15 +43,14 @@ public class TotpController {
 
 
 	@PostMapping("/verification-totp-code")
-	public ResponseEntity<?> verificationTotpCode(@RequestBody String totpCode) {
-		// todo memberService layer 에서 호출
-		totpService.verificationTotpCode(1L, totpCode);
+	public ResponseEntity<?> verificationTotpCode(@RequestBody TotpCodeVerificationRequestDto requestDto) {
+		totpService.verificationTotpCode(1L, requestDto.getTotpCode());
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/email-verification-requests")
-	public ResponseEntity<?> sendCodeToEmail(@RequestBody String email) {
-		totpService.sendCodeToEmail(email);
+	public ResponseEntity<?> sendCodeToEmail(@RequestBody EmailSendRequestDto requestDto) {
+		totpService.sendCodeToEmail(requestDto.getEmail());
 		return ResponseEntity.ok().build();
 	}
 

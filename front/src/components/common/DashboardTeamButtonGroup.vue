@@ -30,16 +30,16 @@
         </button>
       </div>
     </div>
-    <div class="mt-5" @click="toggleHidden('TeamManagementModal')">
-      <BaseButton buttonText="팀 설정" />
-    </div>
+    <router-link :to="{ name: 'teamManagement' }">
+      <div class="mt-5">
+        <BaseButton buttonText="팀 설정" />
+      </div>
+    </router-link>
   </div>
   <TeamCreationModal />
-  <TeamManagementModal />
 </template>
 
 <script setup>
-import TeamManagementModal from './TeamManagementModal.vue'
 import TeamCreationModal from './TeamCreationModal.vue'
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'

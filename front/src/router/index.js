@@ -70,6 +70,11 @@ const router = createRouter({
           path: 'vault',
           name: 'dashboardMain',
           component: () => import('@/components/dashboard/DashboardMain.vue')
+        },
+        {
+          path: 'team-management',
+          name: 'teamManagement',
+          component: () => import('@/components/dashboard/DashboardTeamManagement.vue')
         }
         // {
         //   path: 'vault/itemid',

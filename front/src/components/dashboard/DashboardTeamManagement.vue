@@ -106,6 +106,9 @@
             {{ teamName }}
           </div>
         </div>
+        <div class="inline-block align-baseline">
+          <BaseButton buttonText="변경" />
+        </div>
         <div>
           <label for="input_text" class="block mb-2 text-sm text-gray-900 dark:text-gray-300">
             팀장(관리자)
@@ -171,9 +174,12 @@
                       class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
                     ></td>
                     <td class="py-4 px-6 text-sm text-center whitespace-nowrap dark:text-white">
-                      <a href="#" class="text-samsung-blue dark:text-blue-500 hover:underline"
-                        >. . .
-                      </a>
+                      <div
+                        class="text-samsung-blue dark:text-blue-500 hover:underline"
+                        @click="toggleHidden('memberRole')"
+                      >
+                        . . .
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -185,11 +191,13 @@
     </div>
   </div>
   <DashboardAuthorizationModal />
+  <DashboardMemberRoleModal />
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import DashboardAuthorizationModal from '../common/DashboardAuthorizationModal.vue'
+import DashboardMemberRoleModal from '../common/DashboardMemberRoleModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()

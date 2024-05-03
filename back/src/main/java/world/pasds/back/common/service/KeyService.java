@@ -63,7 +63,7 @@ public class KeyService {
             if (jwtSecretKey == null) throw new BusinessException(ExceptionCode.KEY_ERROR);
 
             //redis에 저장한다. 만료시간을 90일로 설정한다.
-            int REDIS_EXPIRE_SECOND = 20; //60 * 60 * 24 * 90;
+            int REDIS_EXPIRE_SECOND = 60 * 3; //60 * 60 * 24 * 90;
             redisTemplate.opsForValue().set("curJwtSecretKey", jwtSecretKey, REDIS_EXPIRE_SECOND, TimeUnit.SECONDS);
             //만료시간 없이 백업 키도 저장. 만료시 prevJwtSecretKey키 설정을 위해
             redisTemplate.opsForValue().set("backUpJwtSecretKey", jwtSecretKey);

@@ -1,12 +1,7 @@
 <template>
   <div class="flex justify-center items-center h-screen bg-white">
     <div class="text-center">
-      <img src="@/assets/images/secret_key_qr_example.png" alt="QR Code" class="mx-auto" />
-      <div>
-        "MemberSignup.vue에서 response로 받아서 sessionStorage에 넣어둔 totpKey QR코드 사진
-        들이밀기"
-      </div>
-      <div>sessionStorage.totpKey 는 지금 -> {{ totpKey }}</div>
+      <img :src="totpKey" alt="QR Code" class="mx-auto" />
       <h2 class="text-lg font-semibold text-gray-800 mt-4">
         앱에서 QR 코드를 스캔하여 앱을 연동하세요
       </h2>
@@ -28,7 +23,8 @@ const router = useRouter()
 const totpKey = ref('')
 
 onMounted(() => {
-  totpKey.value = sessionStorage.getItem('totpKey')
+  const savedBase64String = sessionStorage.getItem('totpKey')
+  totpKey.value = `data:image/png;base64,${savedBase64String}`
 })
 
 function goToNextStep() {

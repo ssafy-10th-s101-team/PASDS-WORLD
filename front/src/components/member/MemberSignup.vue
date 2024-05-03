@@ -251,13 +251,20 @@ const submitForm = async () => {
     confirmPassword: confirmPassword.value,
     nickname: nickname.value
   }
-  await localAxios.post(`/member/signup`, body)
+  await localAxios.post(`/member/signup`, body, {
+    responseType: 'arraybuffer'  // 이미지를 arraybuffer 형태로 받음
+  })
     .then((response) => {
-      sessionStorage.setItem('totpKey', response.data)
+      const base64String = btoa(
+        new Uint8Array(response.data)
+          .reduce((data, byte) => data + String.fromCharCode(byte), '')
+      )
+
+      sessionStorage.setItem('totpKey', base64String)
       router.push({ name: 'memberSignup2' })
     })
     .catch((error) => {
-      console.error(error.response.data.message)
+      console.error(error)
       showEmailExistsAlert()
     })
 

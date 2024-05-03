@@ -71,8 +71,8 @@ public class TeamController {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<?> assignNewHeader(@RequestBody AssignNewTeamHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        teamService.assignNewHeader(requestDto, userDetails.getMemberId());
+    public ResponseEntity<?> assignNewLeader(@RequestBody AssignNewTeamHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.assignNewLeader(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 

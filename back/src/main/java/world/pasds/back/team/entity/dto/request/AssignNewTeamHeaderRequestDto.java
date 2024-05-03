@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class AssignNewTeamHeaderRequestDto {
     private Long teamId;
-    private Long newHeaderId;
+    private Long newLeaderId;
 }

@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import world.pasds.back.common.dto.FirstLoginResponseDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.entity.CustomUserDetails;
@@ -35,18 +36,21 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieProvider cookieProvider;
     private final String passwordPepper;
+    private final KeyService keyService;
 
     public CustomAuthenticationFilter(
             AuthenticationManager authenticationManager,
             AntPathRequestMatcher[] requestMatchers,
             JwtTokenProvider jwtTokenProvider,
             CookieProvider cookieProvider,
-            String passwordPepper) {
+            String passwordPepper,
+            KeyService keyService) {
         this.authenticationManager = authenticationManager;
         this.requestMatchers = requestMatchers;
         this.jwtTokenProvider = jwtTokenProvider;
         this.cookieProvider = cookieProvider;
         this.passwordPepper = passwordPepper;
+        this.keyService = keyService;
     }
 
     @Override
@@ -88,7 +92,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
     private void handleFirstLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        // email, password 검사
         Map<String, String> requestBody = objectMapper.readValue(request.getInputStream(), Map.class);
         String email = requestBody.get("email");
         String pepperedPassword = requestBody.get("password") + passwordPepper;
@@ -119,28 +122,41 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
     private void handleSecondLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        // temporaryToken 검사
         String temporaryToken = cookieProvider.getCookieValue(request, TEMPORARY_TOKEN);
-        Authentication authentication = jwtTokenProvider.getAuthentication(temporaryToken);
-        if (authentication == null) {
-            cookieProvider.removeCookie(response,TEMPORARY_TOKEN);
-            respondCaseFail(response, TEMPORARY_TOKEN_EXPIRED);
-            return;
+        Authentication authentication = null;
+
+        try {
+            authentication = jwtTokenProvider.getAuthentication(temporaryToken, keyService.getJwtSecretKey());
+        } catch (BusinessException e) {
+
+            if (e.getExceptionCode() == INVALID_SIGNATURE) {
+                try {
+                    authentication = jwtTokenProvider.getAuthentication(temporaryToken, keyService.getPrevJwtSecretKey());
+                } catch (BusinessException e2) {
+                    cookieProvider.removeCookie(response, TEMPORARY_TOKEN);
+                    respondCaseFail(response, INVALID_SIGNATURE);
+                    return;
+                }
+            } else {
+                cookieProvider.removeCookie(response, TEMPORARY_TOKEN);
+                respondCaseFail(response, e.getExceptionCode());
+                return;
+            }
         }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         // totp 검사
         Map<String, String> requestBody = objectMapper.readValue(request.getInputStream(), Map.class);
         String totpCode = requestBody.get("totpCode");
         if (!isValidTotp(totpCode)) {
-            respondCaseFail(response,TOTP_CODE_NOT_SAME);
+            respondCaseFail(response, TOTP_CODE_NOT_SAME);
             return;
         }
 
         // 성공
-        // TODO: Redis 토큰 삭제 로직
+        jwtTokenProvider.removeTokenInRedis(userDetails.getMemberId(), JwtTokenProvider.TokenType.TEMPORARY);
         cookieProvider.removeCookie(response, TEMPORARY_TOKEN);
-
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String accessToken = jwtTokenProvider.generateAccessToken(userDetails.getMemberId());
         cookieProvider.addCookie(response, ACCESS_TOKEN, accessToken);
@@ -148,39 +164,132 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails.getMemberId());
         cookieProvider.addCookie(response, REFRESH_TOKEN, refreshToken);
 
-        respondCaseSuccess(response,null);
+        respondCaseSuccess(response, null);
 
     }
 
     private void handleLogout(HttpServletResponse response) throws IOException {
 
         // TODO: Redis 토큰 삭제 로직
+
+
         cookieProvider.removeCookie(response, ACCESS_TOKEN);
         cookieProvider.removeCookie(response, REFRESH_TOKEN);
-        respondCaseSuccess(response,null);
+        respondCaseSuccess(response, null);
     }
 
     private void handleDefaultCase(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
         String accessToken = cookieProvider.getCookieValue(request, ACCESS_TOKEN);
-        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
-        if (authentication != null) {
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String refreshToken = cookieProvider.getCookieValue(request, REFRESH_TOKEN);
-        authentication = jwtTokenProvider.getAuthentication(refreshToken);
-        if (authentication != null) {
-            accessToken = jwtTokenProvider.generateAccessToken(((CustomUserDetails) authentication.getPrincipal()).getMemberId());
-            cookieProvider.addCookie(response, ACCESS_TOKEN, accessToken);
+        Authentication authentication = null;
 
+        try {
+            authentication = jwtTokenProvider.getAuthentication(accessToken, keyService.getJwtSecretKey());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);
             return;
+        } catch (BusinessException e) {
+            switch (e.getExceptionCode()) {
+
+                case INVALID_SIGNATURE:
+                    try {
+
+                        authentication = jwtTokenProvider.getAuthentication(accessToken, keyService.getPrevJwtSecretKey());
+
+                        jwtTokenProvider.removeTokenInRedis(((CustomUserDetails) authentication.getPrincipal()).getMemberId(), JwtTokenProvider.TokenType.ACCESS);
+                        jwtTokenProvider.removeTokenInRedis(((CustomUserDetails) authentication.getPrincipal()).getMemberId(), JwtTokenProvider.TokenType.REFRESH);
+                        cookieProvider.removeCookie(response, ACCESS_TOKEN);
+                        cookieProvider.removeCookie(response, REFRESH_TOKEN);
+
+                        jwtTokenProvider.generateToken(((CustomUserDetails) authentication.getPrincipal()).getMemberId(), JwtTokenProvider.TokenType.ACCESS);
+                        cookieProvider.addCookie(response, , );
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        filterChain.doFilter(request, response);
+                        return;
+
+                    } catch (BusinessException e2) {
+                        switch (e2.getExceptionCode()) {
+
+                            case INVALID_SIGNATURE:
+
+                            case TOKEN_EXPIRED:
+                                try {
+                                    authentication = jwtTokenProvider.getAuthentication(refreshToken, keyService.getJwtSecretKey());
+
+                                    accessToken = jwtTokenProvider.generateAccessToken(((CustomUserDetails) authentication.getPrincipal()).getMemberId());
+                                    cookieProvider.addCookie(response, ACCESS_TOKEN, accessToken);
+
+                                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                                    filterChain.doFilter(request, response);
+                                    return;
+                                } catch (BusinessException e3) {
+                                    switch (e3.getExceptionCode()) {
+
+                                        case INVALID_SIGNATURE:
+                                            handleTokenError(response, REFRESH_INVALID_SIGNATURE);
+                                            return;
+                                        case TOKEN_EXPIRED:
+                                            handleTokenError(response, REFRESH_TOKEN_EXPIRED);
+                                            return;
+                                        case TOKEN_NOT_FOUND:
+                                            handleTokenError(response, REFRESH_TOKEN_NOT_FOUND);
+                                            return;
+                                        case TOKEN_MISMATCH:
+                                            handleTokenError(response, REFRESH_TOKEN_MISMATCH);
+                                            return;
+
+                                    }
+                                }
+                            case TOKEN_NOT_FOUND:
+                                handleTokenError(response, ACCESS_TOKEN_NOT_FOUND);
+                                return;
+                            case TOKEN_MISMATCH:
+                                handleTokenError(response, ACCESS_TOKEN_MISMATCH);
+                                return;
+
+                        }
+                    }
+
+
+                case TOKEN_EXPIRED:
+                    try {
+                        authentication = jwtTokenProvider.getAuthentication(refreshToken, keyService.getJwtSecretKey());
+
+                        accessToken = jwtTokenProvider.generateToken(((CustomUserDetails) authentication.getPrincipal()).getMemberId(), JwtTokenProvider.TokenType.ACCESS);
+                        cookieProvider.addCookie(response, ACCESS_TOKEN, accessToken);
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        filterChain.doFilter(request, response);
+                        return;
+                    } catch (BusinessException e2) {
+                        switch (e2.getExceptionCode()) {
+
+                            case INVALID_SIGNATURE:
+                                handleTokenError(response, REFRESH_INVALID_SIGNATURE);
+                                return;
+                            case TOKEN_EXPIRED:
+                                handleTokenError(response, REFRESH_TOKEN_EXPIRED);
+                                return;
+                            case TOKEN_NOT_FOUND:
+                                handleTokenError(response, REFRESH_TOKEN_NOT_FOUND);
+                                return;
+                            case TOKEN_MISMATCH:
+                                handleTokenError(response, REFRESH_TOKEN_MISMATCH);
+                                return;
+
+                        }
+                    }
+                case TOKEN_NOT_FOUND:
+                    handleTokenError(response, ACCESS_TOKEN_NOT_FOUND);
+                    return;
+                case TOKEN_MISMATCH:
+                    handleTokenError(response, ACCESS_TOKEN_MISMATCH);
+                    return;
+
+            }
         }
-        respondCaseFail(response,REFRESH_TOKEN_EXPIRED);
     }
 
     private void respondCaseSuccess(HttpServletResponse response, Object responseDto) throws IOException {
@@ -201,6 +310,12 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         response.getWriter().write(json);
         response.getWriter().flush();
         response.getWriter().close();
+    }
+
+    private void handleTokenError(HttpServletResponse response, ExceptionCode errorCode) throws IOException {
+        cookieProvider.removeCookie(response, ACCESS_TOKEN);
+        cookieProvider.removeCookie(response, REFRESH_TOKEN);
+        respondCaseFail(response, errorCode);
     }
 
     // TODO: 실제 TOTP 검사 로직

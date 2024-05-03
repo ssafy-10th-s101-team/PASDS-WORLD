@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import world.pasds.back.common.filter.CustomAuthenticationFilter;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.service.CustomUserDetailsService;
@@ -67,9 +68,12 @@ public class SecurityConfig {
     @Value("${security.pepper}")
     private String passwordPepper;
 
+    @Autowired
+    private KeyService keyService;
+
     @Bean
     public CustomAuthenticationFilter customAuthenticationFilter(AuthenticationManager authenticationManager) {
-        return new CustomAuthenticationFilter(authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper);
+        return new CustomAuthenticationFilter(authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper, keyService);
     }
 
     @Bean
@@ -110,7 +114,8 @@ public class SecurityConfig {
         // TODO: 실제 서비스 도메인 추가 ? kms도 추가???
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://your-production-site.com"
+                "https://www.pasds.world",
+                "https://pasds.world"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowCredentials(true);

@@ -2,6 +2,8 @@ package world.pasds.back.team.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ import world.pasds.back.role.repository.RoleAuthorityRepository;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.*;
+import world.pasds.back.team.entity.dto.response.GetTeamMemberResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.repository.PrivateDataRepository;
 import world.pasds.back.team.repository.TeamRepository;
@@ -78,6 +81,28 @@ public class TeamService {
             if (findMemberAndTeam != null) {
                 response.add(new GetTeamsResponseDto(team.getId(), organization.getId(), team.getName()));
             }
+        }
+
+        return response;
+    }
+
+    @Transactional
+    public List<GetTeamMemberResponseDto> getTeamMember(Long teamId, int offset, Long memberId) {
+        Pageable pageable = PageRequest.of(offset, 10);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        if (!memberTeamRepository.existsByMemberAndTeam(member, team)) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        List<MemberRole> memberRoleList = memberRoleRepository.findAllByTeam(team, pageable);
+        List<GetTeamMemberResponseDto> response = new ArrayList<>();
+        for (MemberRole memberRole : memberRoleList) {
+            response.add(GetTeamMemberResponseDto.builder()
+                    .memberNickname(memberRole.getMember().getNickname())
+                    .role(memberRole.getRole().getName())
+                    .build());
         }
 
         return response;
@@ -459,4 +484,5 @@ public class TeamService {
     private boolean isMyTeam(String teamName) {
         return "MY TEAM".equals(teamName);
     }
+
 }

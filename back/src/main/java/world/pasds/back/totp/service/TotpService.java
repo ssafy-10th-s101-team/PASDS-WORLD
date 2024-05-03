@@ -98,14 +98,12 @@ public class TotpService {
 
 	}
 
-	public void verificationTotpCode(Long memberId, String inputTotpCode) {
+	public boolean verificationTotpCode(Long memberId, String inputTotpCode) {
 
 		byte[] totpKey = getDecryptedTotpKey(memberId);
 		String totpCode = generateTotpCode(totpKey, LocalDateTime.now());
 
-		if (!inputTotpCode.equals(totpCode)) {
-			throw new BusinessException(ExceptionCode.TOTP_CODE_NOT_SAME);
-		}
+		return inputTotpCode.equals(totpCode);
 	}
 
 	private byte[] getDecryptedTotpKey(Long memberId) {

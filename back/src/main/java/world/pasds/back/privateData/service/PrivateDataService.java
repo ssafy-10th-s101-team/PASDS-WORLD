@@ -3,6 +3,7 @@ package world.pasds.back.privateData.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
@@ -74,7 +75,7 @@ public class PrivateDataService {
         List<PrivateData> canReadData = new ArrayList<>();
         for (PrivateData data : privateData) {
             if (privateDataRoleRepository.existsByPrivateDataAndRole(data, role)) { // 비밀에 나의 역할이 읽을 수 있는지 확인
-                if (roleAuthorityRepository.checkAuthority(role, 2L)) {
+                if (roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_READ)) {
                     canReadData.add(data);
                 }
             }
@@ -157,7 +158,7 @@ public class PrivateDataService {
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
-        if (!roleAuthorityRepository.checkAuthority(role, 1L)) {
+        if (!roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_CREATE)) {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 
@@ -221,7 +222,7 @@ public class PrivateDataService {
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
-        if (!roleAuthorityRepository.checkAuthority(role, 3L)) {
+        if (!roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_UPDATE)) {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 
@@ -277,7 +278,7 @@ public class PrivateDataService {
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
-        if (!roleAuthorityRepository.checkAuthority(role, 4L)) {
+        if (!roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_DELETE)) {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 

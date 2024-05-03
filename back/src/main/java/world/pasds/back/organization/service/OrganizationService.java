@@ -70,6 +70,7 @@ public class OrganizationService {
         }
     }
 
+    @Transactional
     public List<GetOrganizationMemberResponseDto> getOrganizationMember(Long organizationId, int offset, Long memberId) {
         Pageable pageable = PageRequest.of(offset, 10);
 

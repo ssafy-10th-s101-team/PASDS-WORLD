@@ -98,14 +98,12 @@ public class TotpService {
 
 	}
 
-	public void verificationTotpCode(Long memberId, String inputTotpCode) {
+	public boolean verificationTotpCode(Long memberId, String inputTotpCode) {
 
 		byte[] totpKey = getDecryptedTotpKey(memberId);
 		String totpCode = generateTotpCode(totpKey, LocalDateTime.now());
 
-		if (!inputTotpCode.equals(totpCode)) {
-			throw new BusinessException(ExceptionCode.TOTP_CODE_NOT_SAME);
-		}
+		return inputTotpCode.equals(totpCode);
 	}
 
 	private byte[] getDecryptedTotpKey(Long memberId) {
@@ -170,6 +168,12 @@ public class TotpService {
 	}
 
 	public void sendCodeToEmail(String toEmail) {
+
+		// DB에 존재하는 이메일인지 확인
+		if (memberRepository.existsByEmail(toEmail)) {
+			throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
+		}
+
 		String subject = "[PASDSWORLD] 이메일 인증 코드입니다.";
 		String authCode = createCode();
 

@@ -8,9 +8,9 @@ import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.dto.request.SignupRequestDto;
-import world.pasds.back.member.dto.response.SignupResponseDto;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.repository.MemberRepository;
+import world.pasds.back.totp.service.TotpService;
 
 import java.util.regex.Pattern;
 
@@ -21,11 +21,12 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
     private final InvitationService invitationService;
+    private final TotpService totpService;
 
     @Value("${security.pepper}")
     private String pepper;
 
-    public SignupResponseDto signup(SignupRequestDto signupRequestDto) {
+    public byte[] signup(SignupRequestDto signupRequestDto) {
 
         // 이메일 형식
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
@@ -57,13 +58,6 @@ public class MemberService {
             throw new BusinessException(ExceptionCode.NICKNAME_INVALID_FORMAT);
         }
 
-        // TODO: 하은 TOTP
-
-        SignupResponseDto signupResponseDto = SignupResponseDto
-                .builder()
-                .tmp("123456")
-                .build();
-
         // 비밀번호 암호화하여 저장
         String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
         Member newMember = new Member().builder()
@@ -73,12 +67,13 @@ public class MemberService {
                 .build();
         memberRepository.save(newMember);
 
-        /**
+		/**
          * 회원가입시 받은 초대 모두 가입시키기
          */
 //        invitationService.checkInvitation(newMember, signupRequestDto.getEmail());
 
-        return signupResponseDto;
-
+        Member member = memberRepository.findByEmail(newMember.getEmail());
+        // totp key 발급
+        return totpService.generateSecretKeyQR(member.getId());
     }
 }

@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.AuthorityName;
+import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
+import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberRole;
 import world.pasds.back.member.entity.MemberTeam;
@@ -29,6 +32,7 @@ import world.pasds.back.team.repository.TeamRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +48,7 @@ public class PrivateDataService {
     private final PrivateDataRoleRepository privateDataRoleRepository;
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
-
+    private final KeyService keyService;
     @Transactional
     public List<GetPrivateDataListResponseDto> getPrivateDataList(GetPrivateDataListRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -130,10 +134,19 @@ public class PrivateDataService {
          */
         byte[] encryptedDataKey = team.getEncryptedDataKey();
         byte[] encryptedIv = team.getEncryptedIv();
-        byte[] encrpytedPrivateData = privateData.getContent();
-        String decryptedData = null;
+        byte[] encryptedPrivateData = privateData.getContent();
 
-        return new GetPrivateDataResponseDto(decryptedData);
+        KmsKeyDto dto = KmsKeyDto.builder()
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
+        KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
+
+        byte[] decryptedData = keyService.decryptSecret(encryptedPrivateData,
+                Base64.getDecoder().decode(decryptKeys.getDataKey()),
+                Base64.getDecoder().decode(decryptKeys.getIv()));
+
+        return new GetPrivateDataResponseDto(new String(decryptedData, StandardCharsets.UTF_8));
     }
 
     @Transactional
@@ -155,7 +168,16 @@ public class PrivateDataService {
          */
         byte[] encryptedDataKey = team.getEncryptedDataKey();
         byte[] encryptedIv = team.getEncryptedIv();
-        byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
+
+        KmsKeyDto dto = KmsKeyDto.builder()
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
+        KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
+
+        byte[] encryptedPrivateData = keyService.encryptSecret(requestDto.getContent().getBytes(StandardCharsets.UTF_8),
+                Base64.getDecoder().decode(decryptKeys.getDataKey()),
+                Base64.getDecoder().decode(decryptKeys.getIv()));
 
         PrivateData privateData = null;
 

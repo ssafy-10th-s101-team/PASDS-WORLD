@@ -11,8 +11,6 @@ public enum AuthorityName {
     ROLE_DELETE,
     TEAM_UPDATE,
     TEAM_DELETE,
-    ORGANIZATION_INVITE,
     TEAM_INVITE,
-    TEAM_REMOVE,
-    CHANGE_ROLE
+    TEAM_REMOVE
 }

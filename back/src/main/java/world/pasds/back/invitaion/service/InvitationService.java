@@ -67,19 +67,20 @@ public class InvitationService {
     }
 
     @Transactional
-    public void inviteMemberToTeam(Organization organization, Team team, Member sender, String receiverEmail, Role role) {
+    public void inviteMemberToTeam(Organization organization, Team team, Member sender, Member receiver, Role role) {
         Invitation invitation = Invitation.builder()
                 .invitedBy(sender)
-                .invitedMemberEmail(receiverEmail)
+                .invitedMemberEmail(receiver.getEmail())
                 .expiredAt(LocalDateTime.now().plusDays(3))
                 .organization(organization)
                 .team(team)
                 .role(role)
                 .build();
         invitationRepository.save(invitation);
-        emailService.sendMessage(receiverEmail,
+        emailService.sendMessage(receiver.getEmail(),
                 "Invite to " + organization.getName() + " " + team.getName(),
                 "From " + sender.getNickname() + "(" + sender.getEmail() + ")" + " invite to " + organization.getName() + " " + team.getName() + "\n" + DOMAIN + "\n" + "초대받은 이메일로 회원가입을 진행해주세요.");
+        notificationService.notify(sender, receiver, "팀 초대", "팀 초대", NotificationType.USER, null);
     }
 
     @Transactional
@@ -107,7 +108,7 @@ public class InvitationService {
             /**
              * Todo: 알림 Url 설정
              */
-            if (invitation!= null && invitation.getInvitedBy() != null) {
+            if (invitation != null && invitation.getInvitedBy() != null) {
                 notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", "조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
             }
         }
@@ -132,7 +133,7 @@ public class InvitationService {
             /**
              * Todo: 알림 Url 설정
              */
-            if (invitation!= null && invitation.getInvitedBy() != null) {
+            if (invitation != null && invitation.getInvitedBy() != null) {
                 notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", "조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
             }
         }
@@ -178,7 +179,7 @@ public class InvitationService {
             /**
              * Todo: 알림 Url 설정
              */
-            if (invitation!= null && invitation.getInvitedBy() != null) {
+            if (invitation != null && invitation.getInvitedBy() != null) {
                 notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "팀 초대 기한 만료", "팀 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
             }
         }
@@ -202,7 +203,7 @@ public class InvitationService {
             /**
              * Todo: 알림 Url 설정
              */
-            if (invitation!= null && invitation.getInvitedBy() != null) {
+            if (invitation != null && invitation.getInvitedBy() != null) {
                 notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "팀 초대 기한 만료", "팀 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
             }
         }

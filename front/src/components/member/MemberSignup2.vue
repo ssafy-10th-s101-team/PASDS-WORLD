@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center items-center h-screen bg-white">
     <div class="text-center">
-      <img src="@/assets/images/pasdsworld_v1_qr.png" alt="QR Code" class="mx-auto" />
+      <img src="@/assets/images/pasdsworld_v2_qr.png" alt="QR Code" class="mx-auto" />
       <h2 class="text-lg font-semibold text-gray-800 mt-4">
         QR 코드를 스캔하여 본인 인증 앱을 다운로드하세요
       </h2>

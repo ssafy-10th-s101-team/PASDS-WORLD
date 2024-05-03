@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hibernate.query.sqm.tree.SqmNode.log;
 
-//@Service
+@Service
 public class RedisJwtSecretKeyListener extends KeyExpirationEventMessageListener {
     @Value("${security.jwt.refresh-token-expiration-ms}")
     private int refreshTokenExpirationMs;
@@ -29,9 +29,10 @@ public class RedisJwtSecretKeyListener extends KeyExpirationEventMessageListener
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String expiredKey = new String(message.getBody());
-
+        System.out.println("expired");
         // "curJwtSecretKey"에 대한 이벤트만 처리
         if (!"curJwtSecretKey".equals(expiredKey)) {
+            System.out.println("not important expire");
             return; // 이 이벤트를 무시하고 리턴
         }
 

@@ -427,12 +427,15 @@ public class TeamService {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = memberRole.getRole();
-        if(!"headers".equals(role.getName())){
+
+        if("LEADER".equals(role.getName()) || "HEADER".equals(role.getName())){
+            //팀 데이터 키 갱신.
+            changeTeamDataKey(team);
+            return;
+        }
+        else {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
-
-        //팀 데이터 키 갱신.
-        changeTeamDataKey(team);
     }
 
     private void changeTeamDataKey(Team team){

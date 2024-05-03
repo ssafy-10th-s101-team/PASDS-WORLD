@@ -21,7 +21,10 @@ import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
+import world.pasds.back.notification.entity.NotificationType;
+import world.pasds.back.notification.service.NotificationService;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.repository.RoleRepository;
@@ -44,16 +47,18 @@ public class InvitationService {
     private final OrganizationRepository organizationRepository;
     private final TeamRepository teamRepository;
     private final RoleRepository roleRepository;
+    private final NotificationService notificationService;
 
     private final String DOMAIN = "https://k10s101.p.ssafy.io";
 
     @Transactional
-    public void inviteMemberToOrganization(Organization organization, Member sender, String receiverEmail) {
+    public void inviteMemberToOrganization(Organization organization, Member sender, OrganizationRole organizationRole, String receiverEmail) {
         Invitation invitation = Invitation.builder()
                 .invitedBy(sender)
                 .invitedMemberEmail(receiverEmail)
                 .expiredAt(LocalDateTime.now().plusDays(3))
                 .organization(organization)
+                .organizationRole(organizationRole)
                 .build();
         invitationRepository.save(invitation);
         emailService.sendMessage(receiverEmail,
@@ -62,13 +67,14 @@ public class InvitationService {
     }
 
     @Transactional
-    public void inviteMemberToTeam(Organization organization, Team team, Member sender, String receiverEmail) {
+    public void inviteMemberToTeam(Organization organization, Team team, Member sender, String receiverEmail, Role role) {
         Invitation invitation = Invitation.builder()
                 .invitedBy(sender)
                 .invitedMemberEmail(receiverEmail)
                 .expiredAt(LocalDateTime.now().plusDays(3))
                 .organization(organization)
                 .team(team)
+                .role(role)
                 .build();
         invitationRepository.save(invitation);
         emailService.sendMessage(receiverEmail,
@@ -81,25 +87,31 @@ public class InvitationService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
-        Invitation invitation = invitationRepository.findOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAt(member.getEmail(), organization);
+        List<Invitation> invitationList = invitationRepository.findAllOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAtDesc(member.getEmail(), organization);
+        Invitation invitation = invitationList.get(0);
 
         // 조직 초대가 유효한 경우
         if (invitation != null && invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
             MemberOrganization memberOrganization = MemberOrganization.builder()
                     .member(member)
                     .organization(organization)
+                    .organizationRole(invitation.getOrganizationRole())
                     .build();
             memberOrganizationRepository.save(memberOrganization);
-            invitationRepository.delete(invitation);
 
             /**
-             * Todo sender에게 수락 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 수락", "조직 초대 수락했습니다~", NotificationType.USER, null);
         } else {
             /**
-             * Todo sender에게 초대 만료 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            if (invitation!= null && invitation.getInvitedBy() != null) {
+                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", "조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
+            }
         }
+        invitationRepository.deleteAll(invitationList);
     }
 
     @Transactional
@@ -107,20 +119,24 @@ public class InvitationService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
-        Invitation invitation = invitationRepository.findOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAt(member.getEmail(), organization);
+        List<Invitation> invitationList = invitationRepository.findAllOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAtDesc(member.getEmail(), organization);
+        Invitation invitation = invitationList.get(0);
 
         // 조직 초대가 유효한 경우
         if (invitation != null && invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
-            invitationRepository.delete(invitation);
-
             /**
-             * Todo sender에게 거절 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 거절", "조직 초대 거절했습니다~", NotificationType.USER, null);
         } else {
             /**
-             * Todo sender에게 초대 만료 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            if (invitation!= null && invitation.getInvitedBy() != null) {
+                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", "조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
+            }
         }
+        invitationRepository.deleteAll(invitationList);
     }
 
     @Transactional
@@ -130,13 +146,13 @@ public class InvitationService {
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
         Role role = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
 
-        Invitation invitation = invitationRepository.findTeamInvitationByInvitedMemberEmailAndOrganizationAndTeamOrderByCreatedAt(member.getEmail(), organization, team);
+        List<Invitation> invitationList = invitationRepository.findAllTeamInvitationByInvitedMemberEmailAndOrganizationAndTeamOrderByCreatedAtDesc(member.getEmail(), organization, team);
+        Invitation invitation = invitationList.get(0);
 
         // 팀 초대가 유효한 경우
         if (invitation != null && invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
-
             MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, organization);
-            // 우리 조직원인 경우
+            // 우리 조직원인 경우만 팀 초대 수락 가능
             if (findMemberAndOrganization != null) {
                 MemberTeam memberTeam = MemberTeam.builder()
                         .member(member)
@@ -147,20 +163,26 @@ public class InvitationService {
                 MemberRole memberRole = MemberRole.builder()
                         .member(member)
                         .role(role)
+                        .team(team)
                         .build();
                 memberRoleRepository.save(memberRole);
+            } else {
+                throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
             }
 
-            invitationRepository.delete(invitation);
-
             /**
-             * Todo sender에게 수락 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            notificationService.notify(member, invitation.getInvitedBy(), "팀 초대 수락", "팀 초대 수락했습니다~", NotificationType.USER, null);
         } else {
             /**
-             * Todo sender에게 초대 만료 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            if (invitation!= null && invitation.getInvitedBy() != null) {
+                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "팀 초대 기한 만료", "팀 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
+            }
         }
+        invitationRepository.deleteAll(invitationList);
     }
 
     @Transactional
@@ -169,19 +191,22 @@ public class InvitationService {
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
-        Invitation invitation = invitationRepository.findTeamInvitationByInvitedMemberEmailAndOrganizationAndTeamOrderByCreatedAt(member.getEmail(), organization, team);
-
+        List<Invitation> invitationList = invitationRepository.findAllTeamInvitationByInvitedMemberEmailAndOrganizationAndTeamOrderByCreatedAtDesc(member.getEmail(), organization, team);
+        Invitation invitation = invitationList.get(0);
         if (invitation != null && invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
-            invitationRepository.delete(invitation);
-
             /**
-             * Todo sender에게 거절 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            notificationService.notify(member, invitation.getInvitedBy(), "팀 초대 거절", "팀 초대 거절했습니다~", NotificationType.USER, null);
         } else {
             /**
-             * Todo sender에게 초대 만료 알림 보내기
+             * Todo: 알림 Url 설정
              */
+            if (invitation!= null && invitation.getInvitedBy() != null) {
+                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "팀 초대 기한 만료", "팀 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
+            }
         }
+        invitationRepository.deleteAll(invitationList);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

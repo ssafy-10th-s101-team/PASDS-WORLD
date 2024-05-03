@@ -8,10 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.invitaion.service.InvitationService;
-import world.pasds.back.member.entity.Member;
-import world.pasds.back.member.entity.MemberOrganization;
-import world.pasds.back.member.entity.MemberRole;
-import world.pasds.back.member.entity.MemberTeam;
+import world.pasds.back.member.entity.*;
 import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
@@ -19,6 +16,7 @@ import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.notification.entity.NotificationType;
 import world.pasds.back.notification.service.NotificationService;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.entity.dto.request.*;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationMemberResponseDto;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
@@ -30,6 +28,7 @@ import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
 import world.pasds.back.team.repository.TeamRepository;
 import world.pasds.back.team.service.TeamService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,25 +84,8 @@ public class OrganizationService {
                 .stream().map(mo -> GetOrganizationMemberResponseDto
                         .builder()
                         .name(mo.getMember().getNickname())
-                        .isHeader(mo.getMember().equals(organization.getHeader()))
+                        .organizationRole(mo.getOrganizationRole())
                         .build()).collect(Collectors.toList());
-    }
-
-    private Organization createAndSaveOrganizationWithMember(CreateOrganizationRequestDto requestDto, Member findMember) {
-        Organization o = Organization.builder()
-                .header(findMember)
-                .name(requestDto.getName())
-                .teamCount(0)
-                .build();
-        organizationRepository.save(o);
-
-        MemberOrganization mo = MemberOrganization.builder()
-                .organization(o)
-                .member(findMember)
-                .build();
-        memberOrganizationRepository.save(mo);
-
-        return o;
     }
 
     @Transactional
@@ -118,6 +100,8 @@ public class OrganizationService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        // 조직장만이 조직해체 가능
         if (findOrganization.getHeader().equals(member)) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
@@ -127,6 +111,7 @@ public class OrganizationService {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
+        // 조직의 모든 팀 삭제
         List<Team> fidnTeamList = teamRepository.findAllByOrganization(findOrganization);
         teamRepository.deleteAll(fidnTeamList);
         organizationRepository.delete(findOrganization);
@@ -142,15 +127,28 @@ public class OrganizationService {
         if (isMyOrganization(findOrganization.getName())) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
-        /**
-         * Todo 권한 확인
-         */
 
-        invitationService.inviteMemberToOrganization(findOrganization, sender, requestDto.getEmail());
+        MemberOrganization findMO = memberOrganizationRepository.findByMemberAndOrganization(sender, findOrganization);
+
+        // 조직의 일반 회원은 조직원 초대 불가
+        if (OrganizationRole.MEMBER.equals(findMO.getOrganizationRole())) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        }
+
+        // 역할 부여시 HEADER 역할 부여는 불가능
+        if (OrganizationRole.HEADER.equals(requestDto.getOrganizationRole())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
+        // 조직원 초대시 조직에서의 역할 부여
+        invitationService.inviteMemberToOrganization(findOrganization, sender, requestDto.getOrganizationRole(), requestDto.getEmail());
 
         Member receiver = memberRepository.findByEmail(requestDto.getEmail());
-        if (receiver != null) {
-            notificationService.notify(sender, receiver, "팀 초대", "팀 초대 메시지", NotificationType.USER, null);
+        if (receiver != null) { // 우리 회원인 경우 알림 전송
+            /**
+             * TODO: 알림 설정
+             */
+            notificationService.notify(sender, receiver, "조직 초대", "조직 초대 메시지", NotificationType.USER, null);
         }
     }
 
@@ -158,7 +156,7 @@ public class OrganizationService {
     public void removeMemberFromOrganization(RemoveMemberFromOrganizationRequestDto requestDto, Long memberId) {
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
-        memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Member removeMember = memberRepository.findByEmail(requestDto.getEmail());
 
         // 개인 고유 조직은 조직원 추방 불가
@@ -166,25 +164,39 @@ public class OrganizationService {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
+        // 우리 회원이 아닌 경우
         if (removeMember == null) {
             throw new BusinessException(ExceptionCode.MEMBER_NOT_FOUND);
         }
-        MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(removeMember, findOrganization);
 
+        // 우리 조직원이 아닌 경우
+        MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(removeMember, findOrganization);
         if (findMemberAndOrganization == null) {
             throw new BusinessException(ExceptionCode.MEMBER_NOT_FOUND);
         }
 
-        /**
-         * Todo 권한 확인
-         */
+        // 조직내의 MEMBER 역할은 조직원 추방 불가능
+        MemberOrganization findMemberOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, findOrganization);
+        if (OrganizationRole.MEMBER.equals(findMemberOrganization.getOrganizationRole())) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        }
 
+        // 모든 팀에서 추방
         List<Team> findTeamList = teamRepository.findAllByOrganization(findOrganization);
-
+        List<MemberTeam> removeMemberTeamList = new ArrayList<>();
+        List<MemberRole> removeMemberRoleList = new ArrayList<>();
         for (Team team : findTeamList) {
             MemberTeam findTeamMember = memberTeamRepository.findByMemberAndTeam(removeMember, team);
-            memberTeamRepository.delete(findTeamMember);
+            MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+            if (findTeamMember != null) {
+                removeMemberTeamList.add(findTeamMember);
+            }
+            if (findTeamMember != null) {
+                removeMemberRoleList.add(findMemberRole);
+            }
         }
+        memberTeamRepository.deleteAll(removeMemberTeamList);
+        memberRoleRepository.deleteAll(removeMemberRoleList);
     }
 
     @Transactional
@@ -201,19 +213,25 @@ public class OrganizationService {
         if (organization.getHeader().equals(member)) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
-        List<Team> teamList = teamRepository.findAllByOrganization(organization);
 
+        // 조직 내 모든 팀에서 탈퇴
+        List<Team> teamList = teamRepository.findAllByOrganization(organization);
+        List<MemberTeam> removeMemberTeamList = new ArrayList<>();
+        List<MemberRole> removeMemberRoleList = new ArrayList<>();
         for (Team team : teamList) {
-            MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);
-            MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(member, team);
-            if (findMemberAndTeam != null) {
-                memberTeamRepository.delete(findMemberAndTeam);
+            MemberTeam findMemberTeam = memberTeamRepository.findByMemberAndTeam(member, team);
+            MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+            if (findMemberTeam != null) {
+                removeMemberTeamList.add(findMemberTeam);
             }
 
-            if (findMemberAndRole != null) {
-                memberRoleRepository.delete(findMemberAndRole);
+            if (findMemberRole != null) {
+                removeMemberRoleList.add(findMemberRole);
             }
         }
+        memberTeamRepository.deleteAll(removeMemberTeamList);
+        memberRoleRepository.deleteAll(removeMemberRoleList);
+
         MemberOrganization findMemberAndOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, organization);
         memberOrganizationRepository.delete(findMemberAndOrganization);
     }
@@ -266,6 +284,7 @@ public class OrganizationService {
         // 기존 조직장은 모든 팀에서 "GUEST"로 변경
         // 새로운 조직장은 모든 팀에서 "HEADER"로 변경
         List<Team> teamList = teamRepository.findAllByOrganization(organization);
+        List<MemberRole> memberRoleList = new ArrayList<>();
         for (Team team : teamList) {
             Role guest = roleRepository.findByTeamAndName(team, "GUEST");
             Role header = roleRepository.findByTeamAndName(team, "HEADER");
@@ -274,14 +293,40 @@ public class OrganizationService {
             findMemberAndRole.setRole(guest);
             findNewHeaderAndRole.setRole(header);
 
-            memberRoleRepository.save(findMemberAndRole);
-            memberRoleRepository.save(findNewHeaderAndRole);
+            memberRoleList.add(findMemberAndRole);
+            memberRoleList.add(findNewHeaderAndRole);
         }
+        memberRoleRepository.saveAll(memberRoleList);
 
+        // 조직장 위임
+        MemberOrganization findMemberOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, organization);
+        findMemberOrganization.setOrganizationRole(OrganizationRole.MEMBER);
+        memberOrganizationRepository.save(findMemberOrganization);
+
+        organization.setHeader(newHeader);
+        organizationRepository.save(organization);
     }
 
     private boolean isMyOrganization(String organizationName) {
         return "MY ORGANIZATION".equals(organizationName);
+    }
+
+    private Organization createAndSaveOrganizationWithMember(CreateOrganizationRequestDto requestDto, Member findMember) {
+        Organization o = Organization.builder()
+                .header(findMember)
+                .name(requestDto.getName())
+                .teamCount(0)
+                .build();
+        organizationRepository.save(o);
+
+        MemberOrganization mo = MemberOrganization.builder()
+                .organization(o)
+                .member(findMember)
+                .organizationRole(OrganizationRole.HEADER)
+                .build();
+        memberOrganizationRepository.save(mo);
+
+        return o;
     }
 
 }

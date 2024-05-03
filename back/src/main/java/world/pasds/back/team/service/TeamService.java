@@ -36,7 +36,7 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.*;
 import world.pasds.back.team.entity.dto.response.GetTeamMemberResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
-import world.pasds.back.team.repository.PrivateDataRepository;
+import world.pasds.back.privateData.repository.PrivateDataRepository;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;

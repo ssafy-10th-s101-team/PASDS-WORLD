@@ -26,8 +26,8 @@ import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
-import world.pasds.back.team.repository.PrivateDataRepository;
-import world.pasds.back.team.repository.PrivateDataRoleRepository;
+import world.pasds.back.privateData.repository.PrivateDataRepository;
+import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.nio.charset.StandardCharsets;

@@ -281,7 +281,7 @@ public class PrivateDataService {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 
-        PrivateData privateData = privateDataRepository.findById(requestDto.getId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
         privateDataRepository.delete(privateData);
     }
 }

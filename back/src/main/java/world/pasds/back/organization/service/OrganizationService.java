@@ -102,7 +102,7 @@ public class OrganizationService {
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         // 조직장만이 조직해체 가능
-        if (findOrganization.getHeader().equals(member)) {
+        if (findOrganization.getHeader().getId().equals(member.getId())) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
@@ -131,12 +131,12 @@ public class OrganizationService {
         MemberOrganization findMO = memberOrganizationRepository.findByMemberAndOrganization(sender, findOrganization);
 
         // 조직의 일반 회원은 조직원 초대 불가
-        if (OrganizationRole.MEMBER.equals(findMO.getOrganizationRole())) {
+        if (OrganizationRole.MEMBER == findMO.getOrganizationRole()) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
         // 역할 부여시 HEADER 역할 부여는 불가능
-        if (OrganizationRole.HEADER.equals(requestDto.getOrganizationRole())) {
+        if (OrganizationRole.HEADER == requestDto.getOrganizationRole()) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
@@ -177,7 +177,7 @@ public class OrganizationService {
 
         // 조직내의 MEMBER 역할은 조직원 추방 불가능
         MemberOrganization findMemberOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, findOrganization);
-        if (OrganizationRole.MEMBER.equals(findMemberOrganization.getOrganizationRole())) {
+        if (OrganizationRole.MEMBER == findMemberOrganization.getOrganizationRole()) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
@@ -210,7 +210,7 @@ public class OrganizationService {
         }
 
         // 조직장은 떠나기가 없음, 조직해체만 가능
-        if (organization.getHeader().equals(member)) {
+        if (organization.getHeader().getId().equals(member.getId())) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
@@ -247,7 +247,7 @@ public class OrganizationService {
         }
 
         // 조직명 변경은 조직장만 가능
-        if (!organization.getHeader().equals(member)) {
+        if (!organization.getHeader().getId().equals(member.getId())) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
@@ -271,7 +271,7 @@ public class OrganizationService {
         }
 
         // 조직장 위임은 조직장만 가능
-        if (!organization.getHeader().equals(member)) {
+        if (!organization.getHeader().getId().equals(member.getId())) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 

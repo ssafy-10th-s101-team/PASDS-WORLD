@@ -131,7 +131,7 @@ public class TeamService {
 
         Team savedTeam;
         // 조직장이 팀 생성시
-        if (header.equals(member)) {
+        if (header.getId().equals(member.getId())) {
             Team newTeam = Team.builder()
                     .leader(null)
                     .organization(organization)
@@ -202,7 +202,7 @@ public class TeamService {
         memberRoleRepository.save(orgHeaderRole);
 
         // 조직장이 아닌 사람이 팀을 생성하는 경우
-        if (!header.equals(member)) {
+        if (!header.getId().equals(member.getId())) {
             // 조직장도 멤버_팀 추가
             MemberTeam orgHeaderTeam = MemberTeam.builder()
                     .member(header)
@@ -231,7 +231,7 @@ public class TeamService {
         }
 
         // 권한 확인 - 조직장 혹은 팀장
-        if (member.equals(team.getOrganization().getHeader()) || member.equals(team.getLeader())) {
+        if (member.getId().equals(team.getOrganization().getHeader().getId()) || member.getId().equals(team.getLeader().getId())) {
             teamRepository.delete(team);
         } else {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
@@ -292,12 +292,12 @@ public class TeamService {
         }
 
         // 조직장 추방 불가
-        if (removeMember.equals(team.getOrganization().getHeader())) {
+        if (removeMember.getId().equals(team.getOrganization().getHeader().getId())) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
         // 팀장 추방 불가
-        if (removeMember.equals(team.getLeader())) {
+        if (removeMember.getId().equals(team.getLeader().getId())) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
@@ -331,12 +331,12 @@ public class TeamService {
         }
 
         // 조직장은 떠나기가 없음, 팀해체만 가능
-        if (member.equals(team.getOrganization().getHeader())) {
+        if (member.getId().equals(team.getOrganization().getHeader().getId())) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
         // 팀장은 떠나기가 없음, 팀해체만 가능
-        if (member.equals(team.getLeader())) {
+        if (member.getId().equals(team.getLeader().getId())) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
@@ -364,7 +364,7 @@ public class TeamService {
         }
 
         // 팀장 위임은 조직장과 팀장만 가능
-        if (!(member.equals(header) || member.equals(leader))) {
+        if (!(member.getId().equals(header.getId()) || member.getId().equals(leader.getId()))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
@@ -375,7 +375,7 @@ public class TeamService {
         }
 
         // 팀장 위임은 조직장에게 불가능
-        if (newLeader.equals(header)) {
+        if (newLeader.getId().equals(header.getId())) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 
@@ -386,7 +386,7 @@ public class TeamService {
         memberRoleRepository.save(findNewLeaderAndRole);
 
         // 팀장위임하는 사람이 조직장이 아닌경우
-        if (!member.equals(header)) {
+        if (!member.getId().equals(header.getId())) {
             Role guestRole = roleRepository.findByTeamAndName(team, "GUEST");
             MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(member, team);
             findMemberAndRole.setRole(guestRole);
@@ -406,7 +406,7 @@ public class TeamService {
         }
 
         // 팀명 변경은 조직장과 팀장만 가능
-        if (!(member.equals(team.getOrganization().getHeader()) || member.equals(team.getLeader()))) {
+        if (!(member.getId().equals(team.getOrganization().getHeader().getId()) || member.getId().equals(team.getLeader().getId()))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

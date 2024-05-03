@@ -81,17 +81,18 @@ public class RoleService {
                 .name(requestDto.getRoleName())
                 .team(team)
                 .build();
+
+        if ("HEADER".equals(createRole.getName()) ||
+                "LEADER".equals(createRole.getName()) ||
+                "MEMBER".equals(createRole.getName())) {
+            throw new BusinessException(ExceptionCode.AUTHORITY_NAME_CONFLICT);
+        }
         Role savedRole = roleRepository.save(createRole);
 
         List<RoleAuthority> saveRoleAuthorityList = new ArrayList<>();
         for (Authority authority : requestDto.getAuthorities()) {
-            if (AuthorityName.TEAM_DELETE.equals(authority.getName())) {    // 팀 삭제 권한이 있는 역할 생성 불가
+            if (AuthorityName.TEAM_DELETE == authority.getName()) {    // 팀 삭제 권한이 있는 역할 생성 불가
                 throw new BusinessException(ExceptionCode.BAD_REQUEST);
-            }
-            if ("HEADER".equals(String.valueOf(authority.getName())) ||
-                    "LEADER".equals(String.valueOf(authority.getName())) ||
-                    "MEMBER".equals(String.valueOf(authority.getName()))) {
-                throw new BusinessException(ExceptionCode.AUTHORITY_NAME_CONFLICT);
             }
             RoleAuthority roleAuthority = RoleAuthority.builder()
                     .role(savedRole)
@@ -132,7 +133,7 @@ public class RoleService {
         // 역할의 권한 수정
         List<RoleAuthority> newAuthorities = requestDto.getAuthorities()
                 .stream()
-                .filter(authority -> !AuthorityName.TEAM_DELETE.equals(authority.getName()))
+                .filter(authority -> AuthorityName.TEAM_DELETE != authority.getName())
                 .map(authority -> RoleAuthority
                         .builder()
                         .role(newRole)
@@ -176,7 +177,7 @@ public class RoleService {
         Role role = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
         Organization organization = team.getOrganization();
 
-        if (!(team.getLeader().equals(member) || organization.getHeader().equals(member))) {
+        if (!(team.getLeader().getId().equals(member.getId()) || organization.getHeader().getId().equals(member.getId()))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

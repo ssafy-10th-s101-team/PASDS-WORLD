@@ -115,7 +115,7 @@ public class PrivateDataService {
             List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
             // 해당 비밀을 읽을 권한이 있는지 확인
             for (RoleAuthority roleAuthority : roleAuthorityList) {
-                if (AuthorityName.PRIVATE_DATA_READ.equals(roleAuthority.getAuthority().getName())) {
+                if (AuthorityName.PRIVATE_DATA_READ == roleAuthority.getAuthority().getName()) {
                     canRead = true;
                     break;
                 }
@@ -178,7 +178,7 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
         PrivateData privateData;
-        if (requestDto.getType().equals(DataType.PW)) {
+        if (requestDto.getType() == DataType.PW) {
             privateData = PrivateData.builder()
                     .team(team)
                     .type(requestDto.getType())
@@ -236,7 +236,7 @@ public class PrivateDataService {
 
         // 비밀, 제목, 메모, 아이디, url 변경 가능
         PrivateData newPrivateData;
-        if (findPrivateData.getType().equals(DataType.PW)) {
+        if (findPrivateData.getType() == DataType.PW) {
             newPrivateData = PrivateData.builder()
                     .team(team)
                     .type(findPrivateData.getType())

@@ -20,6 +20,7 @@ import world.pasds.back.common.filter.CustomAuthenticationFilter;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.service.CustomUserDetailsService;
+import world.pasds.back.totp.service.TotpService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -67,9 +68,12 @@ public class SecurityConfig {
     @Value("${security.pepper}")
     private String passwordPepper;
 
+    @Autowired
+    private TotpService totpService;
+
     @Bean
     public CustomAuthenticationFilter customAuthenticationFilter(AuthenticationManager authenticationManager) {
-        return new CustomAuthenticationFilter(authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper);
+        return new CustomAuthenticationFilter(authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper, totpService);
     }
 
     @Bean

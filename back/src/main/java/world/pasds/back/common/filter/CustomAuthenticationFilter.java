@@ -18,6 +18,7 @@ import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.entity.CustomUserDetails;
+import world.pasds.back.totp.service.TotpService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -35,18 +36,21 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieProvider cookieProvider;
     private final String passwordPepper;
+    private final TotpService totpService;
 
     public CustomAuthenticationFilter(
             AuthenticationManager authenticationManager,
             AntPathRequestMatcher[] requestMatchers,
             JwtTokenProvider jwtTokenProvider,
             CookieProvider cookieProvider,
-            String passwordPepper) {
+            String passwordPepper,
+            TotpService totpService) {
         this.authenticationManager = authenticationManager;
         this.requestMatchers = requestMatchers;
         this.jwtTokenProvider = jwtTokenProvider;
         this.cookieProvider = cookieProvider;
         this.passwordPepper = passwordPepper;
+        this.totpService = totpService;
     }
 
     @Override
@@ -128,10 +132,12 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         // totp 검사
         Map<String, String> requestBody = objectMapper.readValue(request.getInputStream(), Map.class);
         String totpCode = requestBody.get("totpCode");
-        if (!isValidTotp(totpCode)) {
+        if (!isValidTotp(userDetails.getMemberId(), totpCode)) {
             respondCaseFail(response,TOTP_CODE_NOT_SAME);
             return;
         }
@@ -139,8 +145,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         // 성공
         // TODO: Redis 토큰 삭제 로직
         cookieProvider.removeCookie(response, TEMPORARY_TOKEN);
-
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String accessToken = jwtTokenProvider.generateAccessToken(userDetails.getMemberId());
         cookieProvider.addCookie(response, ACCESS_TOKEN, accessToken);
@@ -203,11 +207,10 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         response.getWriter().close();
     }
 
-    // TODO: 실제 TOTP 검사 로직
-    private boolean isValidTotp(String totpCode) {
+    private boolean isValidTotp(Long memberId, String totpCode) {
         // This method should implement the logic to verify a TOTP code.
         // Here we assume it is a placeholder.
-        return "123456".equals(totpCode);
+        return totpService.verificationTotpCode(memberId, totpCode);
     }
 }
 

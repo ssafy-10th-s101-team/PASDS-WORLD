@@ -466,7 +466,7 @@ public class TeamService {
 
     @Async
     @Transactional
-    public void rotateDataKey() {
+    public void rotateAllDataKeys(){
         //team 목록 가져오기..
         Long startId = 0L;
         Long endId = 1000L;
@@ -478,47 +478,11 @@ public class TeamService {
                 for (Team team : teams) {
 
                     //만료여부확인
-                    LocalDateTime expiredAt = team.getExpiredAt();
-
-                    if (expiredAt.isAfter(LocalDateTime.now())) continue;
+					LocalDateTime expiredAt = team.getExpiredAt();
+                    if(expiredAt.isAfter(LocalDateTime.now())) continue;
 
                     //만료시간이 지났으면 갱신로직 시작
-
-                    //team에서 encryptedDataKey, encryptedDataIvKey 가져오기.
-                    KmsKeyDto requestDto = KmsKeyDto.builder()
-                            .encryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()))
-                            .encryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()))
-                            .build();
-
-                    //기존 데이터 키 복호화 및 재발급 요청
-                    KmsReGenerationKeysResponseDto responseDto = keyService.reGenerateKey(requestDto);
-
-
-                    //현재 팀에 해당하는 privateData 모두 가져오기
-                    List<PrivateData> privateDatas = privateDataRepository.findAllByTeam(team);
-                    for (PrivateData privateData : privateDatas) {
-                        //privatData 복호화
-                        byte[] plainContent = keyService.decryptSecret(privateData.getContent(),
-                                Base64.getDecoder().decode(responseDto.getOldDataKey()),
-                                Base64.getDecoder().decode(responseDto.getOldIv()));
-
-                        //재암호화
-                        byte[] encrpytedContent = keyService.encryptSecret(plainContent,
-                                Base64.getDecoder().decode(responseDto.getNewDataKey()),
-                                Base64.getDecoder().decode(responseDto.getNewIv()));
-
-                        //재암호화된 privateData 저장.
-                        privateData.setContent(encrpytedContent);
-                        privateDataRepository.save(privateData);
-                    }
-
-                    //재암호화된 data key들 갱신
-                    team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedNewDataKey()));
-                    team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedNewIv()));
-                    teamRepository.save(team);
-
-                    //로그 찍기
-                    log.info("team {}'s DataKey re-generated and all PrivateDate re-encrypted", team.getId());
+                    changeTeamDataKey(team);
                 }
                 startId = endId;
                 endId += 1000L;
@@ -526,7 +490,62 @@ public class TeamService {
                 break;
             }
         }
+    }
 
+    @Async
+    @Transactional
+    public void rotateDataKey(Long teamId, Long memberId){
+        //데이터 키 회전 요청은 팀장권한 가진사람만 가능.
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+        MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        Role role = memberRole.getRole();
+
+        if("LEADER".equals(role.getName()) || "HEADER".equals(role.getName())){
+            //팀 데이터 키 갱신.
+            changeTeamDataKey(team);
+            return;
+        }
+        else {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+    }
+
+    private void changeTeamDataKey(Team team){
+        //team에서 encryptedDataKey, encryptedDataIvKey 가져오기.
+        KmsKeyDto requestDto = KmsKeyDto.builder()
+                .encryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()))
+                .encryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()))
+                .build();
+
+        //기존 데이터 키 복호화 및 재발급 요청
+        KmsReGenerationKeysResponseDto responseDto = keyService.reGenerateKey(requestDto);
+
+        //현재 팀에 해당하는 privateData 모두 가져오기
+        List<PrivateData> privateDatas = privateDataRepository.findAllByTeam(team);
+        for(PrivateData privateData : privateDatas){
+            //privatData 복호화
+            byte[] plainContent = keyService.decryptSecret(privateData.getContent(),
+                    Base64.getDecoder().decode(responseDto.getOldDataKey()),
+                    Base64.getDecoder().decode(responseDto.getOldIv()));
+
+            //재암호화
+            byte[] encrpytedContent = keyService.encryptSecret(plainContent,
+                    Base64.getDecoder().decode(responseDto.getNewDataKey()),
+                    Base64.getDecoder().decode(responseDto.getNewIv()));
+
+            //재암호화된 privateData 저장.
+            privateData.setContent(encrpytedContent);
+            privateDataRepository.save(privateData);
+        }
+
+        //재암호화된 data key들 갱신
+        team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedNewDataKey()));
+        team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedNewIv()));
+        teamRepository.save(team);
+
+        //로그 찍기
+        log.info("team {}'s DataKey re-generated and all PrivateDate re-encrypted", team.getId());
     }
 
     private boolean isMyTeam(String teamName) {

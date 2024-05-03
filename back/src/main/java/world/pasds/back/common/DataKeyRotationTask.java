@@ -22,8 +22,8 @@ public class DataKeyRotationTask {
         log.info("Data key Expiration Check start.");
 
         //데이터 키, totp 키 만료시간 체크 후 회전 로직 실행
-        totpService.rotateDataKey();
-        teamService.rotateDataKey();
+        totpService.rotateAllDataKeys();
+        teamService.rotateAllDataKeys();
     }
 
 }

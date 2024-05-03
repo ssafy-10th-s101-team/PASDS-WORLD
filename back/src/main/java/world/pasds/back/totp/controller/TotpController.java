@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import world.pasds.back.totp.dto.EmailCodeVerificationRequestDto;
+import world.pasds.back.totp.dto.EmailSendRequestDto;
+import world.pasds.back.totp.dto.TotpCodeVerificationRequestDto;
 import world.pasds.back.totp.service.TotpService;
 
 @RestController
@@ -24,33 +27,36 @@ public class TotpController {
 
 	@GetMapping("/share-key")
 	public ResponseEntity<?> generateSecretKey() {
-		// todo memberService layer 에서 호출
 		return ResponseEntity.ok()
 			.contentType(MediaType.IMAGE_PNG)
 			.body(totpService.generateSecretKeyQR(1L));
 	}
 
 	@PostMapping("/re-share-key")
-	public ResponseEntity<?> reGenerateSecretKey(@RequestBody String emailCode) {
+	public ResponseEntity<?> reGenerateSecretKey(@RequestBody EmailCodeVerificationRequestDto requestDto) {
 		// todo memberService layer 에서 호출
-		totpService.verificationEmailCode("abcd1234@gmail.com", emailCode);
+		totpService.verificationEmailCode(requestDto.getEmail(), requestDto.getOtpCode());
 		return ResponseEntity.ok()
 			.contentType(MediaType.IMAGE_PNG)
 			.body(totpService.generateSecretKeyQR(1L));
 	}
 
 
-	@PostMapping("/verification-code")
-	public ResponseEntity<?> validateTotpCode(@RequestBody String totpCode) {
-		// todo memberService layer 에서 호출
-		totpService.verificationTotpCode(1L, totpCode);
+	@PostMapping("/verification-totp-code")
+	public ResponseEntity<?> verificationTotpCode(@RequestBody TotpCodeVerificationRequestDto requestDto) {
+		totpService.verificationTotpCode(1L, requestDto.getTotpCode());
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/email-verification-requests")
-	public ResponseEntity<?> sendCodeToEmail(@RequestBody String email) {
-		// todo memberService layer 에서 호출
-		totpService.sendCodeToEmail(email);
+	public ResponseEntity<?> sendCodeToEmail(@RequestBody EmailSendRequestDto requestDto) {
+		totpService.sendCodeToEmail(requestDto.getEmail());
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/verification-email-code")
+	public ResponseEntity<?> verificationEmailCode(@RequestBody EmailCodeVerificationRequestDto requestDto) {
+		totpService.verificationEmailCode(requestDto.getEmail(), requestDto.getOtpCode());
 		return ResponseEntity.ok().build();
 	}
 

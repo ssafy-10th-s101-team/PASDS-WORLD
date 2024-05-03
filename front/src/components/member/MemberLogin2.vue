@@ -5,9 +5,9 @@
       class="bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
       <h3 class="text-xl text-gray-900 dark:text-white mb-6">2단계 인증</h3>
-      <div class="grid gap-6 mb-6 lg:grid-cols-2">
+      <div class="gap-6 mb-6 flex flex-row">
         <!-- TOTP 코드 입력 필드 -->
-        <div>
+        <div class="basis-2/3">
           <label for="totp" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
           >인증 코드</label
           >
@@ -21,7 +21,7 @@
           />
         </div>
         <!-- 확인 버튼 -->
-        <div class="flex items-end justify-start">
+        <div class="flex items-end justify-start basis-1/3">
           <BaseButton @click="sendTotpCode" buttonText="확인" />
         </div>
       </div>

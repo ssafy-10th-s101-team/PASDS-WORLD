@@ -1,5 +1,5 @@
 <template>
-  <BaseModal modalId="privateInfoDetail">
+  <BaseModal modalId="privateDataDetail">
     <div
       class="max-w-2xl mx-auto bg-white p-16 bg-white shadow-md rounded-lg p-4 sm:px-6 lg:px-8 dark:bg-gray-800 dark:border-gray-700"
     >
@@ -33,12 +33,12 @@
         <div v-if="infoType === 'login'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
-            <label for="privateInfoName" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="privateDataName" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >이름</label
             >
             <input
               type="text"
-              id="privateInfoName"
+              id="privateDataName"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder=""
               required
@@ -47,12 +47,12 @@
           <div class="grid gap-6 mb-6 lg:grid-cols-2">
             <!-- 아이디 입력 필드 -->
             <div>
-              <label for="privateInfoId" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+              <label for="privateDataId" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
                 >아이디</label
               >
               <input
                 type="text"
-                id="privateInfoId"
+                id="privateDataId"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 required
               />
@@ -61,13 +61,13 @@
             <!-- 비밀번호 입력 필드 -->
             <div>
               <label
-                for="privateInfoPassword"
+                for="privateDataPassword"
                 class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
                 >비밀번호</label
               >
               <div class="relative">
                 <input
-                  id="privateInfoPasswordPassword"
+                  id="privateDataPassword"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="•••••••••"
                   :type="showPassword ? 'text' : 'password'"
@@ -122,12 +122,12 @@
           </div>
           <!-- URI 입력 필드 -->
           <div class="mb-6">
-            <label for="privateInfoURI" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="privateDataURI" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >URI</label
             >
             <input
               type="text"
-              id="privateInfoURI"
+              id="privateDataURI"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="www.domain.com/"
               required
@@ -136,11 +136,11 @@
 
           <!-- 메모 입력 필드 -->
           <div class="mb-6">
-            <label for="privateInfoMemo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="privateDataMemo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >메모</label
             >
             <textarea
-              id="privateInfoMemo"
+              id="privateDataMemo"
               rows="5"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="메모"
@@ -151,12 +151,12 @@
         <div v-else-if="infoType === 'text'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
-            <label for="privateInfoName" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="privateDataName" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >이름</label
             >
             <input
               type="text"
-              id="privateInfoName"
+              id="privateDataName"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder=""
               required
@@ -166,13 +166,13 @@
             <!-- 비밀 입력 필드 -->
             <div>
               <label
-                for="privateInfoText"
+                for="privateDataText"
                 class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
                 >비밀</label
               >
               <div class="relative">
                 <input
-                  id="privateInfoPasswordText"
+                  id="privateDataPasswordText"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   :type="showPassword ? 'text' : 'password'"
                   required
@@ -228,11 +228,11 @@
 
           <!-- 메모 입력 필드 -->
           <div class="mb-6">
-            <label for="privateInfoMemo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="privateDataMemo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >메모</label
             >
             <textarea
-              id="privateInfoMemo"
+              id="privateDataMemo"
               rows="5"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="메모"

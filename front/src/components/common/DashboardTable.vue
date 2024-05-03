@@ -202,15 +202,15 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <BaseButton buttonText="추가 +" @click="toggleHidden('privateInfoDetail')" />
+    <BaseButton buttonText="추가 +" @click="toggleHidden('privateDataDetail')" />
   </div>
-  <DashboardPrivateInfoDetail />
+  <DashboardPrivateDataDetail />
 </template>
 
 <script setup>
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
-import DashboardPrivateInfoDetail from './DashboardPrivateInfoDetail.vue'
+import DashboardPrivateDataDetail from './DashboardPrivateDataDetail.vue'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 </script>

@@ -71,8 +71,15 @@ public class TeamController {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<?> assignNewHeader(@RequestBody AssignNewTeamHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        teamService.assignNewHeader(requestDto, userDetails.getMemberId());
+    public ResponseEntity<?> assignNewLeader(@RequestBody AssignNewTeamHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        teamService.assignNewLeader(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    //데이터 키 갱신요청
+    @PostMapping("/regenerate-data-key")
+    public ResponseEntity<Void> rotateDataKey(@RequestBody RotateTeamDataKeyRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails){
+        teamService.rotateDataKey(requestDto.getTeamId(), userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

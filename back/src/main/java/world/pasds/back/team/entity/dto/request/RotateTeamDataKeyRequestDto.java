@@ -3,7 +3,6 @@ package world.pasds.back.team.entity.dto.request;
 import lombok.Getter;
 
 @Getter
-public class AssignNewTeamHeaderRequestDto {
+public class RotateTeamDataKeyRequestDto {
     private Long teamId;
-    private Long newLeaderId;
 }

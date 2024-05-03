@@ -37,7 +37,7 @@ public class JwtTokenProvider {
         TEMPORARY, ACCESS, REFRESH
     }
 
-    public String generateToken(Long memberId, TokenType tokenType) {
+    public String generateToken(Long memberId, TokenType tokenType, boolean isNew) {
 
         String tokenId = UUID.randomUUID().toString();
         int expirationMs = 0;
@@ -54,7 +54,12 @@ public class JwtTokenProvider {
         }
 
         String redisKey = memberId + "_" + tokenType.name();
-        redisTemplate.opsForValue().set(redisKey, tokenId, expirationMs / 1000, TimeUnit.SECONDS); // Redis에 저장하면서 TTL 설정
+
+        if (isNew) {
+            redisTemplate.opsForValue().set(redisKey, tokenId, expirationMs / 1000, TimeUnit.SECONDS); // Redis에 저장하면서 TTL 설정
+        } else {
+            redisTemplate.opsForValue().set(redisKey, tokenId);
+        }
 
         String curJwtSecretKey = keyService.getJwtSecretKey();
         return Jwts.builder()
@@ -65,18 +70,6 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .compact();
     }
-
-//    public String generateTemporaryToken(Long memberId) {
-//        return generateToken(memberId, TokenType.TEMPORARY);
-//    }
-//
-//    public String generateAccessToken(Long memberId) {
-//        return generateToken(memberId, TokenType.ACCESS);
-//    }
-//
-//    public String generateRefreshToken(Long memberId) {
-//        return generateToken(memberId, TokenType.REFRESH);
-//    }
 
     public Authentication getAuthentication(String token, String jwtSecretKey) {
 
@@ -122,10 +115,4 @@ public class JwtTokenProvider {
         return authentication;
 
     }
-
-    public void removeTokenInRedis(Long memberId, TokenType tokenType) {
-        String redisKey = memberId + "_" + tokenType.name();
-        redisTemplate.delete(redisKey);
-    }
-
 }

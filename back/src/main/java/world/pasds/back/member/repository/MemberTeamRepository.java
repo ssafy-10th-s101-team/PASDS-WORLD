@@ -11,5 +11,5 @@ public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long> {
 
     MemberTeam findByMemberAndTeam(Member member, Team team);
 
-    MemberTeam findAllByMember(Member member);
+    boolean existsByMemberAndTeam(Member member, Team team);
 }

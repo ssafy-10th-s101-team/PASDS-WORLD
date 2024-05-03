@@ -1,10 +1,7 @@
 package world.pasds.back.role.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.common.BaseEntity;
 
@@ -22,6 +19,7 @@ public class RoleAuthority extends BaseEntity {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authority_id")
     private Authority authority;

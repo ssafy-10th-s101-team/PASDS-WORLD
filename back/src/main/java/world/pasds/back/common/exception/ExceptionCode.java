@@ -39,6 +39,8 @@ public enum ExceptionCode {
 
     TEAM_NAME_CONFLICT(403, "Team name already exists"),
 
+    AUTHORITY_NAME_CONFLICT(403, "Authority name already exists"),
+
     KEY_ERROR(500,"key error"),
 
     TOTP_CODE_GENERATION_ERROR(500,"Totp code generation error"),
@@ -50,6 +52,8 @@ public enum ExceptionCode {
 
     ROLE_NOT_FOUND(404, "Role not found"),
     ROLE_EXISTS(409, "Role exists"),
+    ROLE_MEMBER_EXISTS(403, "해당 역할을 가진 팀원이 존재합니다.\n" +
+            "해당 역할을 가진 팀원이 존재하지 않는 경우만 역할 삭제가 가능합니다."),
 
     INTERNAL_SERVER_ERROR(500,"Something wrong in server"),
 

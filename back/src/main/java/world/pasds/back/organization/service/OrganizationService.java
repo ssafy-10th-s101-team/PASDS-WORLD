@@ -1,6 +1,8 @@
 package world.pasds.back.organization.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
@@ -18,6 +20,7 @@ import world.pasds.back.notification.entity.NotificationType;
 import world.pasds.back.notification.service.NotificationService;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.entity.dto.request.*;
+import world.pasds.back.organization.entity.dto.response.GetOrganizationMemberResponseDto;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.role.entity.Role;
@@ -65,6 +68,25 @@ public class OrganizationService {
                     .build();
             teamService.createTeam(request, memberId);
         }
+    }
+
+    @Transactional
+    public List<GetOrganizationMemberResponseDto> getOrganizationMember(Long organizationId, int offset, Long memberId) {
+        Pageable pageable = PageRequest.of(offset, 10);
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Organization organization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        if (!memberOrganizationRepository.existsByMemberAndOrganization(member, organization)) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        }
+
+        return memberOrganizationRepository.findAllByOrganization(organization, pageable)
+                .stream().map(mo -> GetOrganizationMemberResponseDto
+                        .builder()
+                        .name(mo.getMember().getNickname())
+                        .isHeader(mo.getMember().equals(organization.getHeader()))
+                        .build()).collect(Collectors.toList());
     }
 
     private Organization createAndSaveOrganizationWithMember(CreateOrganizationRequestDto requestDto, Member findMember) {
@@ -261,4 +283,5 @@ public class OrganizationService {
     private boolean isMyOrganization(String organizationName) {
         return "MY ORGANIZATION".equals(organizationName);
     }
+
 }

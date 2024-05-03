@@ -1,10 +1,10 @@
 package world.pasds.back.authority.entity;
 
 public enum AuthorityName {
-    SECRET_CREATE,
-    SECRET_READ,
-    SECRET_UPDATE,
-    SECRET_DELETE,
+    PRIVATE_DATA_CREATE,
+    PRIVATE_DATA_READ,
+    PRIVATE_DATA_UPDATE,
+    PRIVATE_DATA_DELETE,
     ROLE_CREATE,
     ROLE_READ,
     ROLE_UPDATE,

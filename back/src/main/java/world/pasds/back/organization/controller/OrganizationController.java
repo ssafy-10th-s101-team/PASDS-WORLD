@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.organization.entity.dto.request.*;
+import world.pasds.back.organization.entity.dto.response.GetOrganizationMemberResponseDto;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
 import world.pasds.back.organization.service.OrganizationService;
 
@@ -21,6 +22,12 @@ public class OrganizationController {
     @GetMapping("")
     public ResponseEntity<?> getOrganizations(@AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetOrganizationsResponseDto> response = organizationService.getOrganizations(userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/{organizationId}/{offset}")
+    public ResponseEntity<?> getOrganizationMember(@PathVariable(name = "organizationId") Long organizationId, @PathVariable(name = "offset") int offset, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<GetOrganizationMemberResponseDto> response = organizationService.getOrganizationMember(organizationId, offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

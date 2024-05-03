@@ -3,20 +3,25 @@ package world.pasds.back.common.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.member.entity.CustomUserDetails;
 
 import java.util.Date;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    @Value("${security.jwt.secret-key}")
-    private String secretKey;
+    private final RedisTemplate redisTemplate;
+
+    private final KeyService keyService;
 
     @Value("${security.jwt.temporary-token-expiration-ms}")
     private int temporaryTokenExpirationMs;
@@ -50,9 +55,9 @@ public class JwtTokenProvider {
         // TODO: Redis 저장 로직 추가
         // TODO: memberId.toString() _ tokenType.name() : tokenId , 만료 시간: expirationMs
         // TODO: 12345_TEMPORARY : 42be7a28-f96d-46b2-b111-2ad44d309525 , 만료 시간: expirationMs
-
+        String curJwtSecretKey =  keyService.getJwtSecretKey();
         return Jwts.builder()
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(SignatureAlgorithm.HS256, curJwtSecretKey)
                 .setSubject(memberId.toString())
                 .setId(tokenId)
                 .claim("tokenType", tokenType.name())
@@ -73,6 +78,11 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
+        String curJwtSecretKey = keyService.getJwtSecretKey();
+        String prevJwtSecretKey = keyService.getPrevJwtSecretKey();
+        String secretKey = "thisistempvalue";
+        // TODO : 키 두개로 검증하는 로직 세워야함.
+
         try {
             Claims claims = Jwts.parser()
                     .setSigningKey(secretKey)

@@ -2,6 +2,7 @@ package world.pasds.back.common.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,9 @@ public class KeyService {
     private final AesUtil aesUtil;
     private final RestTemplate restTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final String KMS_URL = "http://k10s101.p.ssafy.io:8081/kms/api";
+
+    @Value("${kms-server.url}")
+    private String KMS_URL;
 
     public KmsEncryptionKeysResponseDto generateKeys() {
         ResponseEntity<KmsEncryptionKeysResponseDto> response = restTemplate

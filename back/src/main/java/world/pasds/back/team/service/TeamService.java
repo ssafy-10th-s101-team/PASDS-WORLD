@@ -2,12 +2,15 @@ package world.pasds.back.team.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
+import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.dto.KmsReGenerationKeysResponseDto;
 import world.pasds.back.common.exception.BusinessException;
@@ -33,6 +36,7 @@ import world.pasds.back.role.repository.RoleAuthorityRepository;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.*;
+import world.pasds.back.team.entity.dto.response.GetTeamMemberResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.repository.PrivateDataRepository;
 import world.pasds.back.team.repository.TeamRepository;
@@ -83,6 +87,28 @@ public class TeamService {
     }
 
     @Transactional
+    public List<GetTeamMemberResponseDto> getTeamMember(Long teamId, int offset, Long memberId) {
+        Pageable pageable = PageRequest.of(offset, 10);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        if (!memberTeamRepository.existsByMemberAndTeam(member, team)) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        List<MemberRole> memberRoleList = memberRoleRepository.findAllByTeam(team, pageable);
+        List<GetTeamMemberResponseDto> response = new ArrayList<>();
+        for (MemberRole memberRole : memberRoleList) {
+            response.add(GetTeamMemberResponseDto.builder()
+                    .memberNickname(memberRole.getMember().getNickname())
+                    .role(memberRole.getRole().getName())
+                    .build());
+        }
+
+        return response;
+    }
+
+    @Transactional
     public void createTeam(CreateTeamRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
@@ -100,12 +126,11 @@ public class TeamService {
             throw new BusinessException(ExceptionCode.TEAM_NAME_CONFLICT);
         }
 
-        /**
-         * Todo 팀 비밀키 발급
-         */
-        byte[] encryptedDataKey = null;
-        byte[] encryptedIv = null;
-        LocalDateTime expiredAt = null;
+        //Data key 발급
+        KmsEncryptionKeysResponseDto encryptionKeys = keyService.generateKeys();
+        byte[] encryptedDataKey = Base64.getDecoder().decode(encryptionKeys.getEncryptedDataKey());
+        byte[] encryptedIv = Base64.getDecoder().decode(encryptionKeys.getEncryptedIv());
+        LocalDateTime expiredAt = LocalDateTime.now().plusDays(90);
 
         // 팀 생성
         Team newTeam = Team.builder()
@@ -377,6 +402,7 @@ public class TeamService {
                     //재암호화된 data key들 갱신
                     team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
                     team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+                    team.setExpiredAt(LocalDateTime.now().plusDays(90));
                     teamRepository.save(team);
 
                     //로그 찍기
@@ -458,4 +484,5 @@ public class TeamService {
     private boolean isMyTeam(String teamName) {
         return "MY TEAM".equals(teamName);
     }
+
 }

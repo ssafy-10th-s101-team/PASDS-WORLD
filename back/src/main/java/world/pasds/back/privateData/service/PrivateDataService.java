@@ -3,8 +3,12 @@ package world.pasds.back.privateData.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import world.pasds.back.authority.entity.AuthorityName;
+import world.pasds.back.common.dto.KmsDecryptionKeysResponseDto;
+import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberRole;
 import world.pasds.back.member.entity.MemberTeam;
@@ -28,6 +32,7 @@ import world.pasds.back.team.repository.TeamRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +48,7 @@ public class PrivateDataService {
     private final PrivateDataRoleRepository privateDataRoleRepository;
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
-
+    private final KeyService keyService;
     @Transactional
     public List<GetPrivateDataListResponseDto> getPrivateDataList(GetPrivateDataListRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -70,7 +75,7 @@ public class PrivateDataService {
         List<PrivateData> canReadData = new ArrayList<>();
         for (PrivateData data : privateData) {
             if (privateDataRoleRepository.existsByPrivateDataAndRole(data, role)) { // 비밀에 나의 역할이 읽을 수 있는지 확인
-                if (roleAuthorityRepository.checkAuthority(role, 2L)) {
+                if (roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_READ)) {
                     canReadData.add(data);
                 }
             }
@@ -129,10 +134,19 @@ public class PrivateDataService {
          */
         byte[] encryptedDataKey = team.getEncryptedDataKey();
         byte[] encryptedIv = team.getEncryptedIv();
-        byte[] encrpytedPrivateData = privateData.getContent();
-        String decryptedData = null;
+        byte[] encryptedPrivateData = privateData.getContent();
 
-        return new GetPrivateDataResponseDto(decryptedData);
+        KmsKeyDto dto = KmsKeyDto.builder()
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
+        KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
+
+        byte[] decryptedData = keyService.decryptSecret(encryptedPrivateData,
+                Base64.getDecoder().decode(decryptKeys.getDataKey()),
+                Base64.getDecoder().decode(decryptKeys.getIv()));
+
+        return new GetPrivateDataResponseDto(new String(decryptedData, StandardCharsets.UTF_8));
     }
 
     @Transactional
@@ -144,7 +158,7 @@ public class PrivateDataService {
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
-        if (!roleAuthorityRepository.checkAuthority(role, 1L)) {
+        if (!roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_CREATE)) {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 
@@ -154,7 +168,16 @@ public class PrivateDataService {
          */
         byte[] encryptedDataKey = team.getEncryptedDataKey();
         byte[] encryptedIv = team.getEncryptedIv();
-        byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
+
+        KmsKeyDto dto = KmsKeyDto.builder()
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
+        KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
+
+        byte[] encryptedPrivateData = keyService.encryptSecret(requestDto.getContent().getBytes(StandardCharsets.UTF_8),
+                Base64.getDecoder().decode(decryptKeys.getDataKey()),
+                Base64.getDecoder().decode(decryptKeys.getIv()));
 
         PrivateData privateData = null;
 
@@ -199,7 +222,7 @@ public class PrivateDataService {
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
-        if (!roleAuthorityRepository.checkAuthority(role, 3L)) {
+        if (!roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_UPDATE)) {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 
@@ -255,11 +278,11 @@ public class PrivateDataService {
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
-        if (!roleAuthorityRepository.checkAuthority(role, 4L)) {
+        if (!roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_DELETE)) {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 
-        PrivateData privateData = privateDataRepository.findById(requestDto.getId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
         privateDataRepository.delete(privateData);
     }
 }

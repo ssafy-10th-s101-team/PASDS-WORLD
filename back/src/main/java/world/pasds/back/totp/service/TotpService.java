@@ -76,7 +76,7 @@ public class TotpService {
 		// db에 암호화 한 totpKey, dataKey, iv 저장
 		member.setEncryptedTotpKey(encryptedTotpKey);
 		member.setEncryptedTotpDataKey(Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()));
-		member.setEncryptedTotpIvKey(Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
+		member.setEncryptedTotpIv(Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
 		memberRepository.save(member);
 	}
 
@@ -113,13 +113,13 @@ public class TotpService {
 		byte[] encryptedTotpDataKey = totpRepository.findEncryptedTotpDataKeyByMemberId(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.KEY_ERROR));
 
-		byte[] encryptedTotpIvKey = totpRepository.findEncryptedTotpIvKeyByMemberId(memberId)
+		byte[] encryptedTotpIv = totpRepository.findEncryptedTotpIvByMemberId(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.KEY_ERROR));
 
 		KmsKeyDto kmsRequest = KmsKeyDto
 			.builder()
 			.encryptedDataKey(Base64.getEncoder().encodeToString(encryptedTotpDataKey))
-			.encryptedIv(Base64.getEncoder().encodeToString(encryptedTotpIvKey))
+			.encryptedIv(Base64.getEncoder().encodeToString(encryptedTotpIv))
 			.build();
 
 		KmsDecryptionKeysResponseDto totpDecryptionKeys = keyService.getKeys(kmsRequest);
@@ -202,10 +202,10 @@ public class TotpService {
 			List<Member> members = memberRepository.findByIdBetween(startId, endId);
 			if (!members.isEmpty()) {
 				for(Member member : members){
-					//members에서 encryptedTotpDataKey, encryptedTotpIvKey 가져오기.
+					//members에서 encryptedTotpDataKey, encryptedTotpIv 가져오기.
 					KmsKeyDto requestDto = KmsKeyDto.builder()
 							.encryptedDataKey(Base64.getEncoder().encodeToString(member.getEncryptedTotpDataKey()))
-							.encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIvKey()))
+							.encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIv()))
 							.build();
 
 					//data key 재암호화 요청.
@@ -213,7 +213,7 @@ public class TotpService {
 
 					//재암호화된 data key들 갱신
 					member.setEncryptedTotpDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
-					member.setEncryptedTotpIvKey(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+					member.setEncryptedTotpIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
 					memberRepository.save(member);
 
 					//로그 찍기
@@ -247,10 +247,10 @@ public class TotpService {
 
 					//만료시간이 지났으면 갱신로직 시작
 
-					//members에서 encryptedTotpDataKey, encryptedTotpIvKey 가져오기.
+					//members에서 encryptedTotpDataKey, encryptedTotpIv 가져오기.
 					KmsKeyDto requestDto = KmsKeyDto.builder()
 							.encryptedDataKey(Base64.getEncoder().encodeToString(member.getEncryptedTotpDataKey()))
-							.encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIvKey()))
+							.encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIv()))
 							.build();
 
 					//기존 데이터 키 복호화 및 재발급 요청
@@ -269,7 +269,8 @@ public class TotpService {
 					//재암호화된 data key들 갱신
 					member.setEncryptedTotpKey(encryptedTotpKey);
 					member.setEncryptedTotpDataKey(Base64.getDecoder().decode(responseDto.getEncryptedNewDataKey()));
-					member.setEncryptedTotpIvKey(Base64.getDecoder().decode(responseDto.getEncryptedNewIv()));
+					member.setEncryptedTotpIv(Base64.getDecoder().decode(responseDto.getEncryptedNewIv()));
+					member.setExpiredAt(LocalDateTime.now().plusDays(90));
 					memberRepository.save(member);
 
 					//로그 찍기

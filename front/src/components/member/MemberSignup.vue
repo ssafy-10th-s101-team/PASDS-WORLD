@@ -22,11 +22,30 @@
         </div>
         <button
           type="button"
-          @click="handleEmailVerification"
+          @click="sendOtpCode"
           class="text-white bg-samsung-blue hover:bg-samsung-blue focus:ring-4 focus:ring-samsung-blue font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-samsung-blue dark:hover:bg-samsung-blue focus:outline-none dark:focus:ring-samsung-blue"
         >
           이메일 인증
         </button>
+        <!-- 이메일 인증 코드 입력 필드 -->
+        <div id="OTP" class="hidden">
+          <div>
+            <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            >인증코드</label
+            >
+            <input
+              type="text"
+              id="otpCode"
+              v-model="otpCode"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="********"
+              required
+            />
+          </div>
+          <div class="flex items-end justify-start">
+            <BaseButton buttonText="확인" @click="checkOtpCode('OTP')" />
+          </div>
+        </div>
 
         <!-- 비밀번호 입력 필드 -->
         <div>
@@ -105,10 +124,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
+import BaseButton from '@/components/common/BaseButton.vue'
+import { useCommonStore } from '@/stores/common.js'
 
 const router = useRouter()
 
 const email = ref('')
+const otpCode = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const nickname = ref('')
@@ -117,13 +139,39 @@ const emailVerified = ref(false)
 const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
 const isNicknameValid = ref(false)
+const commonStore = useCommonStore()
+const { toggleHidden, removeHidden } = commonStore
 
-const handleEmailVerification = async () => {
-  try {
-    emailVerified.value = true // 임시로 설정
-  } catch (error) {
-    alert('이메일 인증에 실패했습니다.')
+// otp 코드 검증
+const checkOtpCode = async () => {
+  const body = {
+    email: email.value,
+    otpCode: otpCode.value,
   }
+  await localAxios.post('/totp/verification-email-code', body)
+    .then(() => {
+      console.log('이메일 인증 성공')
+      removeHidden('OTP')
+      emailVerified.value = true
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
+// 이메일 인증 요청
+const sendOtpCode = async () => {
+  const body = {
+    email: email.value,
+  }
+  await localAxios.post('/totp/email-verification-requests', body)
+    .then(() => {
+      toggleHidden('OTP');
+      console.log('인증코드가 발송되었습니다.')
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 }
 
 const validatePassword = () => {
@@ -154,11 +202,11 @@ const submitForm = async function () {
       confirmPassword: confirmPassword.value,
       nickname: nickname.value
     }
-    const response = await localAxios.post(`/member/signup`, body)
-
-    sessionStorage.setItem('totpKey', response.data.tmp)
-
-    router.push({ name: 'memberSignup2' })
+    await localAxios.post(`/member/signup`, body)
+      .catch((response) => {
+        sessionStorage.setItem('totpKey', response.data)
+        router.push({ name: 'memberSignup2' })
+      })
   } catch (error) {
     alert(error.response.data.message)
   }

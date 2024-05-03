@@ -49,6 +49,11 @@ const router = createRouter({
           component: () => import('@/components/member/MemberSignup4.vue')
         },
         {
+          path: 'forgot-totp-key',
+          name: 'memberForgotTotpKey',
+          component: () => import('@/components/member/MemberForgotTotpKey.vue')
+        },
+        {
           path: 'login2',
           name: 'memberLogin2',
           component: () => import('@/components/member/MemberLogin2.vue')

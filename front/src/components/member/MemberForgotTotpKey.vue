@@ -3,7 +3,7 @@
     <form
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 찾기</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">앱 재연동하기</h3>
       <div class="grid gap-6 mb-6 lg:grid-cols-2">
         <!-- 이메일 입력 필드 -->
         <div>
@@ -45,7 +45,7 @@
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >비밀번호</label
+          >비밀번호</label
           >
           <input
             type="password"
@@ -64,7 +64,7 @@
 
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >비밀번호 확인</label
+          >비밀번호 확인</label
           >
           <input
             type="password"
@@ -117,7 +117,6 @@ const OTPFailAlert = ref(false)
 const email = ref('')
 const otpCode = ref('')
 const emailVerified = ref(false)
-
 const showEmailSuccessAlert = () => {
   EmailSuccessAlert.value = true
   setTimeout(() => {
@@ -167,13 +166,14 @@ const sendOtpCode = async () => {
   }
   // showEmailAlert();    테스트
   await localAxios.post('/totp/email-verification-requests', body)
-    .then(() => {
-      showEmailSuccessAlert()
-    })
-    .catch((error) => {
-      console.error(error)
-      showEmailFailAlert()
-    })
+  .then(() => {
+    showEmailSuccessAlert()
+  })
+  .catch((error) => {
+    console.error(error)
+    // 이메일 전송 실패 alert
+    showEmailFailAlert()
+  })
 }
 
 // otp 코드 검증
@@ -190,6 +190,7 @@ const checkOtpCode = async () => {
     })
     .catch((error) => {
       console.error(error)
+      // otp 인증 실패 alert
       showOTPFailAlert()
     })
 }

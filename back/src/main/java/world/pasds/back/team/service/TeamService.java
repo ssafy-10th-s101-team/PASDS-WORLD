@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
+import world.pasds.back.common.dto.KmsEncryptionKeysResponseDto;
 import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.dto.KmsReGenerationKeysResponseDto;
 import world.pasds.back.common.exception.BusinessException;
@@ -100,12 +101,11 @@ public class TeamService {
             throw new BusinessException(ExceptionCode.TEAM_NAME_CONFLICT);
         }
 
-        /**
-         * Todo 팀 비밀키 발급
-         */
-        byte[] encryptedDataKey = null;
-        byte[] encryptedIv = null;
-        LocalDateTime expiredAt = null;
+        //Data key 발급
+        KmsEncryptionKeysResponseDto encryptionKeys = keyService.generateKeys();
+        byte[] encryptedDataKey = Base64.getDecoder().decode(encryptionKeys.getEncryptedDataKey());
+        byte[] encryptedIv = Base64.getDecoder().decode(encryptionKeys.getEncryptedIv());
+        LocalDateTime expiredAt = LocalDateTime.now().plusDays(90);
 
         // 팀 생성
         Team newTeam = Team.builder()
@@ -377,6 +377,7 @@ public class TeamService {
                     //재암호화된 data key들 갱신
                     team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
                     team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+                    team.setExpiredAt(LocalDateTime.now().plusDays(90));
                     teamRepository.save(team);
 
                     //로그 찍기

@@ -41,6 +41,7 @@ public class Team extends BaseEntity {
     @Column(length = 32, columnDefinition = "BINARY(32)")
     private byte[] encryptedIv;
 
+    @Setter
     private LocalDateTime expiredAt;
 
 }

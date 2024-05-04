@@ -1,6 +1,8 @@
 package world.pasds.back.invitaion.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,13 +12,11 @@ import world.pasds.back.common.service.EmailService;
 import world.pasds.back.invitaion.entity.Invitation;
 import world.pasds.back.invitaion.entity.dto.request.AcceptOrganizationInviteRequestDto;
 import world.pasds.back.invitaion.entity.dto.request.AcceptTeamInviteRequestDto;
+import world.pasds.back.invitaion.entity.dto.response.GetInvitationsResponseDto;
 import world.pasds.back.invitaion.entity.dto.response.RejectOrganizationInviteRequestDto;
 import world.pasds.back.invitaion.entity.dto.response.RejectTeamInviteRequestDto;
 import world.pasds.back.invitaion.repository.InvitationRepository;
-import world.pasds.back.member.entity.Member;
-import world.pasds.back.member.entity.MemberOrganization;
-import world.pasds.back.member.entity.MemberRole;
-import world.pasds.back.member.entity.MemberTeam;
+import world.pasds.back.member.entity.*;
 import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
@@ -52,6 +52,26 @@ public class InvitationService {
     private final String DOMAIN = "https://k10s101.p.ssafy.io";
 
     @Transactional
+    public List<GetInvitationsResponseDto> getInvitations(int offset, Long memberId) {
+        Pageable pageable = PageRequest.of(offset, 10);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+
+         return invitationRepository.findAllByInvitedMemberEmail(member.getEmail(), pageable)
+                .stream()
+                .filter(invitation -> invitation.getExpiredAt().isAfter(LocalDateTime.now()))
+                .map(invitation -> GetInvitationsResponseDto.builder()
+                        .invitationId(invitation.getId())
+                        .invitedBy(invitation.getInvitedBy().getNickname())
+                        .expiredAt(invitation.getExpiredAt())
+                        .organizationName(invitation.getOrganization().getName())
+                        .organizationRole(String.valueOf(invitation.getOrganizationRole()))
+                        .teamName(invitation.getTeam().getName())
+                        .roleName(invitation.getRole().getName())
+                        .build()).toList();
+
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public void inviteMemberToOrganization(Organization organization, Member sender, OrganizationRole organizationRole, String receiverEmail) {
         Invitation invitation = Invitation.builder()
                 .invitedBy(sender)
@@ -66,7 +86,7 @@ public class InvitationService {
                 "From " + sender.getNickname() + "(" + sender.getEmail() + ")" + " invite to " + organization.getName() + "\n" + DOMAIN);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void inviteMemberToTeam(Organization organization, Team team, Member sender, Member receiver, Role role) {
         Invitation invitation = Invitation.builder()
                 .invitedBy(sender)

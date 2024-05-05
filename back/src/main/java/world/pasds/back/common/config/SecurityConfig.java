@@ -125,7 +125,8 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "https://www.pasds.world",
                 "https://pasds.world",
-                "http://3.36.85.4:8081"
+                "http://localhost:8081",
+                "http://3.39.81.251:8081"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowCredentials(true);

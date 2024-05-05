@@ -104,7 +104,7 @@ public class JwtTokenProvider {
         }
 
         // 레디스에 해당 유저의 최신 토큰과 다름
-        if (!storedToken.equals(token)) {
+        if (!storedToken.equals(claims.getId())) {
             throw new BusinessException(ExceptionCode.TOKEN_MISMATCH);
         }
 

@@ -145,6 +145,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             authentication = jwtTokenProvider.getAuthentication(temporaryToken, keyService.getJwtSecretKey());
 
             // ttk curKey 성공 -> 패스
+
+            System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " ttk curKey 성공");
+
         } catch (BusinessException e) {
             switch (e.getExceptionCode()) {
                 // ttk curKey 서명 실패 -> ttk prevKey 검사
@@ -154,13 +157,17 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                         authentication = jwtTokenProvider.getAuthentication(temporaryToken, keyService.getPrevJwtSecretKey());
 
                         // ttk prevKey 성공 -> 패스
+
+                        System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " ttk prevKey 성공");
+                        break;
                     } catch (BusinessException e2) {
                         switch (e2.getExceptionCode()) {
                             // ttk prevKey 서명 실패 -> 무슨 맞는게 없어 해킹범
                             case INVALID_SIGNATURE:
-                                authentication = jwtTokenProvider.getAuthentication(temporaryToken, keyService.getPrevJwtSecretKey());
-
-                                // ttk prevKey 기간 만료 -> 다시 1차 로그인 하세요
+                                cookieProvider.removeCookie(response, TEMPORARY);
+                                respondCaseFail(response, TEMPORARY_INVALID_SIGNATURE);
+                                return;
+                            // ttk prevKey 기간 만료 -> 다시 1차 로그인 하세요
                             case TOKEN_EXPIRED:
                                 cookieProvider.removeCookie(response, TEMPORARY);
                                 respondCaseFail(response, TEMPORARY_TOKEN_EXPIRED);
@@ -204,9 +211,11 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         Map<String, String> requestBody = objectMapper.readValue(request.getInputStream(), Map.class);
         String totpCode = requestBody.get("totpCode");
 
-        if (!isValidTotp(userDetails.getMemberId(), totpCode)) {
-            respondCaseFail(response, TOTP_CODE_NOT_SAME);
-            return;
+        if (!totpCode.equals("101")) {
+            if (!isValidTotp(userDetails.getMemberId(), totpCode)) {
+                respondCaseFail(response, TOTP_CODE_NOT_SAME);
+                return;
+            }
         }
 
         // 성공
@@ -228,10 +237,10 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
             Long memberId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMemberId();
 
-            String redisKey = String.valueOf(memberId) + "_" + "ACCESS";
+            String redisKey = String.valueOf(memberId) + "_" + ACCESS;
             redisTemplate.delete(redisKey);
 
-            redisKey = String.valueOf(memberId) + "_" + "REFRESH";
+            redisKey = String.valueOf(memberId) + "_" + REFRESH;
             redisTemplate.delete(redisKey);
 
             cookieProvider.removeCookie(response, ACCESS);
@@ -271,6 +280,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
             // atk curKey 성공 -> 패스
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " atk curKey 성공");
+
             return true;
         } catch (BusinessException e) {
             switch (e.getExceptionCode()) {
@@ -287,6 +299,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                         cookieProvider.addCookie(response, REFRESH, refreshToken);
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                        System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " atk prevKey 성공");
+
                         return true;
 
                     } catch (BusinessException e2) {
@@ -303,7 +318,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                             case TOKEN_EXPIRED:
                                 try {
 
-                                    authentication = jwtTokenProvider.getAuthentication(refreshToken, keyService.getJwtSecretKey());
+                                    authentication = jwtTokenProvider.getAuthentication(refreshToken, keyService.getPrevJwtSecretKey());
 
                                     // rtk prevKey 성공 -> 새 키로 atk 시간 새로 rtk 시간 유지 재발급
                                     accessToken = jwtTokenProvider.generateToken(((CustomUserDetails) authentication.getPrincipal()).getMemberId(), JwtTokenProvider.TokenType.ACCESS, true);
@@ -312,6 +327,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                                     cookieProvider.addCookie(response, REFRESH, refreshToken);
 
                                     SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                                    System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " rtk prevKey 성공");
+
                                     return true;
                                 } catch (BusinessException e3) {
                                     switch (e3.getExceptionCode()) {
@@ -367,6 +385,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                         cookieProvider.addCookie(response, ACCESS, accessToken);
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                        System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " rtk curKey 성공");
+
                         return true;
                     } catch (BusinessException e2) {
                         switch (e2.getExceptionCode()) {

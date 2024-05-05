@@ -31,13 +31,12 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 인증 안거치게 전부 열어 놨습니다 실제로는 "/**" 지우고 서버 운영
     private static final String[] PUBLIC_ENDPOINTS = {
             "/app/api/member/test",
             "/app/api/member/signup",
             "/app/api/totp/email-verification-requests",
             "/app/api/totp/verification-email-code",
-//            "/**"
+            "/app/api/key-rotate/handle-masterkey-change",
     };
 
     private AntPathRequestMatcher[] getRequestMatchers() {

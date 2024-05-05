@@ -48,7 +48,12 @@ public class RedisJwtSecretKeyListener extends KeyExpirationEventMessageListener
         redisTemplate.opsForValue().set("prevJwtSecretKey", expiredSecretKey, refreshTokenExpirationMs, TimeUnit.SECONDS);
 
         //새롭게 cur키 발급
-        keyService.getJwtSecretKey();
+//        keyService.getJwtSecretKey();
+        String curJwtSecretKey = keyService.getJwtSecretKey();
+
+        // 진용 메모
+        System.out.println("prevJwtSecretKey = "+ expiredSecretKey + " 로 설정 됌");
+        System.out.println("curJwtSecretKey = "+ curJwtSecretKey + " 로 설정 됌");
     }
 
 }

@@ -4,9 +4,9 @@
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
       <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 찾기</h3>
-      <div class="grid gap-6 mb-6 lg:grid-cols-2">
+      <div class="gap-6 mb-6 flex flex-row">
         <!-- 이메일 입력 필드 -->
-        <div>
+        <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
           >e-mail</label
           >
@@ -19,7 +19,7 @@
             required
           />
         </div>
-        <div class="flex items-end justify-start">
+        <div class="flex items-end justify-start basis-1/3">
           <BaseButton @click="sendOtpCode" buttonText="이메일 인증" />
         </div>
       </div>

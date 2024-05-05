@@ -34,7 +34,7 @@
     <div
       class="sticky top-0 h-screen flex flex-col items-center justify-center bg-white text-white"
     >
-      <img src="../assets/images/QR_example.png" alt="QR" />
+      <img src="../assets/images/pasdsworld_v2_qr.png" alt="QR" />
       <h2 class="font-samsungone700c text-black text-lg">어플리케이션 다운로드</h2>
     </div>
   </div>

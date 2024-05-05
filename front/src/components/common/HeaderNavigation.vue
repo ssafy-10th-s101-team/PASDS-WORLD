@@ -23,7 +23,16 @@
               >
                 로그아웃
               </button>
-              <span>{{ nickname }}</span>
+              <span
+                class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+                >{{ nickname }}</span
+              >
+              <button
+                @click="jwtTest"
+                class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+              >
+                토큰테스트
+              </button>
             </div>
             <div v-else>
               <router-link
@@ -139,6 +148,16 @@ const logout = async () => {
   } catch (error) {
     console.error('Logout Error:', error)
     alert('로그아웃 실패: ' + error.message)
+  }
+}
+
+const jwtTest = async () => {
+  try {
+    const response = await localAxios.post(`/member/jwt-test`, null)
+
+    console.log(response)
+  } catch (error) {
+    console.error('jwt-test 실패:', error)
   }
 }
 

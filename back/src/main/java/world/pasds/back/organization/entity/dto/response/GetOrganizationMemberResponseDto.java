@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import world.pasds.back.organization.entity.OrganizationRole;
 
 @Getter
 @Builder
@@ -11,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetOrganizationMemberResponseDto {
     private String name;
-    private boolean isHeader;
+    private OrganizationRole organizationRole;
 }

@@ -27,11 +27,10 @@ public class TeamController {
 
     @GetMapping("/{teamId}/{offset}")
     public ResponseEntity<?> getTeamMember(@PathVariable(name = "teamId") Long teamId,
-                                                   @PathVariable(name = "offset") int offset,
-                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                           @PathVariable(name = "offset") int offset,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetTeamMemberResponseDto> response = teamService.getTeamMember(teamId, offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
-
     }
 
     @PostMapping("/create")
@@ -78,7 +77,7 @@ public class TeamController {
 
     //데이터 키 갱신요청
     @PostMapping("/regenerate-data-key")
-    public ResponseEntity<Void> rotateDataKey(@RequestBody RotateTeamDataKeyRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<Void> rotateDataKey(@RequestBody RotateTeamDataKeyRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         teamService.rotateDataKey(requestDto.getTeamId(), userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }

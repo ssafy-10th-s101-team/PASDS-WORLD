@@ -26,8 +26,8 @@ import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
-import world.pasds.back.team.repository.PrivateDataRepository;
-import world.pasds.back.team.repository.PrivateDataRoleRepository;
+import world.pasds.back.privateData.repository.PrivateDataRepository;
+import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.nio.charset.StandardCharsets;
@@ -49,6 +49,7 @@ public class PrivateDataService {
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final KeyService keyService;
+
     @Transactional
     public List<GetPrivateDataListResponseDto> getPrivateDataList(GetPrivateDataListRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -60,9 +61,6 @@ public class PrivateDataService {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
-        // 우리 팀 비밀 목록 조회
-        List<PrivateData> privateData = privateDataRepository.findAllByTeam(team);
-
         // 팀내에서 역할을 부여받은 사용자인지 확인
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         if (findMemberRole == null) {
@@ -71,6 +69,8 @@ public class PrivateDataService {
 
         Role role = findMemberRole.getRole();
 
+        // 우리 팀 비밀 목록 조회
+        List<PrivateData> privateData = privateDataRepository.findAllByTeam(team);
         // 내가 조회 가능한 비밀 목록 추가
         List<PrivateData> canReadData = new ArrayList<>();
         for (PrivateData data : privateData) {
@@ -81,7 +81,16 @@ public class PrivateDataService {
             }
         }
 
-        return canReadData.stream().map(pd -> new GetPrivateDataListResponseDto(team.getId(), pd.getId(), pd.getTitle(), pd.getType(), pd.getCreatedBy(), pd.getPrivateDataId(), pd.getUrl())).collect(Collectors.toList());
+        return canReadData.stream()
+                .map(pd -> new GetPrivateDataListResponseDto(
+                        team.getId(),
+                        pd.getId(),
+                        pd.getTitle(),
+                        pd.getType(),
+                        pd.getCreatedBy(),
+                        pd.getPrivateDataId(),
+                        pd.getUrl()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -97,30 +106,19 @@ public class PrivateDataService {
 
         PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
-        MemberRole memberRole = null;
-        // 비밀 역할 확인
-        List<PrivateDataRole> findPrivateDataRole = privateDataRoleRepository.findAllByPrivateData(privateData);
-        for (PrivateDataRole privateDataRole : findPrivateDataRole) {
-            Role findRole = roleRepository.findById(privateDataRole.getRole().getId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
-            MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndRole(member, findRole);
-            if (findMemberAndRole != null) {
-                memberRole = findMemberAndRole;
-                break;
-            }
-        }
+        // 요청한 멤버가 해당 팀에서 어떤 역할을 가지는지 확인
+        MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        Role role = memberRole.getRole();
 
-        // 해당 멤버는 비밀에 대한 역할을 가지지 않음
-        if (memberRole == null) {
-            throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
-        }
-
-        // 비밀을 읽을 권한이 있는 역할을 가지고 있는지 확인
         boolean canRead = false;
-        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(memberRole.getRole());
-        for (RoleAuthority roleAuthority : roleAuthorityList) {
-            if (roleAuthority.getAuthority().getId() == 2) {
-                canRead = true;
-                break;
+        if (privateDataRoleRepository.existsByPrivateDataAndRole(privateData, role)) {  // 역할 확인
+            List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+            // 해당 비밀을 읽을 권한이 있는지 확인
+            for (RoleAuthority roleAuthority : roleAuthorityList) {
+                if (AuthorityName.PRIVATE_DATA_READ == roleAuthority.getAuthority().getName()) {
+                    canRead = true;
+                    break;
+                }
             }
         }
 
@@ -146,7 +144,7 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getDataKey()),
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
-        return new GetPrivateDataResponseDto(new String(decryptedData, StandardCharsets.UTF_8));
+        return GetPrivateDataResponseDto.builder().privateData(new String(decryptedData, StandardCharsets.UTF_8)).build();
     }
 
     @Transactional
@@ -179,9 +177,8 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getDataKey()),
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
-        PrivateData privateData = null;
-
-        if (requestDto.getType().equals(DataType.PW)) {
+        PrivateData privateData;
+        if (requestDto.getType() == DataType.PW) {
             privateData = PrivateData.builder()
                     .team(team)
                     .type(requestDto.getType())
@@ -203,18 +200,21 @@ public class PrivateDataService {
         privateDataRepository.save(privateData);
 
         // 설정하고자 하는 역할 조회
-        Role setRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
-
-        // 비밀_역할 저장
-        PrivateDataRole pdr = PrivateDataRole.builder()
-                .privateData(privateData)
-                .role(setRole)
-                .build();
-        privateDataRoleRepository.save(pdr);
+        List<Role> setRoleList = roleRepository.findAllById(requestDto.getRoleId());
+        List<PrivateDataRole> privateDataRoleList = new ArrayList<>();
+        for (Role setRole : setRoleList) {
+            // 비밀_역할 저장
+            privateDataRoleList
+                    .add(PrivateDataRole.builder()
+                            .privateData(privateData)
+                            .role(setRole)
+                            .build());
+        }
+        privateDataRoleRepository.saveAll(privateDataRoleList);
     }
 
     @Transactional
-    public void updatePrivateDataRequestDto(UpdatePrivateDataRequestDto requestDto, Long memberId) {
+    public void updatePrivateData(UpdatePrivateDataRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
@@ -226,26 +226,24 @@ public class PrivateDataService {
             throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
         }
 
-        PrivateData findPrivateData = privateDataRepository.findById(requestDto.getId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        PrivateData findPrivateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
         /**
          * KMS에게 암호화 키 달라고 한 뒤
          * 비밀 암호화하여 저장
          */
-        byte[] encryptedDataKey = team.getEncryptedDataKey();
-        byte[] encryptedIv = team.getEncryptedIv();
         byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
 
-        PrivateData newPrivateData = null;
-
-        if (findPrivateData.getType().equals(DataType.PW)) {
+        // 비밀, 제목, 메모, 아이디, url 변경 가능
+        PrivateData newPrivateData;
+        if (findPrivateData.getType() == DataType.PW) {
             newPrivateData = PrivateData.builder()
                     .team(team)
                     .type(findPrivateData.getType())
                     .title(requestDto.getTitle())
                     .content(encryptedPrivateData)
                     .memo(requestDto.getMemo())
-                    .privateDataId(requestDto.getPrivateDataId())
+                    .privateDataId(requestDto.getId())
                     .url(requestDto.getUrl())
                     .build();
         } else {
@@ -257,20 +255,51 @@ public class PrivateDataService {
                     .memo(requestDto.getMemo())
                     .build();
         }
-
-        // 설정하고자 하는 역할 조회
-        Role setRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
-
-        // 비밀_역할 저장
-        PrivateDataRole pdr = PrivateDataRole.builder()
-                .privateData(newPrivateData)
-                .role(setRole)
-                .build();
-        privateDataRoleRepository.save(pdr);
+        privateDataRepository.save(newPrivateData);
     }
 
     @Transactional
-    public void deletePrivateDataRequestDto(DeletePrivateDataRequestDto requestDto, Long memberId) {
+    public void updatePrivateDataRole(UpdatePrivateDataRoleRequestDto requestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        // 비밀_역할 수정 가능한지 권한 확인
+        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        Role role = findMemberRole.getRole();
+
+        if (!roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_ROLE_UPDATE)) {
+            throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
+        }
+
+        PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+
+        // 팀 역할 리스트
+        List<Long> roleIdList = roleRepository.findAllByTeam(team).stream()
+                .map(Role::getId).toList();
+
+        // 기존 비밀 역할 리스트 제거
+        List<PrivateDataRole> privateDataRoleList = privateDataRoleRepository.findAllByPrivateData(privateData);
+        privateDataRoleRepository.deleteAll(privateDataRoleList);
+
+        // 새로운 비밀 역할 리스트
+        List<Long> newRoleIdList = requestDto.getRoleId();
+        List<Role> findRoleList = roleRepository.findAllById(newRoleIdList);
+        List<PrivateDataRole> newPrivateDataRoleList = new ArrayList<>();
+
+        // 팀 내의 역할인지 검증
+        for (Role newRole : findRoleList) {
+            if (roleIdList.contains(newRole.getId())) {
+                newPrivateDataRoleList.add(PrivateDataRole.builder()
+                        .privateData(privateData)
+                        .role(newRole)
+                        .build());
+            }
+        }
+        privateDataRoleRepository.saveAll(newPrivateDataRoleList);
+    }
+
+    @Transactional
+    public void deletePrivateData(DeletePrivateDataRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 

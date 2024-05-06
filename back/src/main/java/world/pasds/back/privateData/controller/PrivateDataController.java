@@ -39,13 +39,19 @@ public class PrivateDataController {
 
     @PostMapping("/update")
     public ResponseEntity<?> updatePrivateData(@RequestBody UpdatePrivateDataRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        privateDataService.updatePrivateDataRequestDto(requestDto, userDetails.getMemberId());
+        privateDataService.updatePrivateData(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/update-role")
+    public ResponseEntity<?> updatePrivateDataRole(@RequestBody UpdatePrivateDataRoleRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        privateDataService.updatePrivateDataRole(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/delete")
     public ResponseEntity<?> deletePrivateData(@RequestBody DeletePrivateDataRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        privateDataService.deletePrivateDataRequestDto(requestDto, userDetails.getMemberId());
+        privateDataService.deletePrivateData(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

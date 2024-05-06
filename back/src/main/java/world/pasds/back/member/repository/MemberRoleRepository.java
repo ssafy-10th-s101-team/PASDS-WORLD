@@ -18,4 +18,6 @@ public interface MemberRoleRepository extends JpaRepository<MemberRole, Long> {
     MemberRole findByMemberAndTeam(Member member, Team team);
 
     List<MemberRole> findAllByTeam(Team team, Pageable pageable);
+
+    boolean existsByRoleAndTeam(Role role, Team team);
 }

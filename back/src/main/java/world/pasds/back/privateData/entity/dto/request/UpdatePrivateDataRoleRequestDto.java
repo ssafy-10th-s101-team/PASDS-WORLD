@@ -5,13 +5,9 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class UpdatePrivateDataRequestDto {
+public class UpdatePrivateDataRoleRequestDto {
     private Long teamId;
     private Long privateDataId;
-    private String title;
-    private String content;
-    private String memo;
-    private String id;
-    private String url;
     private List<Long> roleId;
+
 }

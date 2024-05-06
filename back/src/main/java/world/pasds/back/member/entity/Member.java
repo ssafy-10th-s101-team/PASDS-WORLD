@@ -27,11 +27,11 @@ public class Member extends BaseEntity {
     private String password;
 
     @Setter
-    @Column(length = 32, columnDefinition = "BINARY(32)")
+    @Column(length = 48, columnDefinition = "BINARY(48)")
     private byte[] encryptedTotpKey;
 
     @Setter
-    @Column(length = 32, columnDefinition = "BINARY(32)")
+    @Column(length = 48, columnDefinition = "BINARY(48)")
     private byte[] encryptedTotpDataKey;
 
     @Setter

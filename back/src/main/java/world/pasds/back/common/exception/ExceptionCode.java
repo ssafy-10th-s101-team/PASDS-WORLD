@@ -12,7 +12,7 @@ public enum ExceptionCode {
     EMAIL_INVALID_FORMAT(400, "Email invalid format"),
 
     EMAIL_CODE_NOT_SAME(409, "Email code not same"),
-    EMAIL_CODE_GENERATION_ERROR(500,"Email code generation error"),
+    EMAIL_CODE_GENERATION_ERROR(500, "Email code generation error"),
 
     PASSWORD_SAME(409, "Password is same as before"),
     PASSWORD_INVALID_FORMAT(400, "비밀번호가 유효하지 않습니다"),
@@ -43,7 +43,7 @@ public enum ExceptionCode {
 
     KEY_ERROR(500,"key error"),
 
-    TOTP_CODE_GENERATION_ERROR(500,"Totp code generation error"),
+    TOTP_CODE_GENERATION_ERROR(500, "Totp code generation error"),
 
     TOTP_CODE_NOT_SAME(400, "TOTP 코드를 잘못 입력했습니다\n" +
             "입력하신 내용을 다시 확인해주세요"),
@@ -55,12 +55,36 @@ public enum ExceptionCode {
     ROLE_MEMBER_EXISTS(403, "해당 역할을 가진 팀원이 존재합니다.\n" +
             "해당 역할을 가진 팀원이 존재하지 않는 경우만 역할 삭제가 가능합니다."),
 
-    INTERNAL_SERVER_ERROR(500,"Something wrong in server"),
+    INTERNAL_SERVER_ERROR(500, "Something wrong in server"),
 
-    FIRST_LOGIN_AUTHENTICAT_FAIL(400,"이메일 또는 비밀번호를 잘못 입력했습니다\n" +
-                                         "입력하신 내용을 다시 확인해주세요"),
-    TEMPORARY_TOKEN_EXPIRED(401,"temporaryToken이 유효하지 않습니다"),
-    REFRESH_TOKEN_EXPIRED(401,"refreshToken이 유효하지 않습니다");
+    FIRST_LOGIN_AUTHENTICAT_FAIL(400, "이메일 또는 비밀번호를 잘못 입력했습니다\n" +
+            "입력하신 내용을 다시 확인해주세요"),
+
+
+    // JWT 공간입니다
+    INVALID_SIGNATURE(401, "INVALID_SIGNATURE"),
+    TEMPORARY_INVALID_SIGNATURE(401, "TEMPORARY_INVALID_SIGNATURE"),
+    ACCESS_INVALID_SIGNATURE(401, "ACCESS_INVALID_SIGNATURE"),
+    REFRESH_INVALID_SIGNATURE(401, "REFRESH_INVALID_SIGNATURE"),
+
+    TOKEN_EXPIRED(401, "TOKEN_EXPIRED"),
+    TEMPORARY_TOKEN_EXPIRED(401, "TEMPORARY_TOKEN_EXPIRED"),
+//    ACCESS_TOKEN_EXPIRED(401, "ACCESS_TOKEN_EXPIRED"),
+    REFRESH_TOKEN_EXPIRED(401, "REFRESH_TOKEN_EXPIRED"),
+
+    TOKEN_NOT_FOUND(401, "TOKEN_NOT_FOUND"),
+    TEMPORARY_TOKEN_NOT_FOUND(401, "TEMPORARY_TOKEN_NOT_FOUND"),
+    ACCESS_TOKEN_NOT_FOUND(401, "ACCESS_TOKEN_NOT_FOUND"),
+    REFRESH_TOKEN_NOT_FOUND(401, "REFRESH_TOKEN_NOT_FOUND"),
+
+    TOKEN_MISMATCH(401, "TOKEN_MISMATCH"),
+    TEMPORARY_TOKEN_MISMATCH(401, "TEMPORARY_TOKEN_MISMATCH"),
+    ACCESS_TOKEN_MISMATCH(401, "ACCESS_TOKEN_MISMATCH"),
+    REFRESH_TOKEN_MISMATCH(401, "REFRESH_TOKEN_MISMATCH"),
+
+    TEMPORARY_COOKIE_NOT_FOUND(401,"TEMPORARY_COOKIE_NOT_FOUND"),
+    ACCESS_COOKIE_NOT_FOUND(401,"ACCESS_COOKIE_NOT_FOUND"),
+    REFRESH_COOKIE_NOT_FOUND(401,"REFRESH_COOKIE_NOT_FOUND");
 
     @Getter
     private int status;

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import world.pasds.back.common.filter.CustomAuthenticationFilter;
+import world.pasds.back.common.service.KeyService;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.service.CustomUserDetailsService;
@@ -29,11 +31,12 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 인증 안거치게 전부 열어 놨습니다 실제로는 "/**" 지우고 서버 운영
     private static final String[] PUBLIC_ENDPOINTS = {
-//            "/app/api/member/test",
-//            "/app/api/member/signup",
-            "/**"
+            "/app/api/member/test",
+            "/app/api/member/signup",
+            "/app/api/totp/email-verification-requests",
+            "/app/api/totp/verification-email-code",
+            "/app/api/key-rotate/handle-masterkey-change",
     };
 
     private AntPathRequestMatcher[] getRequestMatchers() {
@@ -50,6 +53,9 @@ public class SecurityConfig {
         // TODO: 숫자 얼마가 제일 안전할까?
         return new BCryptPasswordEncoder(12);
     }
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @Bean
     public AuthenticationManager buildAuthenticationManager(HttpSecurity http) throws Exception {
@@ -69,11 +75,14 @@ public class SecurityConfig {
     private String passwordPepper;
 
     @Autowired
+    private KeyService keyService;
+
+    @Autowired
     private TotpService totpService;
 
     @Bean
     public CustomAuthenticationFilter customAuthenticationFilter(AuthenticationManager authenticationManager) {
-        return new CustomAuthenticationFilter(authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper, totpService);
+        return new CustomAuthenticationFilter(redisTemplate, authenticationManager, getRequestMatchers(), jwtTokenProvider, cookieProvider, passwordPepper, totpService, keyService);
     }
 
     @Bean
@@ -114,7 +123,10 @@ public class SecurityConfig {
         // TODO: 실제 서비스 도메인 추가 ? kms도 추가???
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://your-production-site.com"
+                "https://www.pasds.world",
+                "https://pasds.world",
+                "http://localhost:8081",
+                "http://3.39.81.251:8081"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowCredentials(true);

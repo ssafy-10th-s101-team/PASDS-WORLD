@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,22 +18,36 @@ public class CookieProvider {
     @Value("${cookie.httpOnly}")
     private boolean cookieHttpOnly;
 
+    @Value("${cookie.domain}")
+    private String cookieDomain;
+
+    @Value("${cookie.sameSite}")
+    private String cookieSameSite;
+
     public void addCookie(HttpServletResponse response, String name, String value) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setMaxAge(-1);
-        cookie.setPath(cookiePath);
-        cookie.setSecure(cookieSecure);
-        cookie.setHttpOnly(cookieHttpOnly);
-        response.addCookie(cookie);
+
+        ResponseCookie responseCookie = ResponseCookie.from(name, value)
+                .maxAge(-1)
+                .path(cookiePath)
+                .secure(cookieSecure)
+                .httpOnly(cookieHttpOnly)
+                .domain(cookieDomain)
+                .sameSite(cookieSameSite)
+                .build();
+        response.addHeader("Set-Cookie", responseCookie.toString());
     }
 
     public void removeCookie(HttpServletResponse response, String name) {
-        Cookie cookie = new Cookie(name, null);
-        cookie.setMaxAge(0);
-        cookie.setPath(cookiePath);
-        cookie.setSecure(cookieSecure);
-        cookie.setHttpOnly(cookieHttpOnly);
-        response.addCookie(cookie);
+
+        ResponseCookie responseCookie = ResponseCookie.from(name, null)
+                .maxAge(0)
+                .path(cookiePath)
+                .secure(cookieSecure)
+                .httpOnly(cookieHttpOnly)
+                .domain(cookieDomain)
+                .sameSite(cookieSameSite)
+                .build();
+        response.addHeader("Set-Cookie", responseCookie.toString());
     }
 
     public String getCookieValue(HttpServletRequest request, String name) {

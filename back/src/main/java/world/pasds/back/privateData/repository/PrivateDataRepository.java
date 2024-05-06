@@ -1,4 +1,4 @@
-package world.pasds.back.team.repository;
+package world.pasds.back.privateData.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

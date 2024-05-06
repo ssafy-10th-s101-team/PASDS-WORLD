@@ -3,6 +3,8 @@ package world.pasds.back.privateData.entity.dto.request;
 import lombok.Getter;
 import world.pasds.back.privateData.entity.DataType;
 
+import java.util.List;
+
 @Getter
 public class CreatePrivateDataRequestDto {
     private Long teamId;
@@ -12,5 +14,5 @@ public class CreatePrivateDataRequestDto {
     private String memo;
     private String privateDataId;
     private String url;
-    private Long roleId;
+    private List<Long> roleId;
 }

@@ -149,9 +149,33 @@
 
 <script setup>
 import { useCommonStore } from '@/stores/common'
+import { localAxios } from '@/utils/http-commons'
 import OrganizationCreationModal from './OrganizationCreationModal.vue'
+import { onMounted } from 'vue'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+
+onMounted(() => {
+  getOrganization
+})
+
+const getOrganization = function () {
+  localAxios({
+    method: 'GET',
+    url: `/organization`,
+    data: {
+      headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
+    }
+  })
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+      const errmsg = err.response.data.message
+      console.log(errmsg)
+    })
+}
 </script>
 
 <style scoped></style>

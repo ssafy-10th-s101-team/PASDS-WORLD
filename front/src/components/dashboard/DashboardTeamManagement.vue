@@ -6,7 +6,7 @@
         <button
           @click="moveToTeamRole"
           type="button"
-          class="rounded-l-lg border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+          class="rounded-l-lg border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-700 dark:hover:bg-gray-600 dark:hover:text-white dark:text-white"
         >
           역할
         </button>
@@ -14,7 +14,7 @@
         <button
           @click="moveToTeamInfo"
           type="button"
-          class="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+          class="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-700 dark:hover:bg-gray-600 dark:hover:text-white dark:text-white"
         >
           팀 정보
         </button>
@@ -26,8 +26,12 @@
   </div>
   <!-- 버튼 끝 -->
   <!-- This is an example component -->
-  <div v-if="currentTab === 'role'" class="max-w-2xl mx-auto flex">
-    <div class="flex flex-col sm:p-6 lg:p-8">
+
+  <div
+    v-if="currentTab === 'role'"
+    class="max-w-2xl mx-auto flex max-w-2xl mx-auto p-16 bg-white rounded-lg sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
+  >
+    <div class="flex flex-col w-full sm:p-6 lg:p-8">
       <div class="overflow-x-auto shadow-md sm:rounded-lg max-w-full">
         <div class="inline-block min-w-full align-middle">
           <div class="overflow-hidden">
@@ -58,9 +62,9 @@
                   <!-- <td class="p-4 w-4">
                       <div class="flex items-center">
                         <input
-                          id="checkbox-table-1"
-                          type="checkbox"
-                          class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        id="checkbox-table-1"
+                        type="checkbox"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                         />
                         <label for="checkbox-table-1" class="sr-only">checkbox</label>
                       </div>
@@ -89,19 +93,20 @@
     </div>
   </div>
 
+  <!-- 팀 정보 -->
   <div
-    class="max-w-2xl mx-auto p-16 bg-white rounded-lg sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
+    v-if="currentTab === 'info'"
+    class="grid gap-6 items-baseline mb-6 max-w-2xl mx-auto p-16 bg-white rounded-lg sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
   >
-    <!-- 팀 정보 -->
-    <div v-if="currentTab === 'info'" class="grid gap-6 items-baseline mb-6">
-      <div class="flex justify-between">
+    <div class="">
+      <div class="flex justify-between items-center">
         <div>
           <label for="input_text" class="block mb-2 text-sm text-gray-900 dark:text-gray-300">
             팀 이름
           </label>
           <div
             id="teamName"
-            class="text-gray-900 text-lg rounded-lg block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            class="text-gray-900 text-lg rounded-lg block w-full py-2.5 dark:border-gray-700 dark:placeholder-gray-700 dark:text-white"
           >
             {{ teamName }}
           </div>
@@ -115,7 +120,7 @@
           </label>
           <div
             id="teamLeader"
-            class="text-gray-900 text-lg rounded-lg block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            class="text-gray-900 text-lg rounded-lg block w-full py-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
           >
             {{ teamLeader }}
           </div>

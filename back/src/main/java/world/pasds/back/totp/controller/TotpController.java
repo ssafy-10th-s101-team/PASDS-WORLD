@@ -3,6 +3,7 @@ package world.pasds.back.totp.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.totp.dto.EmailCodeVerificationRequestDto;
 import world.pasds.back.totp.dto.EmailSendRequestDto;
 import world.pasds.back.totp.dto.TotpCodeVerificationRequestDto;
@@ -33,12 +35,11 @@ public class TotpController {
 	}
 
 	@PostMapping("/re-share-key")
-	public ResponseEntity<?> reGenerateSecretKey(@RequestBody EmailCodeVerificationRequestDto requestDto) {
-		// todo memberService layer 에서 호출
+	public ResponseEntity<?> reGenerateSecretKey(@RequestBody EmailCodeVerificationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
 		totpService.verificationEmailCode(requestDto.getEmail(), requestDto.getOtpCode());
 		return ResponseEntity.ok()
 			.contentType(MediaType.IMAGE_PNG)
-			.body(totpService.generateSecretKeyQR(1L));
+			.body(totpService.generateSecretKeyQR(userDetails.getMemberId()));
 	}
 
 

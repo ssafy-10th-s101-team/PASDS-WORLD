@@ -45,7 +45,7 @@
       <div id="TOTP" class="hidden">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
         <h2 class="text-lg font-semibold text-gray-800 mt-4">
-          앱에서 QR 코드를 스캔하여 앱을 연동하세요
+          pasds.world의 패스키를 생성하려는 기기의 앱 카메라로 이 QR 코드를 스캔하세요.
         </h2>
         <button
           @click="goToNextStep"

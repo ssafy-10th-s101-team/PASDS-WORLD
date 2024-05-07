@@ -119,7 +119,7 @@
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
     <BaseAlert alertText="메일 전송에 실패했습니다. 다시 시도해주세요." v-if="EmailFailAlert" />
     <BaseAlert alertText="인증에 실패했습니다. 다시 시도해주세요." v-if="OTPFailAlert" />
-    <BaseAlert alertText="이미 존재하는 이메일입니다." v-if="EmailExistsAlert" />
+    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
 
@@ -151,7 +151,10 @@ const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
 const EmailFailAlert = ref(false)
 const OTPFailAlert = ref(false)
-const EmailExistsAlert = ref(false)
+const SignUpErrorAlert = ref(false)
+
+//signUpErrorMsg
+const SignUpErrorMsg = ref('')
 
 const showEmailSuccessAlert = () => {
   EmailSuccessAlert.value = true
@@ -180,10 +183,11 @@ const showOTPFailAlert = () => {
   }, 3000)
 }
 
-const showEmailExistsAlert = () => {
-  EmailExistsAlert.value = true
+const showSignUpErrorAlert = (message) => {
+  SignUpErrorMsg.value = message
+  SignUpErrorAlert.value = true
   setTimeout(() => {
-    EmailExistsAlert.value = false
+    SignUpErrorAlert.value = false
   }, 3000)
 }
 // otp 코드 검증
@@ -265,8 +269,21 @@ const submitForm = async () => {
       router.push({ name: 'memberSignup2' })
     })
     .catch((error) => {
-      console.error(error)
-      showEmailExistsAlert()
+      console.log('error발생.\n')
+      if (error.response && error.response.data) {
+        // 바이너리 데이터를 문자열로 변환
+        const errorData = new Uint8Array(error.response.data)
+        const decodedString = new TextDecoder().decode(errorData)
+        try {
+          const errorInfo = JSON.parse(decodedString) // 문자열을 JSON 객체로 파싱
+          showSignUpErrorAlert(errorInfo.message)
+        } catch (e) {
+          console.error('파싱 에러 : ', e)
+        }
+      } else {
+        console.error('error : ', error.message) // 기타 다른 Axios 에러
+        showSignUpErrorAlert(error.message)
+      }
     })
 }
 </script>

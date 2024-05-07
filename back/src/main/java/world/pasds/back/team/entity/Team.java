@@ -34,7 +34,7 @@ public class Team extends BaseEntity {
     private Integer secretCount;
 
     @Setter
-    @Column(length = 48, columnDefinition = "BINARY(32)")
+    @Column(length = 48, columnDefinition = "BINARY(48)")
     private byte[] encryptedDataKey;
 
     @Setter

@@ -20,7 +20,7 @@
         </button>
       </div>
     </div>
-    <div v-if="currentTab === 'info'" class="mt-5" @click="openInviteModal">
+    <div v-if="currentTab === 'info'" class="mt-5" @click="toggleHidden('teamInvitationModal')">
       <BaseButton buttonText="초대" />
     </div>
   </div>
@@ -91,6 +91,9 @@
         </div>
       </div>
     </div>
+  </div>
+  <div class="flex justify-center">
+    <BaseButton buttonText="역할 추가" />
   </div>
 
   <!-- 팀 정보 -->
@@ -197,12 +200,14 @@
   </div>
   <DashboardAuthorizationModal />
   <DashboardMemberRoleModal />
+  <TeamInvitationModal />
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import DashboardAuthorizationModal from '../common/DashboardAuthorizationModal.vue'
 import DashboardMemberRoleModal from '../common/DashboardMemberRoleModal.vue'
+import TeamInvitationModal from '../common/TeamInvitationModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()

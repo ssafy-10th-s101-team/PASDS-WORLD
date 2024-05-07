@@ -25,6 +25,14 @@
           <BaseButton @click="sendTotpCode" buttonText="확인" />
         </div>
       </div>
+      <!-- 링크 영역 -->
+      <div class="flex justify-between text-sm text-gray-500 dark:text-gray-300">
+        <router-link
+          :to="{ name: 'memberForgotTotpKey' }"
+          class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
+        >앱 재연동하기</router-link
+        >
+      </div>
     </div>
     <BaseAlert alertText="인증되었습니다." v-if="TOTPSuccessAlert" />
     <BaseAlert alertText="인증에 실패했습니다. 다시 시도해주세요." v-if="TOTPFailAlert" />

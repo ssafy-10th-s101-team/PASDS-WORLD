@@ -171,7 +171,7 @@ public class TotpService {
     public void verificationEmailCode(String email, String authCode) {
         String redisAuthCode = emailService.getRedisAuthCode(AUTH_CODE_PREFIX + email);
 
-        if (!emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode)) {
+        if (!(emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode))) {
             throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
         }
     }

@@ -19,9 +19,9 @@ public class PrivateDataController {
 
     private final PrivateDataService privateDataService;
 
-    @GetMapping("/list")
-    public ResponseEntity<?> getPrivateDataList(@RequestBody GetPrivateDataListRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetPrivateDataListResponseDto> response = privateDataService.getPrivateDataList(requestDto, userDetails.getMemberId());
+    @GetMapping("/{teamId}")
+    public ResponseEntity<?> getPrivateDataList(@PathVariable(name = "teamId") Long teamId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<GetPrivateDataListResponseDto> response = privateDataService.getPrivateDataList(teamId, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

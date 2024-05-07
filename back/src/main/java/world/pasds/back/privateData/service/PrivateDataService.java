@@ -51,9 +51,9 @@ public class PrivateDataService {
     private final KeyService keyService;
 
     @Transactional
-    public List<GetPrivateDataListResponseDto> getPrivateDataList(GetPrivateDataListRequestDto requestDto, Long memberId) {
+    public List<GetPrivateDataListResponseDto> getPrivateDataList(Long teamId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
         // 팀 멤버인지 확인
         MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);

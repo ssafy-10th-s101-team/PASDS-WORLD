@@ -21,19 +21,9 @@ public class AuthorityService {
         List<Authority> authorityList = authorityRepository.findAll();
         if (authorityList.isEmpty()) {
             List<Authority> authorities = new ArrayList<>();
-            authorities.add(Authority.builder().name(AuthorityName.PRIVATE_DATA_CREATE).build());
-            authorities.add(Authority.builder().name(AuthorityName.PRIVATE_DATA_READ).build());
-            authorities.add(Authority.builder().name(AuthorityName.PRIVATE_DATA_UPDATE).build());
-            authorities.add(Authority.builder().name(AuthorityName.PRIVATE_DATA_DELETE).build());
-            authorities.add(Authority.builder().name(AuthorityName.PRIVATE_DATA_ROLE_UPDATE).build());
-            authorities.add(Authority.builder().name(AuthorityName.ROLE_CREATE).build());
-            authorities.add(Authority.builder().name(AuthorityName.ROLE_READ).build());
-            authorities.add(Authority.builder().name(AuthorityName.ROLE_UPDATE).build());
-            authorities.add(Authority.builder().name(AuthorityName.ROLE_DELETE).build());
-            authorities.add(Authority.builder().name(AuthorityName.TEAM_UPDATE).build());
-            authorities.add(Authority.builder().name(AuthorityName.TEAM_DELETE).build());
-            authorities.add(Authority.builder().name(AuthorityName.TEAM_INVITE).build());
-            authorities.add(Authority.builder().name(AuthorityName.TEAM_REMOVE).build());
+            for (AuthorityName authorityName : AuthorityName.values()) {
+                authorities.add(Authority.builder().name(authorityName).build());
+            }
             authorityRepository.saveAll(authorities);
         }
     }

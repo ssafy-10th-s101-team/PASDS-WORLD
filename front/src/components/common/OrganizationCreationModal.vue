@@ -17,6 +17,7 @@
       </div>
 
       <button
+        @click="createOrganization"
         type="submit"
         class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
@@ -33,7 +34,26 @@
 <script setup>
 import { ref } from 'vue'
 import BaseModal from './BaseModal.vue'
+import { localAxios } from '@/utils/http-commons'
 const organizationName = ref('')
+
+const createOrganization = function () {
+  localAxios({
+    method: 'POST',
+    url: `/organization/create`,
+    data: {
+      headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
+    }
+  })
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+      const errmsg = err.response.data.message
+      console.log(errmsg)
+    })
+}
 </script>
 
 <style scoped></style>

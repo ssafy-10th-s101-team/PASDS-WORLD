@@ -75,7 +75,7 @@ public class TeamService {
 
             // 내가 속해 있는 팀
             if (findMemberAndTeam != null) {
-                response.add(new GetTeamsResponseDto(team.getId(), organization.getId(), team.getName()));
+                response.add(new GetTeamsResponseDto(organization.getId(), team.getId(), team.getName()));
             }
         }
 

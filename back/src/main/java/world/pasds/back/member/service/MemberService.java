@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.dto.request.SignupRequestDto;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.repository.MemberRepository;
+import world.pasds.back.organization.entity.dto.request.CreateOrganizationRequestDto;
+import world.pasds.back.organization.service.OrganizationService;
 import world.pasds.back.totp.service.TotpService;
 
 import java.util.regex.Pattern;
@@ -22,10 +25,12 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final InvitationService invitationService;
     private final TotpService totpService;
+    private final OrganizationService organizationService;
 
     @Value("${security.pepper}")
     private String pepper;
 
+    @Transactional
     public byte[] signup(SignupRequestDto signupRequestDto) {
 
         // 이메일 형식
@@ -60,7 +65,7 @@ public class MemberService {
 
         // 비밀번호 암호화하여 저장
         String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
-        Member newMember = new Member().builder()
+        Member newMember = Member.builder()
                 .email(signupRequestDto.getEmail())
                 .password(encryptedPassword)
                 .nickname(signupRequestDto.getNickname())
@@ -73,6 +78,7 @@ public class MemberService {
 //        invitationService.checkInvitation(newMember, signupRequestDto.getEmail());
 
         Member member = memberRepository.findByEmail(newMember.getEmail());
+        organizationService.createOrganization(new CreateOrganizationRequestDto("MY ORGANIZATION"), newMember.getId());
         // totp key 발급
         return totpService.generateSecretKeyQR(member.getId());
     }

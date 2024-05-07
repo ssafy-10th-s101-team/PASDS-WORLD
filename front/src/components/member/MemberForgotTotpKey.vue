@@ -20,27 +20,30 @@
           />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="이메일 인증" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
         </div>
       </div>
-      <div id="OTP" class="hidden grid gap-6 mb-6 lg:grid-cols-2">
-        <!-- otp 입력 필드 -->
-        <div>
-          <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >OTP 인증</label
-          >
-          <input
-            type="text"
-            id="otpCode"
-            v-model="otpCode"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="이메일로 받은 코드를 입력하세요"
-            required
-          />
+      <div id="OTP" class="hidden gap-6 mb-6">
+        <div class="flex flex-row gap-6 mb-2">
+          <!-- otp 입력 필드 -->
+          <div class="basis-2/3">
+            <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            >OTP 인증</label
+            >
+            <input
+              type="text"
+              id="otpCode"
+              v-model="otpCode"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="이메일로 받은 코드를 입력하세요"
+              required
+            />
+          </div>
+          <div class="flex items-end justify-start basis-1/3">
+            <BaseButton buttonText="인증완료" @click="getTotpKey" />
+          </div>
         </div>
-        <div class="flex items-end justify-start">
-          <BaseButton buttonText="확인" @click="checkOtpCode" />
-        </div>
+        <BaseTimer />
       </div>
       <div id="TOTP" class="hidden">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
@@ -48,7 +51,7 @@
           pasds.world의 패스키를 생성하려는 기기의 앱 카메라로 이 QR 코드를 스캔하세요.
         </h2>
         <button
-          @click="goToNextStep"
+          @click="goToLogin"
           class="mt-6 bg-samsung-blue hover:bg-blue-800 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors"
         >
           로그인
@@ -69,9 +72,10 @@ import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 import router from '@/router/index.js'
+import BaseTimer from '@/components/common/BaseTimer.vue'
 
 const commonStore = useCommonStore()
-const { removeHidden } = commonStore
+const { removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -120,6 +124,7 @@ const sendOtpCode = async () => {
   await localAxios.post('/totp/email-verification-requests', body)
     .then(() => {
       showEmailSuccessAlert()
+      startTimer()
     })
     .catch((error) => {
       console.error(error)
@@ -128,23 +133,20 @@ const sendOtpCode = async () => {
     })
 }
 
-// otp 코드 검증
-const checkOtpCode = async () => {
+// totpKey 다시 받기
+const getTotpKey = async () => {
   const body = {
     email: email.value,
     otpCode: otpCode.value
   }
   // showOTPAlert();    테스트
-  await localAxios.post('/totp/verification-email-code', body)
-    .then(() => {
+  await localAxios.post('/totp/re-share-key', body)
+    .then((response) => {
       emailVerified.value = true
       showOTPSuccessAlert()
-      localAxios.post('/totp/re-share-key', body)
-        .then((response) => {
-          totpKey.value = response.data
-          console.log(response.data)
-          removeHidden('TOTP')
-        })
+      stopTimer()
+      totpKey.value = response.data
+      removeHidden('TOTP')
     })
     .catch((error) => {
       console.error(error)
@@ -153,7 +155,7 @@ const checkOtpCode = async () => {
     })
 }
 
-const goToNextStep = () => {
+const goToLogin = () => {
   router.push({ name: 'memberLogin' })
 }
 </script>

@@ -20,32 +20,36 @@
           />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="이메일 인증" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
         </div>
       </div>
-      <div id="OTP" class="hidden grid gap-6 mb-6 lg:grid-cols-2">
-        <!-- otp 입력 필드 -->
-        <div>
-          <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >OTP 인증</label
-          >
-          <input
-            type="text"
-            id="otpCode"
-            v-model="otpCode"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="이메일로 받은 코드를 입력하세요"
-            required
-          />
-        </div>
-        <div class="flex items-end justify-start">
-          <BaseButton buttonText="확인" @click="checkOtpCode" />
+      <div id="OTP" class="hidden gap-6 mb-6">
+        <div class="flex flex-row gap-6 mb-2">
+          <!-- otp 입력 필드 -->
+          <div class="basis-2/3">
+            <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            >OTP 인증</label
+            >
+            <input
+              type="text"
+              id="otpCode"
+              v-model="otpCode"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="이메일로 받은 코드를 입력하세요"
+              required
+            />
+          </div>
+          <div class="flex items-end justify-start basis-1/3">
+            <BaseButton buttonText="인증완료" @click="checkOtpCode" />
+          </div>
+          <BaseTimer />
         </div>
       </div>
+
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >비밀번호</label
+          >비밀번호</label
           >
           <input
             type="password"
@@ -64,7 +68,7 @@
 
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >비밀번호 확인</label
+          >비밀번호 확인</label
           >
           <input
             type="password"
@@ -105,8 +109,10 @@ import BaseButton from '../common/BaseButton.vue'
 import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
+import BaseTimer from '@/components/common/BaseTimer.vue'
+
 const commonStore = useCommonStore()
-const { removeHidden } = commonStore
+const { removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -163,12 +169,13 @@ const checkPassword = (event) => {
 // 이메일 인증 요청
 const sendOtpCode = async () => {
   const body = {
-    email: email.value,
+    email: email.value
   }
   // showEmailAlert();    테스트
   await localAxios.post('/totp/email-verification-requests', body)
     .then(() => {
       showEmailSuccessAlert()
+      startTimer()
     })
     .catch((error) => {
       console.error(error)
@@ -180,13 +187,14 @@ const sendOtpCode = async () => {
 const checkOtpCode = async () => {
   const body = {
     email: email.value,
-    otpCode: otpCode.value,
+    otpCode: otpCode.value
   }
   // showOTPAlert();    테스트
   await localAxios.post('/totp/verification-email-code', body)
     .then(() => {
       emailVerified.value = true
       showOTPSuccessAlert()
+      stopTimer()
     })
     .catch((error) => {
       console.error(error)

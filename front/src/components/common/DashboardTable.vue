@@ -99,6 +99,8 @@ import { useCommonStore } from '@/stores/common'
 import DashboardPrivateDataDetail from './DashboardPrivateDataDetail.vue'
 import { localAxios } from '@/utils/http-commons'
 import { onMounted, ref, defineProps, defineEmits } from 'vue'
+import { getPrivateDatas } from '@/api/data'
+
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 
@@ -113,21 +115,39 @@ onMounted(async () => {
     privateDataList.value = response
   }
 })
-
-const fetchprivateDatas = async function (teamId) {
+const fetchprivateDatas = async (teamId) => {
   try {
-    const response = await localAxios({
-      method: 'GET',
-      url: `/data/${teamId}`
-    })
-    return response.data
-  } catch (err) {
-    console.error(err)
-    const errmsg = err.response ? err.response.data.message : 'Error fetching data'
-    console.error(errmsg)
+    const handleSuccess = (response) => {
+      return response.data
+    }
+
+    const handleFail = (error) => {
+      console.error(error)
+      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+      console.error(errmsg)
+      return []
+    }
+    return await getPrivateDatas(teamId, handleSuccess, handleFail)
+  } catch (error) {
+    console.error('Unexpected error:', error)
     return []
   }
 }
+
+// const fetchprivateDatas = async function (teamId) {
+//   try {
+//     const response = await localAxios({
+//       method: 'GET',
+//       url: `/data/${teamId}`
+//     })
+//     return response.data
+//   } catch (err) {
+//     console.error(err)
+//     const errmsg = err.response ? err.response.data.message : 'Error fetching data'
+//     console.error(errmsg)
+//     return []
+//   }
+// }
 </script>
 
 <style scoped></style>

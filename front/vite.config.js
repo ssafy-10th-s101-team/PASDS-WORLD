@@ -12,9 +12,9 @@ export default defineConfig({
     }
   },
   server: {
-    https: {
-      key: fs.readFileSync('./privatekey.pem'), // 개인 키 파일 경로
-      cert: fs.readFileSync('./certificate.pem') // 인증서 파일 경로
-    }
+    // https: {
+    //   key: fs.readFileSync('./privatekey.pem'), // 개인 키 파일 경로
+    //   cert: fs.readFileSync('./certificate.pem') // 인증서 파일 경로
+    // }
   }
 })

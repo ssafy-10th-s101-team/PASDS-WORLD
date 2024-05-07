@@ -39,6 +39,7 @@ import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons'
 import { onMounted, ref, defineProps, defineEmits } from 'vue'
+import { getTeams } from '@/api/team'
 
 const emit = defineEmits(['team-selected', 'loaded'])
 const props = defineProps({
@@ -66,20 +67,39 @@ function selectTeam(id) {
   emit('loaded', true)
 }
 
-const fetchTeams = async function (orgId) {
+const fetchTeams = async (orgId) => {
   try {
-    const response = await localAxios({
-      method: 'GET',
-      url: `/team/${orgId}`
-    })
-    return response.data
-  } catch (err) {
-    console.error(err)
-    const errmsg = err.response ? err.response.data.message : 'Error fetching data'
-    console.error(errmsg)
+    const handleSuccess = (response) => {
+      return response.data
+    }
+
+    const handleFail = (error) => {
+      console.error(error)
+      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+      console.error(errmsg)
+      return []
+    }
+    return await getTeams(orgId, handleSuccess, handleFail)
+  } catch (error) {
+    console.error('Unexpected error:', error)
     return []
   }
 }
+
+// const fetchTeams = async function (orgId) {
+//   try {
+//     const response = await localAxios({
+//       method: 'GET',
+//       url: `/team/${orgId}`
+//     })
+//     return response.data
+//   } catch (err) {
+//     console.error(err)
+//     const errmsg = err.response ? err.response.data.message : 'Error fetching data'
+//     console.error(errmsg)
+//     return []
+//   }
+// }
 </script>
 
 <style scoped></style>

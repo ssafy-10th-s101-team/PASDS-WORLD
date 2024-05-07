@@ -123,6 +123,7 @@ public class SecurityConfig {
         // TODO: 실제 서비스 도메인 추가 ? kms도 추가???
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
+                "https://localhost:5173",
                 "https://www.pasds.world",
                 "https://pasds.world",
                 "http://localhost:8081",

@@ -162,10 +162,7 @@ const fetchOrganization = async function () {
   try {
     const response = await localAxios({
       method: 'GET',
-      url: `/organization`,
-      data: {
-        headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
-      }
+      url: `/organization`
     })
     return response.data
   } catch (err) {

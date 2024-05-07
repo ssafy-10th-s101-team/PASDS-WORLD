@@ -70,10 +70,7 @@ const fetchTeams = async function (orgId) {
   try {
     const response = await localAxios({
       method: 'GET',
-      url: `/team/${orgId}`,
-      data: {
-        headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
-      }
+      url: `/team/${orgId}`
     })
     return response.data
   } catch (err) {

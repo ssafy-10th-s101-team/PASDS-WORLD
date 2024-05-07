@@ -118,10 +118,7 @@ const fetchprivateDatas = async function (teamId) {
   try {
     const response = await localAxios({
       method: 'GET',
-      url: `/data/${teamId}`,
-      data: {
-        headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
-      }
+      url: `/data/${teamId}`
     })
     return response.data
   } catch (err) {

@@ -2,7 +2,19 @@
   <BaseModal modalId="teamCreationModal">
     <form class="space-y-6 px-6 lg:px-8 pb-4 sm:pb-6 xl:pb-8" action="#">
       <h3 class="text-xl font-medium text-gray-900 dark:text-white">팀 생성</h3>
-      <BaseInputTextField inputText="팀 이름" placeHolder="20자 이내" />
+      <div>
+        <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+          >팀이름</label
+        >
+        <input
+          type="text"
+          id="teamName"
+          v-model="teamName"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-samsung-blue focus:border-samsung-blue block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="20자 이내"
+          required
+        />
+      </div>
 
       <button
         type="submit"
@@ -19,8 +31,9 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import BaseModal from './BaseModal.vue'
-import BaseInputTextField from './BaseInputTextField.vue'
+const teamName = ref('')
 </script>
 
 <style scoped></style>

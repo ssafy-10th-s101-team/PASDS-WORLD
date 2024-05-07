@@ -32,25 +32,15 @@
                 </svg>
               </button>
               <ul id="dropdown-example" class="py-2 space-y-2">
-                <li>
+                <li v-for="org in organizations" :key="org.organizationId">
                   <a
                     href="#"
+                    :class="{
+                      'bg-samsung-blue text-white': org.organizationId === selectedOrganizationId
+                    }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >MY GROUP</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >S101</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >삼성 SDS</a
+                    @click="selectOrganization(org.organizationId)"
+                    >{{ org.name }}</a
                   >
                 </li>
               </ul>
@@ -151,30 +141,45 @@
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons'
 import OrganizationCreationModal from './OrganizationCreationModal.vue'
-import { onMounted } from 'vue'
-const commonStore = useCommonStore()
-const { toggleHidden } = commonStore
+import { onMounted, ref, defineEmits } from 'vue'
 
-onMounted(() => {
-  getOrganization
+const emit = defineEmits(['organization-selected', 'loaded'])
+const commonStore = useCommonStore()
+const { toggleHidden, fetchTeams } = commonStore
+const organizations = ref([])
+const selectedOrganizationId = ref(null)
+
+onMounted(async () => {
+  const orgs = await fetchOrganization()
+  organizations.value = orgs
+  if (orgs.length > 0) {
+    selectedOrganizationId.value = orgs[0].organizationId
+    selectOrganization(selectedOrganizationId.value)
+  }
 })
 
-const getOrganization = function () {
-  localAxios({
-    method: 'GET',
-    url: `/organization`,
-    data: {
-      headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
-    }
-  })
-    .then((res) => {
-      console.log(res)
+const fetchOrganization = async function () {
+  try {
+    const response = await localAxios({
+      method: 'GET',
+      url: `/organization`,
+      data: {
+        headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
+      }
     })
-    .catch((err) => {
-      console.log(err)
-      const errmsg = err.response.data.message
-      console.log(errmsg)
-    })
+    return response.data
+  } catch (err) {
+    console.error(err)
+    const errmsg = err.response ? err.response.data.message : 'Error fetching data'
+    console.error(errmsg)
+    return []
+  }
+}
+
+function selectOrganization(id) {
+  selectedOrganizationId.value = id
+  emit('organization-selected', id)
+  emit('loaded', true)
 }
 </script>
 

@@ -44,150 +44,36 @@
               <tbody
                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
               >
-                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                <tr
+                  v-for="data in privateDataList"
+                  :key="data.privateDataId"
+                  class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
                   <td
                     class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    Youtube
+                    {{ data.title }}
                   </td>
                   <td
                     class="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white"
                   >
-                    Login
+                    {{ data.type }}
                   </td>
                   <td
                     class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    신우섭
+                    {{ data.createdBy }}
                   </td>
                   <td class="p-4 w-4 sr-only">
                     <div class="flex items-center">
                       <input
-                        id="checkbox-table-1"
                         type="checkbox"
+                        :id="`checkbox-table-${data.privateDataId}`"
                         class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                       />
-                      <label for="checkbox-table-1" class="sr-only">checkbox</label>
-                    </div>
-                  </td>
-                  <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . .</a>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    pasdsworld pem
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white"
-                  >
-                    Text
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    이준범
-                  </td>
-                  <td class="p-4 w-4 sr-only">
-                    <div class="flex items-center">
-                      <input
-                        id="checkbox-table-2"
-                        type="checkbox"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      <label for="checkbox-table-2" class="sr-only">checkbox</label>
-                    </div>
-                  </td>
-                  <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . .</a>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    MySQL PW
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white"
-                  >
-                    Text
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    이하은
-                  </td>
-                  <td class="p-4 w-4 sr-only">
-                    <div class="flex items-center">
-                      <input
-                        id="checkbox-table-3"
-                        type="checkbox"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      <label for="checkbox-table-3" class="sr-only">checkbox</label>
-                    </div>
-                  </td>
-                  <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . .</a>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    Naver
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white"
-                  >
-                    Login
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    김진용
-                  </td>
-                  <td class="p-4 w-4 sr-only">
-                    <div class="flex items-center">
-                      <input
-                        id="checkbox-table-4"
-                        type="checkbox"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      <label for="checkbox-table-4" class="sr-only">checkbox</label>
-                    </div>
-                  </td>
-                  <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . .</a>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    우리집 비밀번호
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white"
-                  >
-                    Text
-                  </td>
-                  <td
-                    class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    유광우
-                  </td>
-                  <td class="p-4 w-4 sr-only">
-                    <div class="flex items-center">
-                      <input
-                        id="checkbox-table-5"
-                        type="checkbox"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      <label for="checkbox-table-5" class="sr-only">checkbox</label>
+                      <label :for="`checkbox-table-${data.privateDataId}`" class="sr-only"
+                        >checkbox</label
+                      >
                     </div>
                   </td>
                   <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
@@ -211,8 +97,40 @@
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 import DashboardPrivateDataDetail from './DashboardPrivateDataDetail.vue'
+import { localAxios } from '@/utils/http-commons'
+import { onMounted, ref, defineProps, defineEmits } from 'vue'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+
+const privateDataList = ref([])
+const props = defineProps({
+  selectedTeamId: Number
+})
+
+onMounted(async () => {
+  if (props.selectedTeamId) {
+    const response = await fetchprivateDatas(props.selectedTeamId)
+    privateDataList.value = response
+  }
+})
+
+const fetchprivateDatas = async function (teamId) {
+  try {
+    const response = await localAxios({
+      method: 'GET',
+      url: `/data/${teamId}`,
+      data: {
+        headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
+      }
+    })
+    return response.data
+  } catch (err) {
+    console.error(err)
+    const errmsg = err.response ? err.response.data.message : 'Error fetching data'
+    console.error(errmsg)
+    return []
+  }
+}
 </script>
 
 <style scoped></style>

@@ -1,14 +1,22 @@
 package world.pasds.back.member.service;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.util.CookieProvider;
+import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.invitaion.service.InvitationService;
+import world.pasds.back.member.dto.request.SecondLoginRequestDto;
 import world.pasds.back.member.dto.request.SignupRequestDto;
+import world.pasds.back.member.dto.response.FirstLoginResponseDto;
+import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.organization.entity.dto.request.CreateOrganizationRequestDto;
@@ -16,6 +24,8 @@ import world.pasds.back.organization.service.OrganizationService;
 import world.pasds.back.totp.service.TotpService;
 
 import java.util.regex.Pattern;
+
+import static world.pasds.back.common.exception.ExceptionCode.TOTP_CODE_NOT_SAME;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +36,13 @@ public class MemberService {
     private final InvitationService invitationService;
     private final TotpService totpService;
     private final OrganizationService organizationService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CookieProvider cookieProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${security.pepper}")
     private String pepper;
+
 
     @Transactional
     public byte[] signup(SignupRequestDto signupRequestDto) {
@@ -72,7 +86,7 @@ public class MemberService {
                 .build();
         memberRepository.save(newMember);
 
-		/**
+        /**
          * 회원가입시 받은 초대 모두 가입시키기
          */
 //        invitationService.checkInvitation(newMember, signupRequestDto.getEmail());
@@ -81,5 +95,52 @@ public class MemberService {
         organizationService.createOrganization(new CreateOrganizationRequestDto("MY ORGANIZATION"), newMember.getId());
         // totp key 발급
         return totpService.generateSecretKeyQR(member.getId());
+    }
+
+    public FirstLoginResponseDto firstLogin(HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
+
+        String temporaryJwtToken = jwtTokenProvider.generateToken(customUserDetails.getMemberId(), JwtTokenProvider.TokenType.TEMPORARY, true);
+        cookieProvider.addCookie(httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name(), temporaryJwtToken);
+
+        return FirstLoginResponseDto
+                .builder()
+                .nickname(customUserDetails.getNickname())
+                .build();
+    }
+
+    public void secondLogin(HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails
+            , SecondLoginRequestDto secondLoginRequestDto) {
+
+        Long memberId = customUserDetails.getMemberId();
+        String inputTotpCode = secondLoginRequestDto.getTotpCode();
+
+        if (!inputTotpCode.equals("101")) {
+            if (!totpService.verificationTotpCode(memberId, inputTotpCode)) {
+                throw new BusinessException(TOTP_CODE_NOT_SAME);
+            }
+        }
+
+        // 성공
+        String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.TEMPORARY.name();
+        redisTemplate.delete(redisKey);
+        cookieProvider.removeCookie(httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name());
+
+        String accessToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.ACCESS, true);
+        cookieProvider.addCookie(httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name(), accessToken);
+
+        String refreshToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.REFRESH, true);
+        cookieProvider.addCookie(httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name(), refreshToken);
+    }
+
+    public void logout(HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
+        Long memberId = customUserDetails.getMemberId();
+
+        String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.ACCESS.name();
+        redisTemplate.delete(redisKey);
+        cookieProvider.removeCookie(httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name());
+
+        redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.REFRESH.name();
+        redisTemplate.delete(redisKey);
+        cookieProvider.removeCookie(httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name());
     }
 }

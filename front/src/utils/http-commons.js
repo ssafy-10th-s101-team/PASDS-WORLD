@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const baseURL = 'https://pasds.world/app/api'
+// const baseURL = 'http://localhost:8080/app/api'
 
 const localAxios = axios.create({
   baseURL,

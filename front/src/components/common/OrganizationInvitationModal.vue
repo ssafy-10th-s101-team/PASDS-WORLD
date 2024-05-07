@@ -32,7 +32,9 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import BaseModal from './BaseModal.vue'
+const email = ref('')
 </script>
 
 <style scoped></style>

@@ -63,7 +63,11 @@
                     class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
                   ></td>
                   <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
-                    <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . . </a>
+                    <router-link :to="{ name: 'teamManagement' }">
+                      <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline"
+                        >. . .
+                      </a>
+                    </router-link>
                   </td>
                 </tr>
                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">

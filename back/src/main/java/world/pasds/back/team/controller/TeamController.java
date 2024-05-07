@@ -19,9 +19,9 @@ public class TeamController {
 
     private final TeamService teamService;
 
-    @GetMapping("")
-    public ResponseEntity<?> getTeams(@RequestBody GetTeamsRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetTeamsResponseDto> response = teamService.getTeams(requestDto, userDetails.getMemberId());
+    @GetMapping("/{organizationId}")
+    public ResponseEntity<?> getTeams(@PathVariable(name = "organizationId") Long organizationId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<GetTeamsResponseDto> response = teamService.getTeams(organizationId, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

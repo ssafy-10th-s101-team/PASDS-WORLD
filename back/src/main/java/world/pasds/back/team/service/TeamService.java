@@ -64,9 +64,9 @@ public class TeamService {
     private final PrivateDataRepository privateDataRepository;
 
     @Transactional
-    public List<GetTeamsResponseDto> getTeams(GetTeamsRequestDto requestDto, Long memberId) {
+    public List<GetTeamsResponseDto> getTeams(Long organizationId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+        Organization organization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
         List<Team> findTeamList = teamRepository.findAllByOrganization(organization);
 
         List<GetTeamsResponseDto> response = new ArrayList<>();

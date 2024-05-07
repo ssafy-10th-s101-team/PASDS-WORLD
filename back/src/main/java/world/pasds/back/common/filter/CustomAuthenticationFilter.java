@@ -112,7 +112,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             authRequest.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             authentication = authenticationManager.authenticate(authRequest);
         } catch (Exception e) {
-            respondCaseFail(response, FIRST_LOGIN_AUTHENTICAT_FAIL);
+            respondCaseFail(response, FIRST_LOGIN_AUTHENTICATION_FAIL);
             return;
         }
 

@@ -25,9 +25,9 @@ public class PrivateDataController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/detail")
-    public ResponseEntity<?> getPrivateData(@RequestBody GetPrivateDataRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        GetPrivateDataResponseDto response = privateDataService.getPrivateData(requestDto, userDetails.getMemberId());
+    @GetMapping("/{teamId}/{privateDataId}")
+    public ResponseEntity<?> getPrivateData(@PathVariable(name = "teamId") Long teamId, @PathVariable(name = "privateDataId") Long privateDataId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        GetPrivateDataResponseDto response = privateDataService.getPrivateData(teamId, privateDataId, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

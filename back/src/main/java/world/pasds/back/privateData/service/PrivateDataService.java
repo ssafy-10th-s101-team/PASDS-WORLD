@@ -94,9 +94,9 @@ public class PrivateDataService {
     }
 
     @Transactional
-    public GetPrivateDataResponseDto getPrivateData(GetPrivateDataRequestDto requestDto, Long memberId) {
+    public GetPrivateDataResponseDto getPrivateData(Long teamId, Long privateDataId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
         // 팀 멤버인지 확인
         MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);
@@ -104,7 +104,7 @@ public class PrivateDataService {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
-        PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
         // 요청한 멤버가 해당 팀에서 어떤 역할을 가지는지 확인
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);

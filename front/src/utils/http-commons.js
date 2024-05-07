@@ -2,8 +2,8 @@ import axios from 'axios'
 import { nextTick } from 'vue'
 import router from '@/router'
 
-const baseURL = 'https://pasds.world/app/api'
-// const baseURL = 'http://localhost:8080/app/api'
+// const baseURL = 'https://pasds.world/app/api'
+const baseURL = 'http://localhost:8080/app/api'
 
 const localAxios = axios.create({
   baseURL,
@@ -23,7 +23,7 @@ localAxios.interceptors.response.use(
     // 응답 상태 코드가 2XX 범위를 벗어난 경우
     if (error.response && error.response.status === 401) {
       console.log('401: ' + error)
-      sessionStorage.removeItem('nickname')
+      sessionStorage.clear()
       router.push({ name: 'memberLogin' }).then(() => {
         nextTick(() => {
           window.location.reload()

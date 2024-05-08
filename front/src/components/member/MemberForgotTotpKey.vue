@@ -43,7 +43,9 @@
             <BaseButton buttonText="인증완료" @click="getTotpKey" />
           </div>
         </div>
-        <BaseTimer />
+        <div id="timer">
+          <BaseTimer />
+        </div>
       </div>
       <div id="TOTP" class="hidden">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
@@ -60,8 +62,7 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert alertText="메일 전송에 실패했습니다. 다시 시도해주세요." v-if="EmailFailAlert" />
-    <BaseAlert alertText="인증에 실패했습니다. 다시 시도해주세요." v-if="OTPFailAlert" />
+    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
 
@@ -75,17 +76,18 @@ import router from '@/router/index.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 
 const commonStore = useCommonStore()
-const { removeHidden, startTimer, stopTimer } = commonStore
+const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
-const EmailFailAlert = ref(false)
-const OTPFailAlert = ref(false)
+const SignUpErrorAlert = ref(false)
+
+//signUpErrorMsg
+const SignUpErrorMsg = ref('')
 
 const email = ref('')
 const otpCode = ref('')
-const emailVerified = ref(false)
 
 const totpKey = ref(null)
 
@@ -102,26 +104,20 @@ const showOTPSuccessAlert = () => {
     OTPSuccessAlert.value = false
   }, 3000)
 }
-const showEmailFailAlert = () => {
-  EmailFailAlert.value = true
-  setTimeout(() => {
-    EmailFailAlert.value = false
-  }, 3000)
-}
-const showOTPFailAlert = () => {
-  OTPFailAlert.value = true
-  setTimeout(() => {
-    OTPFailAlert.value = false
-  }, 3000)
-}
 
+const showSignUpErrorAlert = (message) => {
+  SignUpErrorMsg.value = message
+  SignUpErrorAlert.value = true
+  setTimeout(() => {
+    SignUpErrorAlert.value = false
+  }, 3000)
+}
 // 이메일 인증 요청
 const sendOtpCode = async () => {
   const body = {
     email: email.value,
     requestType: 2
   }
-  // showEmailAlert();    테스트
   await localAxios.post('/totp/email-verification-requests', body)
     .then(() => {
       showEmailSuccessAlert()
@@ -130,7 +126,7 @@ const sendOtpCode = async () => {
     .catch((error) => {
       console.error(error)
       // 이메일 전송 실패 alert
-      showEmailFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 
@@ -140,19 +136,20 @@ const getTotpKey = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
-  // showOTPAlert();    테스트
-  await localAxios.post('/totp/re-share-key', body)
+  await localAxios.post('/totp/re-share-key', body, {
+    responseType: 'arraybuffer' // 이미지를 arraybuffer 형태로 받음
+  })
     .then((response) => {
-      emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
-      totpKey.value = response.data
+      toggleHidden('timer')
+      totpKey.value = URL.createObjectURL(new Blob([response.data],{ type: 'image/png' }));
       removeHidden('TOTP')
     })
     .catch((error) => {
       console.error(error)
       // otp 인증 실패 alert
-      showOTPFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 

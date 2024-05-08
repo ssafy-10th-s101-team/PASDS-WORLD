@@ -12,7 +12,7 @@
                     scope="col"
                     class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400 w-2/6"
                   >
-                    Private Data
+                    이름
                   </th>
                   <th
                     scope="col"
@@ -24,7 +24,7 @@
                     scope="col"
                     class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400 w-1/6"
                   >
-                    소유자
+                    생성자
                   </th>
                   <th scope="col" class="p-4 w-1/6 sr-only">
                     <div class="flex items-center">
@@ -90,7 +90,7 @@
   <div class="flex justify-center">
     <BaseButton buttonText="추가 +" @click="toggleHidden('privateDataDetail')" />
   </div>
-  <DashboardPrivateDataDetail />
+  <DashboardPrivateDataDetail :teamId="selectedTeamId" />
 </template>
 
 <script setup>

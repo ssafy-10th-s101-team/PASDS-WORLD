@@ -43,31 +43,20 @@
             <BaseButton buttonText="인증완료" @click="checkOtpCode" />
           </div>
         </div>
-        <BaseTimer />
+        <div id="timer">
+          <BaseTimer />
+        </div>
       </div>
 
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >비밀번호</label
+          >새 비밀번호</label
           >
           <input
             type="password"
             id="password"
             v-model="password"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="•••••••••"
-            required
-          />
-        </div>
-        <div>
-          <label for="password1" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >새 비밀번호</label
-          >
-          <input
-            type="password"
-            id="password1"
-            v-model="password1"
             @input="validatePassword"
             :class="{ 'border-red-500': !isPasswordValid }"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -111,8 +100,7 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert alertText="메일 전송에 실패했습니다. 다시 시도해주세요." v-if="EmailFailAlert" />
-    <BaseAlert alertText="인증에 실패했습니다. 다시 시도해주세요." v-if="OTPFailAlert" />
+    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
 
@@ -125,13 +113,16 @@ import { localAxios } from '@/utils/http-commons.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 
 const commonStore = useCommonStore()
-const { removeHidden, startTimer, stopTimer } = commonStore
+const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
-const EmailFailAlert = ref(false)
-const OTPFailAlert = ref(false)
+const SignUpErrorAlert = ref(false)
+
+//signUpErrorMsg
+const SignUpErrorMsg = ref('')
+
 
 const email = ref('')
 const otpCode = ref('')
@@ -151,33 +142,27 @@ const showOTPSuccessAlert = () => {
   }, 3000)
   removeHidden('password')
 }
-const showEmailFailAlert = () => {
-  EmailFailAlert.value = true
+const showSignUpErrorAlert = (message) => {
+  SignUpErrorMsg.value = message
+  SignUpErrorAlert.value = true
   setTimeout(() => {
-    EmailFailAlert.value = false
-  }, 3000)
-}
-const showOTPFailAlert = () => {
-  OTPFailAlert.value = true
-  setTimeout(() => {
-    OTPFailAlert.value = false
+    SignUpErrorAlert.value = false
   }, 3000)
 }
 
 // password check
 const password = ref('')
-const password1 = ref('')
 const password2 = ref('')
 const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
 const validatePassword = (event) => {
   event.preventDefault()
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/
-  isPasswordValid.value = regex.test(password1.value)
+  isPasswordValid.value = regex.test(password.value)
 }
 const checkPassword = (event) => {
   event.preventDefault()
-  isPasswordSame.value = password1.value === password2.value
+  isPasswordSame.value = password.value === password2.value
 }
 
 // 이메일 인증 요청
@@ -193,7 +178,7 @@ const sendOtpCode = async () => {
     })
     .catch((error) => {
       console.error(error)
-      showEmailFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 
@@ -203,16 +188,16 @@ const checkOtpCode = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
-  // showOTPAlert();    테스트
   await localAxios.post('/totp/verification-email-code', body)
     .then(() => {
       emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
+      toggleHidden('timer')
     })
     .catch((error) => {
       console.error(error)
-      showOTPFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 </script>

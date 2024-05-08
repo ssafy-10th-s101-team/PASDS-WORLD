@@ -13,26 +13,51 @@ const localAxios = axios.create({
   withCredentials: true //쿠키사용시 필요
 })
 
-// 응답 인터셉터 추가
+const errorCodes = [
+  'INVALID_SIGNATURE',
+  'EMAIL_INVALID_SIGNATURE',
+  'TEMPORARY_INVALID_SIGNATURE',
+  'ACCESS_INVALID_SIGNATURE',
+  'REFRESH_INVALID_SIGNATURE',
+  'TOKEN_EXPIRED',
+  'EMAIL_TOKEN_EXPIRED',
+  'TEMPORARY_TOKEN_EXPIRED',
+  'REFRESH_TOKEN_EXPIRED',
+  'TOKEN_NOT_FOUND',
+  'EMAIL_TOKEN_NOT_FOUND',
+  'TEMPORARY_TOKEN_NOT_FOUND',
+  'ACCESS_TOKEN_NOT_FOUND',
+  'REFRESH_TOKEN_NOT_FOUND',
+  'TOKEN_MISMATCH',
+  'EMAIL_TOKEN_MISMATCH',
+  'TEMPORARY_TOKEN_MISMATCH',
+  'ACCESS_TOKEN_MISMATCH',
+  'REFRESH_TOKEN_MISMATCH',
+  'EMAIL_COOKIE_NOT_FOUND',
+  'TEMPORARY_COOKIE_NOT_FOUND',
+  'ACCESS_COOKIE_NOT_FOUND',
+  'REFRESH_COOKIE_NOT_FOUND'
+]
+
 localAxios.interceptors.response.use(
   (response) => {
-    // 2XX 범위의 상태 코드에 대해 요청이 성공적으로 수행된 경우
     return response
   },
   (error) => {
-    // 응답 상태 코드가 2XX 범위를 벗어난 경우
-    if (error.response && error.response.status === 401) {
-      console.log('401: ' + error)
-      sessionStorage.clear()
-      router.push({ name: 'memberLogin' }).then(() => {
-        nextTick(() => {
-          window.location.reload()
+    if (error.response && error.response.data && error.response.data.exceptionCode) {
+      const exceptionCode = error.response.data.exceptionCode
+      if (errorCodes.includes(exceptionCode)) {
+        alert('세션이 만료되었습니다')
+        sessionStorage.clear()
+        router.push({ name: 'memberLogin' }).then(() => {
+          nextTick(() => {
+            window.location.reload()
+          })
         })
-      })
-      // return Promise.resolve()
-      return
+        return
+      }
     }
-    return Promise.reject(error) // 에러를 다음 체인으로 전달
+    return Promise.reject(error)
   }
 )
 

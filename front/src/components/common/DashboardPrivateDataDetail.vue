@@ -10,17 +10,21 @@
         <div class="max-w-lg">
           <div class="inline-flex shadow-sm rounded-md mt-5" role="group">
             <button
+              ref="loginButton"
               @click="changeToLogin"
               type="button"
-              class="rounded-l-lg border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+              class="rounded-l-lg border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+              :class="{ 'bg-samsung-blue text-white': infoType === 'LOGIN' }"
             >
               로그인
             </button>
 
             <button
+              ref="textButton"
               @click="changeToText"
               type="button"
-              class="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+              class="rounded-r-md border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+              :class="{ 'bg-samsung-blue text-white': infoType === 'TEXT' }"
             >
               텍스트
             </button>
@@ -30,15 +34,16 @@
       <!-- 버튼 끝 -->
       <form>
         <!-- 타입이 id, pw인 경우 -->
-        <div v-if="infoType === 'login'">
+        <div v-if="infoType === 'LOGIN'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
-            <label for="privateDataName" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >이름</label
             >
             <input
               type="text"
-              id="privateDataName"
+              id="title"
+              v-model="title"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder=""
               required
@@ -53,6 +58,7 @@
               <input
                 type="text"
                 id="privateDataId"
+                v-model="privateDataId"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 required
               />
@@ -60,14 +66,13 @@
 
             <!-- 비밀번호 입력 필드 -->
             <div>
-              <label
-                for="privateDataPassword"
-                class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+              <label for="content" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
                 >비밀번호</label
               >
               <div class="relative">
                 <input
-                  id="privateDataPassword"
+                  id="content"
+                  v-model="content"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="•••••••••"
                   :type="showPassword ? 'text' : 'password'"
@@ -122,12 +127,11 @@
           </div>
           <!-- URI 입력 필드 -->
           <div class="mb-6">
-            <label for="privateDataURI" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >URI</label
-            >
+            <label for="url" class="block mb-2 text-sm text-gray-900 dark:text-gray-300">URL</label>
             <input
               type="text"
-              id="privateDataURI"
+              id="url"
+              v-model="url"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="www.domain.com/"
               required
@@ -136,27 +140,29 @@
 
           <!-- 메모 입력 필드 -->
           <div class="mb-6">
-            <label for="privateDataMemo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="memo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >메모</label
             >
             <textarea
-              id="privateDataMemo"
+              id="memo"
               rows="5"
+              v-model="memo"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="메모"
             ></textarea>
           </div>
         </div>
         <!-- 타입이 text인 경우 -->
-        <div v-else-if="infoType === 'text'">
+        <div v-else-if="infoType === 'TEXT'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
-            <label for="privateDataName" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >이름</label
             >
             <input
               type="text"
-              id="privateDataName"
+              id="title"
+              v-model="title"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder=""
               required
@@ -165,14 +171,13 @@
           <div class="mb-6">
             <!-- 비밀 입력 필드 -->
             <div>
-              <label
-                for="privateDataText"
-                class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+              <label for="content" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
                 >비밀</label
               >
               <div class="relative">
                 <input
-                  id="privateDataPasswordText"
+                  id="content"
+                  v-model="content"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   :type="showPassword ? 'text' : 'password'"
                   required
@@ -228,11 +233,12 @@
 
           <!-- 메모 입력 필드 -->
           <div class="mb-6">
-            <label for="privateDataMemo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+            <label for="memo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
               >메모</label
             >
             <textarea
-              id="privateDataMemo"
+              id="memo"
+              v-model="memo"
               rows="5"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="메모"
@@ -241,6 +247,7 @@
         </div>
         <div class="flex justify-center">
           <button
+            @click.prevent="createPrivate"
             type="submit"
             class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
@@ -255,17 +262,69 @@
 <script setup>
 import { ref } from 'vue'
 import BaseModal from './BaseModal.vue'
+import { createPrivateData } from '@/api/data'
+
 const showPassword = ref(false)
-const infoType = ref('login')
+const infoType = ref('LOGIN')
+const loginButton = ref(null)
+const textButton = ref(null)
+const title = ref('')
+const privateDataId = ref('')
+const content = ref('')
+const url = ref('')
+const memo = ref('')
+const roleList = ref([22])
+
 const togglePasswordVisibility = (event) => {
   event.preventDefault()
   showPassword.value = !showPassword.value
 }
+
 const changeToText = () => {
-  infoType.value = 'text'
+  infoType.value = 'TEXT'
+  textButton.value.blur()
+  loginButton.value.blur()
 }
+
 const changeToLogin = () => {
-  infoType.value = 'login'
+  infoType.value = 'LOGIN'
+  textButton.value.blur()
+  loginButton.value.blur()
+}
+
+const props = defineProps({
+  teamId: Number
+})
+
+const createPrivate = async () => {
+  if (!validateFields()) {
+    alert('모든 항목을 채워주세요.')
+    return
+  }
+  try {
+    const body = {
+      teamId: props.teamId,
+      type: infoType.value,
+      title: title.value,
+      content: content.value,
+      memo: memo.value,
+      privateDataId: privateDataId.value,
+      url: url.value,
+      roleId: roleList.value
+    }
+    const response = await createPrivateData(body)
+    if (response) {
+      alert('비밀이 성공적으로 생성되었습니다.')
+    }
+  } catch (error) {
+    const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+    alert(errmsg)
+  }
+  location.reload()
+}
+
+function validateFields() {
+  return title.value.trim() && content.value.trim()
 }
 </script>
 

@@ -1,5 +1,6 @@
 package world.pasds.back.member.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
@@ -33,20 +34,23 @@ public class MemberController {
     }
 
     @PostMapping("/first-login")
-    public ResponseEntity<?> firstLogin(HttpServletResponse httpServletResponse, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(memberService.firstLogin(httpServletResponse, customUserDetails));
+    public ResponseEntity<?> firstLogin(HttpServletRequest httpServletRequest,
+                                        HttpServletResponse httpServletResponse, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(memberService.firstLogin(httpServletRequest, httpServletResponse, customUserDetails));
     }
 
     @PostMapping("/second-login")
-    public ResponseEntity<?> secondLogin(HttpServletResponse httpServletResponse, @AuthenticationPrincipal CustomUserDetails customUserDetails
+    public ResponseEntity<?> secondLogin(HttpServletRequest httpServletRequest,
+                                         HttpServletResponse httpServletResponse, @AuthenticationPrincipal CustomUserDetails customUserDetails
             , @RequestBody SecondLoginRequestDto secondLoginRequestDto) {
-        memberService.secondLogin(httpServletResponse, customUserDetails, secondLoginRequestDto);
+        memberService.secondLogin(httpServletRequest, httpServletResponse, customUserDetails, secondLoginRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse httpServletResponse, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        memberService.logout(httpServletResponse, customUserDetails);
+    public ResponseEntity<?> logout(HttpServletRequest httpServletRequest,
+                                    HttpServletResponse httpServletResponse, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        memberService.logout(httpServletRequest, httpServletResponse, customUserDetails);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

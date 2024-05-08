@@ -1,5 +1,6 @@
 package world.pasds.back.member.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,10 +98,10 @@ public class MemberService {
         return totpService.generateSecretKeyQR(member.getId());
     }
 
-    public FirstLoginResponseDto firstLogin(HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
+    public FirstLoginResponseDto firstLogin(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
 
         String temporaryJwtToken = jwtTokenProvider.generateToken(customUserDetails.getMemberId(), JwtTokenProvider.TokenType.TEMPORARY, true);
-        cookieProvider.addCookie(httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name(), temporaryJwtToken);
+        cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name(), temporaryJwtToken);
 
         return FirstLoginResponseDto
                 .builder()
@@ -108,7 +109,7 @@ public class MemberService {
                 .build();
     }
 
-    public void secondLogin(HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails
+    public void secondLogin(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails
             , SecondLoginRequestDto secondLoginRequestDto) {
 
         Long memberId = customUserDetails.getMemberId();
@@ -123,24 +124,24 @@ public class MemberService {
         // 성공
         String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.TEMPORARY.name();
         redisTemplate.delete(redisKey);
-        cookieProvider.removeCookie(httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name());
+        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name());
 
         String accessToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.ACCESS, true);
-        cookieProvider.addCookie(httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name(), accessToken);
+        cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name(), accessToken);
 
         String refreshToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.REFRESH, true);
-        cookieProvider.addCookie(httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name(), refreshToken);
+        cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name(), refreshToken);
     }
 
-    public void logout(HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
+    public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
         Long memberId = customUserDetails.getMemberId();
 
         String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.ACCESS.name();
         redisTemplate.delete(redisKey);
-        cookieProvider.removeCookie(httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name());
+        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name());
 
         redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.REFRESH.name();
         redisTemplate.delete(redisKey);
-        cookieProvider.removeCookie(httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name());
+        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name());
     }
 }

@@ -5,4 +5,5 @@ import lombok.Getter;
 @Getter
 public class EmailSendRequestDto {
 	private String email;
+	private int requestType;
 }

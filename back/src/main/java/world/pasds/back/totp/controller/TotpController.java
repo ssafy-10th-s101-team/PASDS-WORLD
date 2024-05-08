@@ -51,7 +51,7 @@ public class TotpController {
 
 	@PostMapping("/email-verification-requests")
 	public ResponseEntity<?> sendCodeToEmail(@RequestBody EmailSendRequestDto requestDto) {
-		totpService.sendCodeToEmail(requestDto.getEmail());
+		totpService.sendCodeToEmail(requestDto.getEmail(), requestDto.getRequestType());
 		return ResponseEntity.ok().build();
 	}
 

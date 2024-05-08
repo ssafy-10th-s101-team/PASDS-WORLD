@@ -26,10 +26,11 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> signup(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                                    @RequestBody SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
-                .body(memberService.signup(signupRequestDto,customUserDetails));
+                .body(memberService.signup(httpServletRequest, httpServletResponse, signupRequestDto, customUserDetails));
     }
 
     @PostMapping("/first-login")

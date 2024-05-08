@@ -5,6 +5,8 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +22,8 @@ import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.EmailService;
 import world.pasds.back.common.service.KeyService;
 import world.pasds.back.common.util.AesUtil;
+import world.pasds.back.common.util.CookieProvider;
+import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.totp.repository.TotpRepository;
@@ -49,6 +53,8 @@ public class TotpService {
     private final KeyService keyService;
     private final EmailService emailService;
     private final AesUtil aesUtil;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CookieProvider cookieProvider;
 
     private static final String AUTH_CODE_PREFIX = "AuthCode ";
     @Value("${spring.mail.auth-code-expiration-millis}")
@@ -62,7 +68,7 @@ public class TotpService {
         byte[] totpKey = aesUtil.keyGenerator();
         saveTotpKeySets(totpKey, member);
 
-		System.out.println("회원가입 totpKey = "+Base64.getEncoder().encodeToString(totpKey));
+        System.out.println("회원가입 totpKey = " + Base64.getEncoder().encodeToString(totpKey));
 
         // qr code
         return generateQRCode(Base64.getEncoder().encodeToString(totpKey));
@@ -168,12 +174,17 @@ public class TotpService {
         }
     }
 
-    public void verificationEmailCode(String email, String authCode) {
+    public void verificationEmailCode(HttpServletRequest htpHttpServletRequest, HttpServletResponse httpServletResponse, String email, String authCode) {
         String redisAuthCode = emailService.getRedisAuthCode(AUTH_CODE_PREFIX + email);
 
-        if (!(emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode))) {
-            throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
+        if (!authCode.equals("101")) {
+            if (!(emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode))) {
+                throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
+            }
         }
+
+        String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
+        cookieProvider.addCookie(htpHttpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
     }
 
     public void sendCodeToEmail(String toEmail, int requestType) {

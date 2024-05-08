@@ -46,7 +46,8 @@ public class MemberService {
 
 
     @Transactional
-    public byte[] signup(SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public byte[] signup(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+            SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
 //        // 이메일 형식
 //        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
@@ -60,7 +61,7 @@ public class MemberService {
 //            throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
 //        }
 
-        // 들고온 이메일과 인증했던 이메일이 같은 이미지 인듯
+        // 들고온 이메일과 인증했던 이메일이 같아야 한다
         if (!signupRequestDto.getEmail().equals(customUserDetails.getEmail())) {
             throw new BusinessException(ExceptionCode.EMAIL_IS_NOT_SAME);
         }
@@ -81,6 +82,9 @@ public class MemberService {
             throw new BusinessException(ExceptionCode.NICKNAME_INVALID_FORMAT);
         }
 
+
+        ////////////////////// 성공
+
         // 비밀번호 암호화하여 저장
         String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
         Member newMember = Member.builder()
@@ -89,6 +93,10 @@ public class MemberService {
                 .nickname(signupRequestDto.getNickname())
                 .build();
         memberRepository.save(newMember);
+
+        String redisKey = customUserDetails.getEmail() + "_" + JwtTokenProvider.TokenType.EMAIL.name();
+        redisTemplate.delete(redisKey);
+        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
 
         /**
          * 회원가입시 받은 초대 모두 가입시키기

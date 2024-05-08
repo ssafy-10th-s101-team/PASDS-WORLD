@@ -9,7 +9,7 @@
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >이메일</label
+          >이메일</label
           >
           <input
             type="email"
@@ -21,33 +21,37 @@
           />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="이메일 인증" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
         </div>
       </div>
-      <div id="OTP" class="hidden grid gap-6 mb-6 lg:grid-cols-2">
-        <!-- otp 입력 필드 -->
-        <div>
-          <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
+      <div id="OTP" class="hidden gap-6 mb-6">
+        <div class="flex flex-row gap-6 mb-2">
+          <!-- otp 입력 필드 -->
+          <div class="basis-2/3">
+            <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
             >OTP 인증</label
-          >
-          <input
-            type="text"
-            id="otpCode"
-            v-model="otpCode"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="이메일로 받은 코드를 입력하세요"
-            required
-          />
+            >
+            <input
+              type="text"
+              id="otpCode"
+              v-model="otpCode"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="이메일로 받은 코드를 입력하세요"
+              required
+            />
+          </div>
+          <div class="flex items-end justify-start basis-1/3">
+            <BaseButton buttonText="인증완료" @click="checkOtpCode" />
+          </div>
         </div>
-        <div class="flex items-end justify-start">
-          <BaseButton buttonText="확인" @click="checkOtpCode" />
-        </div>
+        <BaseTimer />
       </div>
+
       <!-- 비밀번호 입력 필드 -->
       <div id="PW" class="hidden grid gap-6 mb-6 lg:grid-cols-2">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >비밀번호</label
+          >비밀번호</label
           >
           <input
             type="password"
@@ -68,7 +72,7 @@
         <!-- 비밀번호 확인 입력 필드 -->
         <div>
           <label for="confirmPassword" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >비밀번호 확인</label
+          >비밀번호 확인</label
           >
           <input
             type="password"
@@ -88,7 +92,7 @@
         <!-- 닉네임 입력 필드 -->
         <div>
           <label for="nickname" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >닉네임</label
+          >닉네임</label
           >
           <input
             type="text"
@@ -130,6 +134,7 @@ import { localAxios } from '@/utils/http-commons.js'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseTimer from '@/components/common/BaseTimer.vue'
 
 const router = useRouter()
 
@@ -144,7 +149,7 @@ const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
 const isNicknameValid = ref(false)
 const commonStore = useCommonStore()
-const { removeHidden } = commonStore
+const { removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -196,12 +201,14 @@ const checkOtpCode = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
+
   // showOTPAlert();    테스트
   await localAxios
     .post('/totp/verification-email-code', body)
     .then(() => {
       // emailVerified.value = true
       showOTPSuccessAlert()
+      stopTimer()
     })
     .catch((error) => {
       console.error(error)
@@ -220,6 +227,7 @@ const sendOtpCode = async () => {
     .post('/totp/email-verification-requests', body)
     .then(() => {
       showEmailSuccessAlert()
+      startTimer()
     })
     .catch((error) => {
       console.error(error)
@@ -245,10 +253,6 @@ const validateNickname = () => {
 }
 
 const submitForm = async () => {
-  // if (!emailVerified.value) {
-  //   alert('이메일 인증이 필요합니다.')
-  //   return
-  // }
 
   const body = {
     email: email.value,

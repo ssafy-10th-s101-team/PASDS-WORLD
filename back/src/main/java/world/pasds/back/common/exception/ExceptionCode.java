@@ -12,6 +12,7 @@ public enum ExceptionCode {
     EMAIL_NOT_FOUND(404, "이메일을 찾을수 없습니다."),
     EMAIL_INVALID_FORMAT(400, "잘못된 이메일 양식입니다."),
     EMAIL_IS_NOT_SAME(401,"인증받은 이메일과 다릅니다."),
+    EMAIL_SENDER_ERROR(500,"이메일 센더 에러입니다. 개발자에게 연락해주세요"),
 
     EMAIL_CODE_NOT_SAME(409, "이메일 인증코드가 다릅니다."),
     EMAIL_CODE_GENERATION_ERROR(500, "이메일 인증코드 발급에 문제가 발생했습니다."),

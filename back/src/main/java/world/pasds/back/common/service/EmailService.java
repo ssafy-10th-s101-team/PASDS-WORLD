@@ -8,6 +8,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import world.pasds.back.common.exception.BusinessException;
+import world.pasds.back.common.exception.ExceptionCode;
 
 @Service
 @Transactional
@@ -17,8 +19,13 @@ public class EmailService {
     private final RedisTemplate redisTemplate;
 
     public void sendMessage(String toEmail, String subject, String text){
-        SimpleMailMessage emailForm = createEmailForm(toEmail, subject, text);
-        mailSender.send(emailForm);
+        try {
+            SimpleMailMessage emailForm = createEmailForm(toEmail, subject, text);
+            mailSender.send(emailForm);
+        }
+        catch(Exception e){
+            throw new BusinessException(ExceptionCode.EMAIL_SENDER_ERROR);
+        }
     }
 
     private SimpleMailMessage createEmailForm(String toEmail, String subject, String text) {

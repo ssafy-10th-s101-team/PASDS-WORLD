@@ -39,7 +39,6 @@ const teamName = ref('')
 
 const createT = async () => {
   try {
-    console.log(props.organizationId)
     const body = {
       organizationId: props.organizationId,
       teamName: teamName.value

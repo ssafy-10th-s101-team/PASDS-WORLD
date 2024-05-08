@@ -37,8 +37,7 @@
 import TeamCreationModal from './TeamCreationModal.vue'
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
-import { localAxios } from '@/utils/http-commons'
-import { onMounted, ref, defineProps, defineEmits } from 'vue'
+import { watch, ref, defineProps, defineEmits } from 'vue'
 import { getTeams } from '@/api/team'
 
 const emit = defineEmits(['team-selected', 'loaded'])
@@ -50,56 +49,30 @@ const { toggleHidden } = commonStore
 const teamList = ref([])
 const selectedTeamId = ref(null)
 
-onMounted(async () => {
-  if (props.selectedOrganizationId) {
-    const response = await fetchTeams(props.selectedOrganizationId)
-    teamList.value = response
-    if (response.length > 0) {
-      selectedTeamId.value = response[0].teamId
-      selectTeam(selectedTeamId.value)
+const fetchTeams = async (orgId) => {
+  return await getTeams(orgId)
+}
+
+watch(
+  () => props.selectedOrganizationId,
+  async (newVal) => {
+    if (newVal) {
+      const response = await fetchTeams(newVal)
+      teamList.value = response
+      if (response.length > 0) {
+        selectedTeamId.value = response[0].teamId
+        selectTeam(selectedTeamId.value)
+      }
     }
-  }
-})
+  },
+  { immediate: true }
+)
 
 function selectTeam(id) {
   selectedTeamId.value = id
   emit('team-selected', id)
   emit('loaded', true)
 }
-
-const fetchTeams = async (orgId) => {
-  try {
-    const handleSuccess = (response) => {
-      return response.data
-    }
-
-    const handleFail = (error) => {
-      console.error(error)
-      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-      console.error(errmsg)
-      return []
-    }
-    return await getTeams(orgId, handleSuccess, handleFail)
-  } catch (error) {
-    console.error('Unexpected error:', error)
-    return []
-  }
-}
-
-// const fetchTeams = async function (orgId) {
-//   try {
-//     const response = await localAxios({
-//       method: 'GET',
-//       url: `/team/${orgId}`
-//     })
-//     return response.data
-//   } catch (err) {
-//     console.error(err)
-//     const errmsg = err.response ? err.response.data.message : 'Error fetching data'
-//     console.error(errmsg)
-//     return []
-//   }
-// }
 </script>
 
 <style scoped></style>

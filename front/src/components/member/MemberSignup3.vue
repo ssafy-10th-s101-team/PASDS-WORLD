@@ -1,13 +1,16 @@
 <template>
-  <div class="flex justify-center items-center h-screen bg-white">
-    <div class="text-center">
-      <img :src="totpKey" alt="QR Code" class="mx-auto" />
-      <h2 class="text-lg font-semibold text-gray-800 mt-4">
+
+  <div class="max-w-2xl mx-auto bg-white p-16">
+    <div
+      class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
+    >
+      <p class="text-gray-900 dark:text-white">
+        <img :src="totpKey" alt="QR Code" class="mx-auto" />
         pasds.world의 패스키를 생성하려는 기기의 앱 카메라로 이 QR 코드를 스캔하세요.
-      </h2>
+      </p>
       <button
         @click="goToNextStep"
-        class="mt-6 bg-samsung-blue hover:bg-blue-800 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors"
+        class="w-full bg-samsung-blue hover:bg-blue-800 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors"
       >
         다음으로
       </button>

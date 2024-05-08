@@ -9,7 +9,7 @@
         <!-- TOTP 코드 입력 필드 -->
         <div class="basis-2/3">
           <label for="totp" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >인증 코드</label
+          >인증 코드</label
           >
           <input
             type="text"
@@ -26,18 +26,18 @@
         </div>
       </div>
 
-    <!-- 링크 영역 -->
-    <div class="flex justify-between text-sm text-gray-500 dark:text-gray-300">
-      <router-link
-        :to="{ name: 'memberForgotTotpKey' }"
-        class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-      >앱 재연동하기
-      </router-link
-      >
+      <!-- 링크 영역 -->
+      <div class="flex justify-between text-sm text-gray-500 dark:text-gray-300">
+        <router-link
+          :to="{ name: 'memberForgotTotpKey' }"
+          class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
+        >앱 재연동하기
+        </router-link
+        >
+      </div>
     </div>
-  </div>
-  <BaseAlert alertText="인증되었습니다." v-if="TOTPSuccessAlert" />
-  <BaseAlert alertText="인증에 실패했습니다. 다시 시도해주세요." v-if="TOTPFailAlert" />
+    <BaseAlert alertText="인증되었습니다." v-if="TOTPSuccessAlert" />
+    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
 
@@ -54,7 +54,10 @@ const totpCode = ref('')
 
 // alert toggle
 const TOTPSuccessAlert = ref(false)
-const TOTPFailAlert = ref(false)
+const SignUpErrorAlert = ref(false)
+
+//signUpErrorMsg
+const SignUpErrorMsg = ref('')
 
 const showTOTPSuccessAlert = () => {
   TOTPSuccessAlert.value = true
@@ -62,10 +65,12 @@ const showTOTPSuccessAlert = () => {
     TOTPSuccessAlert.value = false
   }, 3000)
 }
-const showTOTPFailAlert = () => {
-  TOTPFailAlert.value = true
+
+const showSignUpErrorAlert = (message) => {
+  SignUpErrorMsg.value = message
+  SignUpErrorAlert.value = true
   setTimeout(() => {
-    TOTPFailAlert.value = false
+    SignUpErrorAlert.value = false
   }, 3000)
 }
 
@@ -89,9 +94,9 @@ const sendTotpCode = async () => {
     })
     .catch((error) => {
       console.log(error)
-      showTOTPFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
 
-      // todo main-back 에서 ErrorResponse는 status, message 로 통일되어 있는데 exceptionCode 재처리 필요할 수도....
+      // todo TEMPORARY TOKEN이 만료되었을 때 에러 처리 어떻게 할 거야
       // if (error.response.data.exceptionCode === 'TEMPORARY_TOKEN_EXPIRED') {
       //   sessionStorage.removeItem('tmpNickname')
       //   router.push({ name: 'memberLogin' })

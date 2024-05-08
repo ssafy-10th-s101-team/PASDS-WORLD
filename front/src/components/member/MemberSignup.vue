@@ -123,8 +123,6 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert alertText="메일 전송에 실패했습니다. 다시 시도해주세요." v-if="EmailFailAlert" />
-    <BaseAlert alertText="인증에 실패했습니다. 다시 시도해주세요." v-if="OTPFailAlert" />
     <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
@@ -146,7 +144,6 @@ const password = ref('')
 const confirmPassword = ref('')
 const nickname = ref('')
 
-// const emailVerified = ref(false)
 const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
 const isNicknameValid = ref(false)
@@ -156,8 +153,6 @@ const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 // alert toggle
 const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
-const EmailFailAlert = ref(false)
-const OTPFailAlert = ref(false)
 const SignUpErrorAlert = ref(false)
 
 //signUpErrorMsg
@@ -177,18 +172,6 @@ const showOTPSuccessAlert = () => {
   }, 3000)
   removeHidden('PW')
 }
-const showEmailFailAlert = () => {
-  EmailFailAlert.value = true
-  setTimeout(() => {
-    EmailFailAlert.value = false
-  }, 3000)
-}
-const showOTPFailAlert = () => {
-  OTPFailAlert.value = true
-  setTimeout(() => {
-    OTPFailAlert.value = false
-  }, 3000)
-}
 
 const showSignUpErrorAlert = (message) => {
   SignUpErrorMsg.value = message
@@ -203,12 +186,9 @@ const checkOtpCode = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
-
-  // showOTPAlert();    테스트
   await localAxios
     .post('/totp/verification-email-code', body)
     .then(() => {
-      // emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
       toggleHidden('timer')
@@ -216,7 +196,7 @@ const checkOtpCode = async () => {
     .catch((error) => {
       console.error(error)
       // otp 인증 실패 alert
-      showOTPFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 
@@ -226,7 +206,6 @@ const sendOtpCode = async () => {
     email: email.value,
     requestType: 1
   }
-  // showEmailAlert();    테스트
   await localAxios
     .post('/totp/email-verification-requests', body)
     .then(() => {
@@ -236,7 +215,7 @@ const sendOtpCode = async () => {
     .catch((error) => {
       console.error(error)
       // 이메일 전송 실패 alert
-      showEmailFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 

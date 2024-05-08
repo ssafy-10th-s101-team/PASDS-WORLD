@@ -30,7 +30,7 @@ export const useCommonStore = defineStore('common', () => {
       clearInterval(intervalId.value); // 기존 타이머가 있다면 중지
     }
     intervalId.value = setInterval(() => {
-      if (time.value > 0) {
+      if (time.value > 1) {
         time.value -= 1 // 1초 감소
       } else {
         clearInterval(intervalId.value);

@@ -6,12 +6,13 @@
         <button
           v-for="team in teamList"
           :key="team.teamId"
+          ref="teamButtons"
           type="button"
           :class="{
             'bg-samsung-blue text-white': team.teamId === selectedTeamId
           }"
           class="rounded-md border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-samsung-blue hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-          @click="selectTeam(team.id)"
+          @click="selectTeam(team.teamId)"
         >
           {{ team.teamName }}
         </button>
@@ -48,6 +49,7 @@ const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const teamList = ref([])
 const selectedTeamId = ref(null)
+const teamButtons = ref([])
 
 const fetchTeams = async (orgId) => {
   return await getTeams(orgId)
@@ -72,6 +74,10 @@ function selectTeam(id) {
   selectedTeamId.value = id
   emit('team-selected', id)
   emit('loaded', true)
+
+  teamButtons.value.forEach((btn) => {
+    if (btn) btn.blur()
+  })
 }
 </script>
 

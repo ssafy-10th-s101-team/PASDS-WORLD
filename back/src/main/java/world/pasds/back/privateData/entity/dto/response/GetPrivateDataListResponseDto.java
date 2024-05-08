@@ -11,7 +11,7 @@ public class GetPrivateDataListResponseDto {
     private Long privateDataId;
     private String title;
     private DataType type;
-    private String createdBy;
+    private Long createdBy;
     private String dataId;
     private String url;
 }

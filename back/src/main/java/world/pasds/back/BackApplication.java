@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @SpringBootApplication
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "loginUserAuditorAware")
 @EnableAsync
 @EnableScheduling
 public class BackApplication {

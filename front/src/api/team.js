@@ -21,6 +21,14 @@ async function getTeams(organizationId) {
     .catch(fail)
 }
 
+//팀리스트 가져옴
+async function getAdminTeams(organizationId) {
+  return localAxios
+    .get(prefix + `/admin/${organizationId}`)
+    .then(success)
+    .catch(fail)
+}
+
 //팀원 목록 가져옴
 async function getTeamMembers(teamId, offset) {
   return localAxios
@@ -105,6 +113,7 @@ async function regenerateDataKey(body) {
 
 export {
   getTeams,
+  getAdminTeams,
   getTeamMembers,
   createTeam,
   inviteTeam,

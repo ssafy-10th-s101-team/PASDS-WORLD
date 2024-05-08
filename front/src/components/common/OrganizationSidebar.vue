@@ -16,7 +16,7 @@
                   @click="toggleHidden('dropdownOrganization')"
                 >
                   <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item
-                    >S101</span
+                    ><b>{{ currentOrganization.name }}</b></span
                   >
                   <svg
                     sidebar-toggle-item
@@ -44,9 +44,12 @@
                 >
               </div> -->
                   <ul class="py-1" aria-labelledby="dropdown">
-                    <li v-for="organization in organizations">
-                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
-                        >{{ organization }}
+                    <li v-for="organization in organizations" :key="organization.organizationId">
+                      <a
+                        @click="selectOrganization(organization)"
+                        href="#"
+                        class="text-sm hover:bg-samsung-blue hover:text-white text-gray-700 block px-4 py-2"
+                        >{{ organization.name }}
                       </a>
                     </li>
                   </ul>
@@ -58,14 +61,14 @@
                   <router-link
                     :to="{ name: 'organizationTeam' }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >팀관리</router-link
+                    >팀 목록</router-link
                   >
                 </li>
                 <li>
                   <router-link
                     :to="{ name: 'organizationMember' }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
-                    >구성원
+                    >조직원 목록
                   </router-link>
                 </li>
                 <li>
@@ -160,17 +163,54 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, defineEmits } from 'vue'
 import { useCommonStore } from '@/stores/common'
+import { getOrganizations } from '@/api/organization.js'
+
+const emit = defineEmits(['organization-selected', 'loaded'])
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
-const organizations = ref([
-  '내가 조직장인 조직',
-  '리스트를 보여줍니다',
-  '추후 스크롤바로 구현합니다',
-  '조직 이름이 바뀝니다',
-  'CSS를 수정합니다'
-])
+const organizations = ref([])
+const currentOrganization = ref('s101')
+
+const selectOrganization = (organization) => {
+  if (currentOrganization.value == organization) {
+    toggleHidden('dropdownOrganization')
+    return
+  }
+  console.log('이게 실행되나. 실행되면 부모 컨포로 전송까지')
+  emit('organization-selected', organization.organizationId)
+  currentOrganization.value = organization
+  toggleHidden('dropdownOrganization') // 드롭다운을 닫거나 열기
+}
+
+onMounted(async () => {
+  console.log('온마운티드')
+  organizations.value = await getOrganizations()
+  console.log('organizations.value :', organizations.value)
+  console.log('organizations.value.length,', organizations.value.length)
+  // organizations.value = [
+  //   {
+  //     organizationId: '1',
+  //     name: 'TESTORG',
+  //     teamCount: 123
+  //   },
+  //   {
+  //     organizationId: '2',
+  //     name: 'TESTORG2',
+  //     teamCount: 123
+  //   }
+  // ]
+
+  if (organizations.value == null || organizations.value.length == 0) {
+    emit('organization-selected', null)
+    emit('loaded', false)
+  } else {
+    emit('organization-selected', organizations.value[0].organizationId)
+    emit('loaded', true)
+    currentOrganization.value = organizations.value[0]
+  }
+})
 </script>
 
 <style scoped></style>

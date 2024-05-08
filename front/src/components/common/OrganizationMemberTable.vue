@@ -103,11 +103,50 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import BaseButton from './BaseButton.vue'
 import OrganizationInvitationModal from './OrganizationInvitationModal.vue'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+const members = ref([
+  {
+    nickname: '제비랑',
+    email: '1996joon@naver.com',
+    teams: [
+      {
+        teamName: '영업'
+      },
+      {
+        teamName: '전체'
+      }
+    ]
+  },
+  {
+    nickname: '덕끼끼',
+    email: 'deokki@naver.com',
+    teams: [
+      {
+        teamName: '마케팅'
+      },
+      {
+        teamName: '전체'
+      }
+    ]
+  },
+  {
+    nickname: '진뚱이용',
+    email: 'wlsdyd4@naver.com',
+    teams: [
+      {
+        teamName: '개발'
+      },
+      {
+        teamName: '전체'
+      }
+    ]
+  }
+])
 </script>
 
 <style scoped></style>

@@ -3,6 +3,7 @@
     <div
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
+      헬롱 여기는 OrganizationSetting.vue
       <h3 class="text-xl text-gray-900 dark:text-white">조직 설정</h3>
       <label for="organizationName" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
         >조직명</label

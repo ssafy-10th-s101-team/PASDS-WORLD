@@ -36,8 +36,6 @@ import { ref } from 'vue'
 import BaseModal from './BaseModal.vue'
 import { createOrganization } from '@/api/organization'
 
-// const commonStore = useCommonStore()
-// const { removeHidden } = commonStore
 const organizationName = ref('')
 
 const createOrg = async () => {
@@ -45,8 +43,10 @@ const createOrg = async () => {
     const body = { name: organizationName.value }
     await createOrganization(body)
     alert('조직이 성공적으로 생성되었습니다.')
+    location.reload()
   } catch (error) {
     alert('조직 생성에 실패했습니다.')
+    location.reload()
   }
 }
 </script>

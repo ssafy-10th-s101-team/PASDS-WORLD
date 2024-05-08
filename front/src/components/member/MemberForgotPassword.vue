@@ -51,25 +51,12 @@
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >비밀번호</label
+          >새 비밀번호</label
           >
           <input
             type="password"
             id="password"
             v-model="password"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="•••••••••"
-            required
-          />
-        </div>
-        <div>
-          <label for="password1" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >새 비밀번호</label
-          >
-          <input
-            type="password"
-            id="password1"
-            v-model="password1"
             @input="validatePassword"
             :class="{ 'border-red-500': !isPasswordValid }"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -165,18 +152,17 @@ const showSignUpErrorAlert = (message) => {
 
 // password check
 const password = ref('')
-const password1 = ref('')
 const password2 = ref('')
 const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
 const validatePassword = (event) => {
   event.preventDefault()
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/
-  isPasswordValid.value = regex.test(password1.value)
+  isPasswordValid.value = regex.test(password.value)
 }
 const checkPassword = (event) => {
   event.preventDefault()
-  isPasswordSame.value = password1.value === password2.value
+  isPasswordSame.value = password.value === password2.value
 }
 
 // 이메일 인증 요청

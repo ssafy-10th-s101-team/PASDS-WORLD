@@ -1,4 +1,4 @@
-package world.pasds.back.common.dto;
+package world.pasds.back.member.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

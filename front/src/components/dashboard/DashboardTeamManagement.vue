@@ -83,7 +83,7 @@
                   <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <div
                       class="text-samsung-blue dark:text-blue-500 hover:underline"
-                      @click="toggleHidden('authorization')"
+                      @click="showAuthorizationModal(role.roleId)"
                     >
                       . . .
                     </div>
@@ -202,10 +202,10 @@
       </div>
     </div>
   </div>
-  <DashboardAuthorizationModal />
+  <DashboardAuthorizationModal :teamId="teamId" :roleId="selectedRoleId" />
   <DashboardMemberRoleModal />
   <TeamInvitationModal />
-  <TeamRoleCreationModal :teamId="teamId" />
+  <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
 
 <script setup>
@@ -220,10 +220,11 @@ import { useCommonStore } from '@/stores/common'
 import { getAuthority, getRole } from '@/api/role'
 const commonStore = useCommonStore()
 const route = useRoute()
-const teamId = ref(null)
-const teamName = ref('현재 팀 이름')
-const teamLeader = ref('현재 팀장')
+const teamId = ref(0)
+const teamName = ref('')
+const teamLeader = ref('')
 const { toggleHidden } = commonStore
+const selectedRoleId = ref(null)
 
 const currentTab = ref('role')
 const moveToTeamInfo = () => {
@@ -232,16 +233,22 @@ const moveToTeamInfo = () => {
 const moveToTeamRole = () => {
   currentTab.value = 'role'
 }
+const showAuthorizationModal = (roleId) => {
+  selectedRoleId.value = roleId
+  toggleHidden('teamRoleUpdateModal')
+}
 
 const roles = ref([])
 
 onMounted(async () => {
-  teamId.value = route.query.teamId
+  teamId.value = Number(route.query.teamId)
+  // teamName.value = route.query.teamName
   console.log('현재 팀의 id:', teamId.value)
   const fetchrole = await fetchRole(teamId.value)
   roles.value = fetchrole
   console.log('내 팀의 역할들', roles.value)
 })
+// 팀
 
 // 역할 목록 가져오기
 const fetchRole = async (teamId) => {
@@ -250,6 +257,9 @@ const fetchRole = async (teamId) => {
   } catch (error) {
     console.error('Unexpected error:', error)
   }
+}
+const refreshRoles = async () => {
+  roles.value = await fetchRole(teamId.value)
 }
 </script>
 

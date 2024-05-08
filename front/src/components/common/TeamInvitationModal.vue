@@ -80,6 +80,13 @@
 <script setup>
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
+
+// const props = defineProps({
+//   teamId: {
+//     type: Number,
+//     required: true
+//   }
+// })
 </script>
 
 <style scoped></style>

@@ -32,7 +32,6 @@
                 class="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-blue-300 h-4 w-4 rounded"
                 v-model="selectedAuthorities"
                 :value="authority.id"
-                checked=""
               />
               <label
                 :for="'checkbox-' + authority.id"
@@ -63,6 +62,9 @@
 import { onMounted, ref } from 'vue'
 import BaseModal from './BaseModal.vue'
 import { getAuthority, createRole } from '@/api/role'
+import { useCommonStore } from '@/stores/common'
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const authorities = ref([])
 const roleName = ref('')
 const selectedAuthorities = ref([])
@@ -77,24 +79,19 @@ const props = defineProps({
     required: true
   }
 })
-
+const emit = defineEmits(['role-created'])
 // 권한 목록 가져오기
 const fetchAuthority = async () => {
   try {
-    const handleSuccess = (response) => {
-      return response.data
-    }
-
-    const handleFail = (error) => {
-      console.error(error)
-      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-      console.error(errmsg)
-      return []
-    }
-    return await getAuthority(handleSuccess, handleFail)
+    const response = await getAuthority()
+    const authorities = response.map((authority) => ({
+      ...authority,
+      id: Number(authority.id) // id를 숫자로 변환
+    }))
+    console.log('Converted authorities:', authorities)
+    return authorities
   } catch (error) {
     console.error('Unexpected error:', error)
-    return []
   }
 }
 
@@ -106,21 +103,12 @@ const postRole = async (event) => {
       roleName: roleName.value,
       authorities: selectedAuthorities.value
     }
-
-    const handleSuccess = (response) => {
-      return response.data
-    }
-
-    const handleFail = (error) => {
-      console.error(error)
-      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-      console.error(errmsg)
-      return []
-    }
-    return await createRole(body, handleSuccess, handleFail)
+    await createRole(body)
+    emit('role-created')
+    toggleHidden('teamRoleCreationModal')
+    // 닫기
   } catch (error) {
     console.error('Unexpected error:', error)
-    return []
   }
 }
 

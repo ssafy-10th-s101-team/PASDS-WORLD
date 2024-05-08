@@ -14,7 +14,7 @@ const fail = (error) => {
 }
 
 //권한 조회
-async function getAuthority(success, fail) {
+async function getAuthority() {
   return localAxios.get('/authority').then(success).catch(fail)
 }
 

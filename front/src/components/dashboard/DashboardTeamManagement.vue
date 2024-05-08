@@ -29,7 +29,7 @@
 
   <div
     v-if="currentTab === 'role'"
-    class="max-w-2xl mx-auto flex max-w-2xl mx-auto p-16 bg-white rounded-lg sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
+    class="max-w-2xl mx-auto max-w-2xl mx-auto p-16 bg-white rounded-lg sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
   >
     <div class="flex flex-col w-full sm:p-6 lg:p-8">
       <div class="overflow-x-auto shadow-md sm:rounded-lg max-w-full">
@@ -58,7 +58,11 @@
                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
               >
                 <!-- 체크박스 -->
-                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                <tr
+                  v-for="role in roles"
+                  :key="role.roleId"
+                  class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
                   <!-- <td class="p-4 w-4">
                       <div class="flex items-center">
                         <input
@@ -70,7 +74,7 @@
                       </div>
                     </td> -->
                   <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                    사원
+                    {{ role.name }}
                   </td>
 
                   <td
@@ -79,7 +83,7 @@
                   <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <div
                       class="text-samsung-blue dark:text-blue-500 hover:underline"
-                      @click="toggleHidden('authorization')"
+                      @click="showAuthorizationModal(role.roleId)"
                     >
                       . . .
                     </div>
@@ -91,9 +95,9 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="flex justify-center">
-    <BaseButton buttonText="역할 추가" />
+    <div class="flex justify-center">
+      <BaseButton buttonText="역할 추가" @click="toggleHidden('teamRoleCreationModal')" />
+    </div>
   </div>
 
   <!-- 팀 정보 -->
@@ -198,22 +202,29 @@
       </div>
     </div>
   </div>
-  <DashboardAuthorizationModal />
+  <DashboardAuthorizationModal :teamId="teamId" :roleId="selectedRoleId" />
   <DashboardMemberRoleModal />
   <TeamInvitationModal />
+  <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import DashboardAuthorizationModal from '../common/DashboardAuthorizationModal.vue'
 import DashboardMemberRoleModal from '../common/DashboardMemberRoleModal.vue'
 import TeamInvitationModal from '../common/TeamInvitationModal.vue'
+import TeamRoleCreationModal from '../common/TeamRoleCreationModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
+import { getAuthority, getRole } from '@/api/role'
 const commonStore = useCommonStore()
-const teamName = ref('현재 팀 이름')
-const teamLeader = ref('현재 팀장')
+const route = useRoute()
+const teamId = ref(0)
+const teamName = ref('')
+const teamLeader = ref('')
 const { toggleHidden } = commonStore
+const selectedRoleId = ref(null)
 
 const currentTab = ref('role')
 const moveToTeamInfo = () => {
@@ -221,6 +232,34 @@ const moveToTeamInfo = () => {
 }
 const moveToTeamRole = () => {
   currentTab.value = 'role'
+}
+const showAuthorizationModal = (roleId) => {
+  selectedRoleId.value = roleId
+  toggleHidden('teamRoleUpdateModal')
+}
+
+const roles = ref([])
+
+onMounted(async () => {
+  teamId.value = Number(route.query.teamId)
+  // teamName.value = route.query.teamName
+  console.log('현재 팀의 id:', teamId.value)
+  const fetchrole = await fetchRole(teamId.value)
+  roles.value = fetchrole
+  console.log('내 팀의 역할들', roles.value)
+})
+// 팀
+
+// 역할 목록 가져오기
+const fetchRole = async (teamId) => {
+  try {
+    return await getRole(teamId)
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
+}
+const refreshRoles = async () => {
+  roles.value = await fetchRole(teamId.value)
 }
 </script>
 

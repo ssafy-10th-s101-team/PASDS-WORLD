@@ -1,7 +1,7 @@
 <template>
-  <BaseModal modalId="teamRoleUpdateModal">
+  <BaseModal modalId="teamRoleCreationModal">
     <div class="space-y-6 px-6 lg:px-8 pb-4 sm:pb-6 xl:pb-8">
-      <h3 class="text-xl text-gray-900 dark:text-white">역할 수정</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">역할 추가</h3>
       <form class="space-y-6 px-6 lg:px-8 pb-4 sm:pb-6 xl:pb-8" action="#">
         <div>
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
@@ -47,12 +47,8 @@
           class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           @click="postRole"
         >
-          수정
+          생성
         </button>
-
-        <div class="text-red-500 text-sm" @clcik="removeRole">
-          <a href=""> 역할 삭제 </a>
-        </div>
         <!-- <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
           Not registered?
           <a href="#" class="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
@@ -65,13 +61,14 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import BaseModal from './BaseModal.vue'
-import { getAuthority, updateRole, deleteRole } from '@/api/role'
+import { getAuthority, createRole } from '@/api/role'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const authorities = ref([])
-const selectedAuthorities = ref([])
 const roleName = ref('')
+const selectedAuthorities = ref([])
+
 onMounted(async () => {
   const auth = await fetchAuthority()
   authorities.value = auth
@@ -80,13 +77,9 @@ const props = defineProps({
   teamId: {
     type: Number,
     required: true
-  },
-  roleId: {
-    type: Number,
-    required: true
   }
 })
-const emit = defineEmits(['role-updated'])
+const emit = defineEmits(['role-created'])
 // 권한 목록 가져오기
 const fetchAuthority = async () => {
   try {
@@ -107,31 +100,15 @@ const postRole = async (event) => {
   try {
     const body = {
       teamId: props.teamId,
-      roleId: props.roleId
+      roleName: roleName.value,
+      authorities: selectedAuthorities.value
     }
-    await updateRole(body)
-    emit('role-updated')
-    toggleHidden('teamRoleUpdateModal')
+    await createRole(body)
+    emit('role-created')
+    toggleHidden('teamRoleCreationModal')
     // 닫기
   } catch (error) {
     console.error('Unexpected error:', error)
-  }
-}
-
-const removeRole = async (event) => {
-  event.preventDefault()
-  console.log('teamId:', props.teamId)
-  console.log('roleId:', props.roleId)
-  try {
-    const body = {
-      teamId: props.teamId,
-      roleId: props.roleId
-    }
-    await deleteRole(body)
-    // emit('role-updated')
-    // toggleHidden('teamRoleUpdateModal')
-  } catch (error) {
-    console.error(error)
   }
 }
 

@@ -25,7 +25,7 @@
         </button>
       </div>
     </div>
-    <router-link :to="{ name: 'teamManagement' }">
+    <router-link :to="{ name: 'teamManagement', query: { teamId: selectedTeamId } }">
       <div class="mt-5">
         <BaseButton buttonText="팀 설정" />
       </div>

@@ -183,9 +183,9 @@ const checkPassword = (event) => {
 // 이메일 인증 요청
 const sendOtpCode = async () => {
   const body = {
-    email: email.value
+    email: email.value,
+    requestType: 2
   }
-  // showEmailAlert();    테스트
   await localAxios.post('/totp/email-verification-requests', body)
     .then(() => {
       showEmailSuccessAlert()

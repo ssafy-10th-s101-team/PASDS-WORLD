@@ -44,7 +44,9 @@
             <BaseButton buttonText="인증완료" @click="checkOtpCode" />
           </div>
         </div>
-        <BaseTimer />
+        <div id="timer">
+          <BaseTimer />
+        </div>
       </div>
 
       <!-- 비밀번호 입력 필드 -->
@@ -149,7 +151,7 @@ const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
 const isNicknameValid = ref(false)
 const commonStore = useCommonStore()
-const { removeHidden, startTimer, stopTimer } = commonStore
+const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -209,6 +211,7 @@ const checkOtpCode = async () => {
       // emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
+      toggleHidden('timer')
     })
     .catch((error) => {
       console.error(error)
@@ -220,7 +223,8 @@ const checkOtpCode = async () => {
 // 이메일 인증 요청
 const sendOtpCode = async () => {
   const body = {
-    email: email.value
+    email: email.value,
+    requestType: 1
   }
   // showEmailAlert();    테스트
   await localAxios

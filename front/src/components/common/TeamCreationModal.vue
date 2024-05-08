@@ -17,23 +17,43 @@
       </div>
 
       <button
+        @click.prevent="createT"
         type="submit"
         class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
         생성
       </button>
-      <!-- <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-          Not registered?
-          <a href="#" class="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
-        </div> -->
     </form>
   </BaseModal>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, defineProps } from 'vue'
 import BaseModal from './BaseModal.vue'
+import { createTeam } from '@/api/team'
+
+const props = defineProps({
+  organizationId: Number
+})
 const teamName = ref('')
+
+const createT = async () => {
+  try {
+    console.log(props.organizationId)
+    const body = {
+      organizationId: props.organizationId,
+      teamName: teamName.value
+    }
+    const response = await createTeam(body)
+    if (response) {
+      alert('팀이 성공적으로 생성되었습니다.')
+    }
+  } catch (error) {
+    const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+    alert(errmsg)
+  }
+  location.reload()
+}
 </script>
 
 <style scoped></style>

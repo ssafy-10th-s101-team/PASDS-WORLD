@@ -53,6 +53,9 @@ public class RoleService {
                 .stream()
                 .map(roleAuthority -> String.valueOf(roleAuthority.getAuthority().getName()))
                 .toList();
+        for (String s : roleAuthorityList) {
+            System.out.println(s);
+        }
 
         // 권한 확인
         if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_READ))) {

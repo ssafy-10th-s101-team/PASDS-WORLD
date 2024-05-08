@@ -176,17 +176,23 @@ public class TotpService {
         }
     }
 
-    public void sendCodeToEmail(String toEmail) {
+    public void sendCodeToEmail(String toEmail, int requestType) {
 
-        // DB에 존재하는 이메일인지 확인
-        // if (memberRepository.existsByEmail(toEmail)) {
-        //     throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
-        // }
+        if (requestType == 1) {         // 회원가입 시 이메일 인증 요청
+            // DB에 존재하는 이메일인지 확인
+            if (memberRepository.existsByEmail(toEmail)) {
+                throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
+            }
+        } else {                        // 비밀번호 찾기, totpKey 재발급 시 이메일 인증 요청
+            if (!memberRepository.existsByEmail(toEmail)) {
+                throw new BusinessException(ExceptionCode.EMAIL_NOT_FOUND);
+            }
+        }
 
         String subject = "[PASDSWORLD] 이메일 인증 코드입니다.";
         String authCode = createCode();
 
-        emailService.sendMessage(toEmail, subject, authCode);
+        emailService.sendMessage(toEmail, subject, authCode + " 를 화면에 입력해주세요.");
 
         // 이메일 인증 요청 시 인증 번호 Redis 에 저장 ( key = "AuthCode " + Email / value = AuthCode )
         emailService.setRedisAuthCode(AUTH_CODE_PREFIX + toEmail,

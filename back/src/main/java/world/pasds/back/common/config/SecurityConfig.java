@@ -30,8 +30,8 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // 토큰을 진짜 하나도 안들고 오는 애들!
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/app/api/member/signup",
             "/app/api/totp/email-verification-requests",
             "/app/api/totp/verification-email-code",
             "/app/api/key-rotate/handle-masterkey-change",

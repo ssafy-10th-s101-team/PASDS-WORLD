@@ -30,7 +30,7 @@
       </div>
     </router-link>
   </div>
-  <TeamCreationModal />
+  <TeamCreationModal :organizationId="props.selectedOrganizationId" />
 </template>
 
 <script setup>

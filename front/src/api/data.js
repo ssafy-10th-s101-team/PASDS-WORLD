@@ -10,7 +10,7 @@ const fail = (error) => {
   console.error(error)
   const errmsg = error.response ? error.response.data.message : 'Error fetching data'
   console.error(errmsg)
-  return error
+  return Promise.reject(error)
 }
 
 //팀 비밀 리스트 조회

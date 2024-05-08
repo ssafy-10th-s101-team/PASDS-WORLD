@@ -1,12 +1,25 @@
 import { localAxios } from '@/utils/http-commons'
 
 const prefix = '/role'
-//
+
+const success = (response) => {
+  return response.data
+}
+
+const fail = (error) => {
+  console.error(error)
+  const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+  console.error(errmsg)
+  return Promise.reject(error)
+}
+
+//권한 조회
 async function getAuthority(success, fail) {
   return localAxios.get('/authority').then(success).catch(fail)
 }
+
 //역할 조회
-async function getRole(teamId, success, fail) {
+async function getRole(teamId) {
   return localAxios
     .get(prefix + `/${teamId}`)
     .then(success)
@@ -14,7 +27,7 @@ async function getRole(teamId, success, fail) {
 }
 
 //역할 생성
-async function createRole(body, success, fail) {
+async function createRole(body) {
   return localAxios
     .post(prefix + `/create`, body)
     .then(success)
@@ -22,7 +35,7 @@ async function createRole(body, success, fail) {
 }
 
 //역할 수정
-async function updateRole(body, success, fail) {
+async function updateRole(body) {
   return localAxios
     .post(prefix + `/update`, body)
     .then(success)
@@ -30,7 +43,7 @@ async function updateRole(body, success, fail) {
 }
 
 //역할 삭제
-async function deleteRole(body, success, fail) {
+async function deleteRole(body) {
   return localAxios
     .post(prefix + `/delete`, body)
     .then(success)
@@ -38,7 +51,7 @@ async function deleteRole(body, success, fail) {
 }
 
 //팀원 역할 설정
-async function assignRole(body, success, fail) {
+async function assignRole(body) {
   return localAxios
     .post(prefix + `/assgin-role`, body)
     .then(success)

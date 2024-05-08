@@ -246,20 +246,9 @@ onMounted(async () => {
 // 역할 목록 가져오기
 const fetchRole = async (teamId) => {
   try {
-    const handleSuccess = (response) => {
-      return response.data
-    }
-
-    const handleFail = (error) => {
-      console.error(error)
-      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-      console.error(errmsg)
-      return []
-    }
-    return await getRole(teamId, handleSuccess, handleFail)
+    return await getRole(teamId)
   } catch (error) {
     console.error('Unexpected error:', error)
-    return []
   }
 }
 </script>

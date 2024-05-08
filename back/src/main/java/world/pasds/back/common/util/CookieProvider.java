@@ -18,36 +18,44 @@ public class CookieProvider {
     @Value("${cookie.httpOnly}")
     private boolean cookieHttpOnly;
 
-    @Value("${cookie.domain}")
-    private String cookieDomain;
+//    @Value("${cookie.domain}")
+//    private String cookieDomain;
 
     @Value("${cookie.sameSite}")
     private String cookieSameSite;
 
-    public void addCookie(HttpServletResponse response, String name, String value) {
-
+    public void addCookie(HttpServletRequest request, HttpServletResponse response, String name, String value) {
+        String dynamicDomain = getDomainBasedOnRequest(request);
         ResponseCookie responseCookie = ResponseCookie.from(name, value)
                 .maxAge(-1)
                 .path(cookiePath)
                 .secure(cookieSecure)
                 .httpOnly(cookieHttpOnly)
-                .domain(cookieDomain)
+                .domain(dynamicDomain)
                 .sameSite(cookieSameSite)
                 .build();
         response.addHeader("Set-Cookie", responseCookie.toString());
     }
 
-    public void removeCookie(HttpServletResponse response, String name) {
-
+    public void removeCookie(HttpServletRequest request, HttpServletResponse response, String name) {
+        String dynamicDomain = getDomainBasedOnRequest(request);
         ResponseCookie responseCookie = ResponseCookie.from(name, null)
                 .maxAge(0)
                 .path(cookiePath)
                 .secure(cookieSecure)
                 .httpOnly(cookieHttpOnly)
-                .domain(cookieDomain)
+                .domain(dynamicDomain)
                 .sameSite(cookieSameSite)
                 .build();
         response.addHeader("Set-Cookie", responseCookie.toString());
+    }
+
+    private String getDomainBasedOnRequest(HttpServletRequest request) {
+        String host = request.getHeader("Host");
+        if (host != null && host.contains("localhost")) {
+            return "localhost";
+        }
+        return ".pasds.world";
     }
 
     public String getCookieValue(HttpServletRequest request, String name) {

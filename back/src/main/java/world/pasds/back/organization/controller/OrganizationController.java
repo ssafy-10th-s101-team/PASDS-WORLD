@@ -20,8 +20,15 @@ public class OrganizationController {
     private final OrganizationService organizationService;
 
     @GetMapping("")
-    public ResponseEntity<?> getOrganizations(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetOrganizationsResponseDto> response = organizationService.getOrganizations(userDetails.getMemberId());
+    public ResponseEntity<?> getOrganizations(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(required = false) boolean isAdmin) {
+        List<GetOrganizationsResponseDto> response;
+
+        if(isAdmin){
+            response = organizationService.getAdminOrganizations(userDetails.getMemberId());
+        }else{
+            response = organizationService.getOrganizations(userDetails.getMemberId());
+        }
+
         return ResponseEntity.ok().body(response);
     }
 

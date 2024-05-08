@@ -3,8 +3,10 @@ package world.pasds.back.authority.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.authority.entity.AuthorityName;
+import world.pasds.back.authority.entity.response.GetAuthoritiesResponseDto;
 import world.pasds.back.authority.repository.AuthorityRepository;
 
 import java.util.ArrayList;
@@ -26,5 +28,15 @@ public class AuthorityService {
             }
             authorityRepository.saveAll(authorities);
         }
+    }
+
+    @Transactional
+    public List<GetAuthoritiesResponseDto> getAuthorities() {
+        return authorityRepository.findAll()
+                .stream()
+                .map(authority -> GetAuthoritiesResponseDto.builder()
+                        .id(authority.getId())
+                        .name(authority.getName())
+                        .build()).toList();
     }
 }

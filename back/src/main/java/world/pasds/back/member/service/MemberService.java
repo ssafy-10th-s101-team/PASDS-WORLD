@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,21 +46,24 @@ public class MemberService {
 
 
     @Transactional
-    public byte[] signup(SignupRequestDto signupRequestDto) {
+    public byte[] signup(SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        // 이메일 형식
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        if (!pattern.matcher(signupRequestDto.getEmail()).matches()) {
-            throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
+//        // 이메일 형식
+//        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+//        Pattern pattern = Pattern.compile(emailRegex);
+//        if (!pattern.matcher(signupRequestDto.getEmail()).matches()) {
+//            throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
+//        }
+//
+//        // DB에 없는 이메일
+//        if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
+//            throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
+//        }
+
+        // 들고온 이메일과 인증했던 이메일이 같은 이미지 인듯
+        if (!signupRequestDto.getEmail().equals(customUserDetails.getEmail())) {
+            throw new BusinessException(ExceptionCode.EMAIL_IS_NOT_SAME);
         }
-
-        // DB에 없는 이메일
-        if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
-            throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
-        }
-
-        // TODO: 이메일 인증을 거쳐 온 것(여기서는 어떻게 알지?)
 
         // 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";

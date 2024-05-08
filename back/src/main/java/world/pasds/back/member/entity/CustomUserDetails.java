@@ -28,6 +28,10 @@ public class CustomUserDetails implements UserDetails {
         this.memberId = memberId;
     }
 
+    public CustomUserDetails(String email) {
+        this.email = email;
+    }
+
     // Override methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

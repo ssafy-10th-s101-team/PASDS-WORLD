@@ -3,6 +3,7 @@ package world.pasds.back.common.exception;
 import lombok.Getter;
 
 public enum ExceptionCode {
+    AUTHORITY_NOT_FOUND(404, "권한을 찾을수 없습니다."),
     MEMBER_NOT_FOUND(404, "회원을 찾을 수 없습니다."),
     MEMBER_EXISTS(409, "이미 존재하는 회원입니다."),
     MEMBER_UNAUTHORIZED(401, "권한이 없는 회원입니다."),
@@ -10,6 +11,7 @@ public enum ExceptionCode {
     EMAIL_EXISTS(409, "존재하는 이메일입니다"),
     EMAIL_NOT_FOUND(404, "이메일을 찾을수 없습니다."),
     EMAIL_INVALID_FORMAT(400, "잘못된 이메일 양식입니다."),
+    EMAIL_IS_NOT_SAME(401,"인증받은 이메일과 다릅니다."),
 
     EMAIL_CODE_NOT_SAME(409, "이메일 인증코드가 다릅니다."),
     EMAIL_CODE_GENERATION_ERROR(500, "이메일 인증코드 발급에 문제가 발생했습니다."),
@@ -62,25 +64,30 @@ public enum ExceptionCode {
 
     // JWT 공간입니다
     INVALID_SIGNATURE(401, "유효하지 않은 서명입니다."),
+    EMAIL_INVALID_SIGNATURE(401, "유효하지 않은 이메일 토큰 서명입니다."),
     TEMPORARY_INVALID_SIGNATURE(401, "유효하지않은 임시 서명입니다."),
     ACCESS_INVALID_SIGNATURE(401, "엑세스토큰의 서명이 유효하지 않습니다."),
     REFRESH_INVALID_SIGNATURE(401, "재발급토큰의 서명이 유효하지 않습니다."),
 
     TOKEN_EXPIRED(401, "토큰이 만료됐습니다."),
+    EMAIL_TOKEN_EXPIRED(401, "이메일 토큰이 만료됐습니다."),
     TEMPORARY_TOKEN_EXPIRED(401, "임시토큰이 만료됐습니다."),
 //    ACCESS_TOKEN_EXPIRED(401, "ACCESS_TOKEN_EXPIRED"),
     REFRESH_TOKEN_EXPIRED(401, "재발급토큰이 만료됐습니다."),
 
     TOKEN_NOT_FOUND(401, "토큰을 찾을 수 없습니다."),
+    EMAIL_TOKEN_NOT_FOUND(401, "이메일 토큰을 찾을 수 없습니다."),
     TEMPORARY_TOKEN_NOT_FOUND(401, "임시 토큰을 찾을 수 없습니다."),
     ACCESS_TOKEN_NOT_FOUND(401, "엑세스토큰을 찾을 수 없습니다."),
     REFRESH_TOKEN_NOT_FOUND(401, "재발급토큰을 찾을 수 없습니다."),
 
     TOKEN_MISMATCH(401, "토큰이 맞지 않습니다."),
+    EMAIL_TOKEN_MISMATCH(401, "이메일 토큰이 맞지 않습니다."),
     TEMPORARY_TOKEN_MISMATCH(401, "임시 토큰이 맞지 않습니다."),
     ACCESS_TOKEN_MISMATCH(401, "엑세스 토큰이 맞지 않습니다."),
     REFRESH_TOKEN_MISMATCH(401, "재발급 토큰이 맞지 않습니다."),
 
+    EMAIL_COOKIE_NOT_FOUND(401,"이메일 쿠키를 찾을 수 없습니다."),
     TEMPORARY_COOKIE_NOT_FOUND(401,"임시 쿠키를 찾을 수 없습니다."),
     ACCESS_COOKIE_NOT_FOUND(401,"엑세스 쿠키를 찾을 수 없습니다."),
     REFRESH_COOKIE_NOT_FOUND(401,"재발급 쿠키를 찾을 수 없습니다.");

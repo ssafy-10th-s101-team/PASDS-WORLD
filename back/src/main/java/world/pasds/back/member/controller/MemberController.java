@@ -3,7 +3,6 @@ package world.pasds.back.member.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +26,10 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<?> signup(@RequestBody SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
-                .body(memberService.signup(signupRequestDto));
+                .body(memberService.signup(signupRequestDto,customUserDetails));
     }
 
     @PostMapping("/first-login")

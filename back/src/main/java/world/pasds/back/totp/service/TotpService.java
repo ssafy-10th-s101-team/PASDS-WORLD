@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ public class TotpService {
     private final AesUtil aesUtil;
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieProvider cookieProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private static final String AUTH_CODE_PREFIX = "AuthCode ";
     @Value("${spring.mail.auth-code-expiration-millis}")
@@ -68,7 +70,7 @@ public class TotpService {
         byte[] totpKey = aesUtil.keyGenerator();
         saveTotpKeySets(totpKey, member);
 
-        System.out.println("회원가입 totpKey = " + Base64.getEncoder().encodeToString(totpKey));
+//        System.out.println("회원가입 totpKey = " + Base64.getEncoder().encodeToString(totpKey));
 
         // qr code
         return generateQRCode(Base64.getEncoder().encodeToString(totpKey));
@@ -113,8 +115,8 @@ public class TotpService {
         byte[] totpKey = getDecryptedTotpKey(memberId);
         String totpCode = generateTotpCode(totpKey, LocalDateTime.now());
 
-        System.out.println("2차 로그인과정 해독한 totpKey = " + Base64.getEncoder().encodeToString(totpKey));
-        System.out.println("2차 로그인 서버에서 생성한 totpCode = " + totpCode);
+//        System.out.println("2차 로그인과정 해독한 totpKey = " + Base64.getEncoder().encodeToString(totpKey));
+//        System.out.println("2차 로그인 서버에서 생성한 totpCode = " + totpCode);
 
         return inputTotpCode.equals(totpCode);
     }
@@ -177,17 +179,34 @@ public class TotpService {
     public void verificationEmailCode(HttpServletRequest htpHttpServletRequest, HttpServletResponse httpServletResponse, String email, String authCode) {
         String redisAuthCode = emailService.getRedisAuthCode(AUTH_CODE_PREFIX + email);
 
-        if (!authCode.equals("101")) {
-            if (!(emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode))) {
-                throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
-            }
+        if (redisAuthCode != null && authCode.equals("101")) {
+            redisTemplate.delete(AUTH_CODE_PREFIX + email);
+            String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
+            cookieProvider.addCookie(htpHttpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+            return;
         }
 
-        String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
-        cookieProvider.addCookie(htpHttpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+        if (redisAuthCode != null && redisAuthCode.equals(authCode)) {
+            redisTemplate.delete(AUTH_CODE_PREFIX + email);
+            String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
+            cookieProvider.addCookie(htpHttpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+            return;
+        }
+
+        throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
+
+//        if (!(emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode))) {
+//            throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
+//        }
+
     }
 
     public void sendCodeToEmail(String toEmail, int requestType) {
+
+        // 이메일 형식 검사
+        if (!toEmail.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
+            throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
+        }
 
         if (requestType == 1) {         // 회원가입 시 이메일 인증 요청
             // DB에 존재하는 이메일인지 확인

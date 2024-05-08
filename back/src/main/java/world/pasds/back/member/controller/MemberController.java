@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
 import world.pasds.back.member.dto.request.SecondLoginRequestDto;
 import world.pasds.back.member.dto.request.SignupRequestDto;
 import world.pasds.back.member.entity.CustomUserDetails;
@@ -51,6 +52,15 @@ public class MemberController {
     public ResponseEntity<?> logout(HttpServletRequest httpServletRequest,
                                     HttpServletResponse httpServletResponse, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         memberService.logout(httpServletRequest, httpServletResponse, customUserDetails);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(HttpServletRequest httpServletRequest,
+                                    HttpServletResponse httpServletResponse,
+                                    @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                            @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
+        memberService.changePassword(httpServletRequest, httpServletResponse, customUserDetails,changePasswordRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

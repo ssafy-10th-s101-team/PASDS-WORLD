@@ -61,7 +61,7 @@ public class TotpController {
 
 	@PostMapping("/verification-email-code")
 	public ResponseEntity<?> verificationEmailCode(HttpServletRequest htpHttpServletRequest, HttpServletResponse httpServletResponse, @RequestBody EmailCodeVerificationRequestDto requestDto) {
-		if (requestDto.getOtpCode().equals("101")) return ResponseEntity.ok().build();
+//		if (requestDto.getOtpCode().equals("101")) return ResponseEntity.ok().build();
 		totpService.verificationEmailCode(htpHttpServletRequest,httpServletResponse,requestDto.getEmail(), requestDto.getOtpCode());
 		return ResponseEntity.ok().build();
 	}

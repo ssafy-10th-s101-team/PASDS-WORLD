@@ -14,6 +14,7 @@ import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.invitaion.service.InvitationService;
+import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
 import world.pasds.back.member.dto.request.SecondLoginRequestDto;
 import world.pasds.back.member.dto.request.SignupRequestDto;
 import world.pasds.back.member.dto.response.FirstLoginResponseDto;
@@ -47,7 +48,7 @@ public class MemberService {
 
     @Transactional
     public byte[] signup(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-            SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+                         SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
 //        // 이메일 형식
 //        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
@@ -154,5 +155,33 @@ public class MemberService {
         redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.REFRESH.name();
         redisTemplate.delete(redisKey);
         cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name());
+    }
+
+    public void changePassword(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails, ChangePasswordRequestDto changePasswordRequestDto) {
+
+        // 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
+        if (!changePasswordRequestDto.getPassword().matches(passwordRegex)) {
+            throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
+        }
+
+        // 비밀번호와 비밀번호 확인이 일치
+        if (!changePasswordRequestDto.getPassword().equals(changePasswordRequestDto.getConfirmPassword())) {
+            throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
+        }
+
+        // 성공
+        Member foundMember = memberRepository.findByEmail(customUserDetails.getEmail());
+
+        // 비밀번호 암호화하여 저장
+        String encryptedPassword = bCryptPasswordEncoder.encode(changePasswordRequestDto.getPassword() + pepper);
+
+        foundMember.setPassword(encryptedPassword);
+
+        memberRepository.save(foundMember);
+
+        redisTemplate.delete(customUserDetails.getEmail() + "_" + "EMAIL");
+        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
+
     }
 }

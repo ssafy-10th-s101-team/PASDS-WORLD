@@ -52,7 +52,7 @@ public class CookieProvider {
 
     private String getDomainBasedOnRequest(HttpServletRequest request) {
         String host = request.getHeader("Host");
-        System.out.println(host);
+//        System.out.println(host);
 
 //        String origin = request.getHeader("Origin");
 //        System.out.println("Request Origin: " + origin);

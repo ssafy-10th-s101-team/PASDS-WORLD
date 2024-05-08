@@ -142,7 +142,7 @@ import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons'
 import OrganizationCreationModal from './OrganizationCreationModal.vue'
 import { onMounted, ref, defineEmits } from 'vue'
-
+import { getOrganizations } from '@/api/organization'
 const emit = defineEmits(['organization-selected', 'loaded'])
 const commonStore = useCommonStore()
 const { toggleHidden, fetchTeams } = commonStore
@@ -158,20 +158,39 @@ onMounted(async () => {
   }
 })
 
-const fetchOrganization = async function () {
+const fetchOrganization = async () => {
   try {
-    const response = await localAxios({
-      method: 'GET',
-      url: `/organization`
-    })
-    return response.data
-  } catch (err) {
-    console.error(err)
-    const errmsg = err.response ? err.response.data.message : 'Error fetching data'
-    console.error(errmsg)
+    const handleSuccess = (response) => {
+      return response.data
+    }
+
+    const handleFail = (error) => {
+      console.error(error)
+      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+      console.error(errmsg)
+      return []
+    }
+    return await getOrganizations(handleSuccess, handleFail)
+  } catch (error) {
+    console.error('Unexpected error:', error)
     return []
   }
 }
+
+// const fetchOrganization = async function () {
+//   try {
+//     const response = await localAxios({
+//       method: 'GET',
+//       url: `/organization`
+//     })
+//     return response.data
+//   } catch (err) {
+//     console.error(err)
+//     const errmsg = err.response ? err.response.data.message : 'Error fetching data'
+//     console.error(errmsg)
+//     return []
+//   }
+// }
 
 function selectOrganization(id) {
   selectedOrganizationId.value = id

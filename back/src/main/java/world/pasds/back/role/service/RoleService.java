@@ -75,7 +75,7 @@ public class RoleService {
                 .toList();
 
         // 권한 확인
-        if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_CREATE))) {
+        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_CREATE))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
@@ -119,7 +119,7 @@ public class RoleService {
                 .toList();
 
         // 권한 확인
-        if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_UPDATE))) {
+        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_UPDATE))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
@@ -159,7 +159,7 @@ public class RoleService {
                 .toList();
 
         // 권한 확인
-        if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_DELETE))) {
+        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_DELETE))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

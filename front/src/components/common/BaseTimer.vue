@@ -1,6 +1,6 @@
 <template>
-  <span class="timer" v-if="message === null"> {{ min }} : {{ sec }} </span>
-  <span class="msg" v-else> {{ message }} </span>
+  <span class="timer text-green-500" v-if="message === null"> {{ min }} : {{ sec }} </span>
+  <span class="msg text-red-500" v-else> {{ message }} </span>
 </template>
 
 <script setup>
@@ -10,6 +10,7 @@ const commonStore = useCommonStore();
 const { min, sec, message } = toRefs(commonStore);
 
 
+
 </script>
 
 <style scoped>
@@ -17,12 +18,10 @@ const { min, sec, message } = toRefs(commonStore);
   flex-direction: row;
   margin-left: 10px;
   font-weight: 700;
-  color: #12279e;
 }
 .msg {
   flex-direction: row;
   margin-left: 10px;
   font-weight: 700;
-  color: #12279e;
 }
 </style>

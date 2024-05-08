@@ -25,7 +25,7 @@
       <!-- 역할 -->
       <div>
         <div class="flex flew-wrap items-center min-w-32 mb-4">
-          <div v-for="role in roles" :key="role.roleId" class="mr-1">
+          <div class="mr-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -92,42 +92,7 @@
 `
 
 <script setup>
-import { onMounted, ref } from 'vue'
 import BaseModal from './BaseModal.vue'
-import { getAuthority, getRole } from '@/api/role'
-const roles = ref([])
-
-onMounted(async () => {
-  const fetchrole = await fetchRole()
-  roles.value = fetchrole
-  console.log(roles.value)
-})
-const props = defineProps({
-  selectedTeamId: {
-    type: Number,
-    required: true
-  }
-})
-
-// 역할 목록 가져오기
-const fetchRole = async (teamId) => {
-  try {
-    const handleSuccess = (response) => {
-      return response.data
-    }
-
-    const handleFail = (error) => {
-      console.error(error)
-      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-      console.error(errmsg)
-      return []
-    }
-    return await getRole(teamId, handleSuccess, handleFail)
-  } catch (error) {
-    console.error('Unexpected error:', error)
-    return []
-  }
-}
 </script>
 
 <style scoped></style>

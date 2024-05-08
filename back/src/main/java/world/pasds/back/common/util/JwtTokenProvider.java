@@ -33,8 +33,11 @@ public class JwtTokenProvider {
     @Value("${security.jwt.refresh-token-expiration-ms}")
     private int refreshTokenExpirationMs;
 
+    @Value("${security.jwt.email-token-expiration-ms}")
+    private int emailTokenExpirationMs;
+
     public enum TokenType {
-        TEMPORARY, ACCESS, REFRESH
+        TEMPORARY, ACCESS, REFRESH, EMAIL
     }
 
     public String generateToken(Long memberId, TokenType tokenType, boolean isNew) {
@@ -65,6 +68,22 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS256, curJwtSecretKey)
                 .setSubject(memberId.toString())
+                .setId(tokenId)
+                .claim("tokenType", tokenType.name())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .compact();
+    }
+
+    public String generateEmailToken(String email) {
+        TokenType tokenType = TokenType.EMAIL;
+        String tokenId = UUID.randomUUID().toString();
+        int expirationMs = emailTokenExpirationMs;
+        String redisKey = email + "_" + tokenType.name();
+        redisTemplate.opsForValue().set(redisKey, tokenId, expirationMs / 1000, TimeUnit.SECONDS); // Redis에 저장하면서 TTL 설정
+        String curJwtSecretKey = keyService.getJwtSecretKey();
+        return Jwts.builder()
+                .signWith(SignatureAlgorithm.HS256, curJwtSecretKey)
+                .setSubject(email)
                 .setId(tokenId)
                 .claim("tokenType", tokenType.name())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
@@ -109,6 +128,51 @@ public class JwtTokenProvider {
         }
 
         CustomUserDetails customUserDetails = new CustomUserDetails(memberId);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                customUserDetails, null, customUserDetails.getAuthorities()
+        );
+        return authentication;
+
+    }
+
+    public Authentication getAuthenticationByEmailToken(String token, String jwtSecretKey) {
+
+        Claims claims;
+
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(jwtSecretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+        }
+
+        // 서명 불퉁과
+        catch (SignatureException | MalformedJwtException | UnsupportedJwtException ex) {
+            throw new BusinessException(ExceptionCode.INVALID_SIGNATURE);
+        }
+
+        // 기간 불통과
+        catch (ExpiredJwtException ex) {
+            throw new BusinessException(ExceptionCode.TOKEN_EXPIRED);
+        }
+
+        String email = claims.getSubject();
+        String tokenType = claims.get("tokenType", String.class);
+
+        String redisKey = email + "_" + tokenType;
+        String storedToken = redisTemplate.opsForValue().get(redisKey);
+
+        // 레디스에 해당 유저는 토큰이 없슴
+        if (storedToken == null) {
+            throw new BusinessException(ExceptionCode.TOKEN_NOT_FOUND);
+        }
+
+        // 레디스에 해당 유저의 최신 토큰과 다름
+        if (!storedToken.equals(claims.getId())) {
+            throw new BusinessException(ExceptionCode.TOKEN_MISMATCH);
+        }
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(email);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 customUserDetails, null, customUserDetails.getAuthorities()
         );

@@ -21,4 +21,6 @@ public interface MemberOrganizationRepository extends JpaRepository<MemberOrgani
     List<MemberOrganization> findAllByOrganization(Organization organization, Pageable pageable);
 
     boolean existsByMemberAndOrganization(Member member, Organization organization);
+
+    boolean existsByMemberAndOrganizationAndOrganizationRoleIn(Member member,Organization organization, List<OrganizationRole> organizationRoles);
 }

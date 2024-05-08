@@ -26,21 +26,24 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.privateData.entity.PrivateData;
+import world.pasds.back.privateData.repository.PrivateDataRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.*;
+import world.pasds.back.team.entity.dto.response.GetAdminTeamsResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamMemberResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
-import world.pasds.back.privateData.repository.PrivateDataRepository;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -81,6 +84,38 @@ public class TeamService {
 
         return response;
     }
+
+    @Transactional
+    public List<GetAdminTeamsResponseDto> getAdminTeams(Long organizationId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Organization organization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        //권한 체크
+        List<OrganizationRole> roles = Arrays.asList(OrganizationRole.HEADER, OrganizationRole.ADMIN);
+        boolean authorized =  memberOrganizationRepository.existsByMemberAndOrganizationAndOrganizationRoleIn(member, organization,roles);
+        if(!authorized) throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+
+        //모든 팀목록 조회
+        List<Team> findTeamList = teamRepository.findAllByOrganization(organization);
+
+        List<GetAdminTeamsResponseDto> response = new ArrayList<>();
+
+
+        for (Team team : findTeamList) {
+            //내가 맡은 역할 찾기
+            MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+            Role role;
+            if(memberRole ==null)
+                role = null;
+            else {
+                role = memberRole.getRole();
+            }
+            response.add(new GetAdminTeamsResponseDto(organization.getId(), team.getId(), team.getName(), role.getName(), team.getSecretCount()));
+        }
+
+        return response;
+    }
+
 
     @Transactional
     public List<GetTeamMemberResponseDto> getTeamMember(Long teamId, int offset, Long memberId) {
@@ -546,5 +581,6 @@ public class TeamService {
     private boolean isMyTeam(String teamName) {
         return "MY TEAM".equals(teamName);
     }
+
 
 }

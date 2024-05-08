@@ -74,8 +74,11 @@ public class PrivateDataService {
         // 내가 조회 가능한 비밀 목록 추가
         List<PrivateData> canReadData = new ArrayList<>();
         for (PrivateData data : privateData) {
+            System.out.println("조회 가능 1");
             if (privateDataRoleRepository.existsByPrivateDataAndRole(data, role)) { // 비밀에 나의 역할이 읽을 수 있는지 확인
+                System.out.println("조회 가능 2");
                 if (roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_READ)) {
+                    System.out.println("조회 가능 3");
                     canReadData.add(data);
                 }
             }

@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.team.entity.dto.request.*;
+import world.pasds.back.team.entity.dto.response.GetAdminTeamsResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamMemberResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.service.TeamService;
@@ -22,6 +23,12 @@ public class TeamController {
     @GetMapping("/{organizationId}")
     public ResponseEntity<?> getTeams(@PathVariable(name = "organizationId") Long organizationId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetTeamsResponseDto> response = teamService.getTeams(organizationId, userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/admin/{organizationId}")
+    public ResponseEntity<?> getAdminTeams(@PathVariable(name = "organizationId") Long organizationId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<GetAdminTeamsResponseDto> response = teamService.getAdminTeams(organizationId, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

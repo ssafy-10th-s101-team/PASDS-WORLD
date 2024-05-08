@@ -93,14 +93,14 @@ public class OrganizationService {
     public List<GetOrganizationsResponseDto> getOrganizations(Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         List<MemberOrganization> organizations = memberOrganizationRepository.findAllByMember(findMember);
-        return organizations.stream().map(org -> new GetOrganizationsResponseDto(org.getOrganization().getId(), org.getOrganization().getName(), org.getOrganization().getTeamCount())).collect(Collectors.toList());
+        return organizations.stream().map(org -> new GetOrganizationsResponseDto(org.getOrganization().getId(), org.getOrganization().getName(), org.getOrganization().getTeamCount(), org.getOrganizationRole())).collect(Collectors.toList());
     }
 
     public List<GetOrganizationsResponseDto> getAdminOrganizations(Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         List<OrganizationRole> roles = Arrays.asList(OrganizationRole.HEADER, OrganizationRole.ADMIN);
         List<MemberOrganization> organizations = memberOrganizationRepository.findAllByMemberAndOrganizationRoleIn(findMember, roles);
-        return organizations.stream().map(org -> new GetOrganizationsResponseDto(org.getOrganization().getId(), org.getOrganization().getName(), org.getOrganization().getTeamCount())).collect(Collectors.toList());
+        return organizations.stream().map(org -> new GetOrganizationsResponseDto(org.getOrganization().getId(), org.getOrganization().getName(), org.getOrganization().getTeamCount(),  org.getOrganizationRole())).collect(Collectors.toList());
     }
 
     @Transactional

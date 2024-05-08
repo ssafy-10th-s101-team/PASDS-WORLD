@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
 import world.pasds.back.authority.entity.AuthorityName;
+import world.pasds.back.authority.repository.AuthorityRepository;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.member.entity.Member;
@@ -40,6 +41,7 @@ public class RoleService {
     private final MemberRepository memberRepository;
     private final MemberRoleRepository memberRoleRepository;
     private final MemberTeamRepository memberTeamRepository;
+    private final AuthorityRepository authorityRepository;
 
     @Transactional
     public List<GetRoleResponseDto> getRole(Long teamId, Long memberId) {
@@ -53,7 +55,7 @@ public class RoleService {
                 .toList();
 
         // 권한 확인
-        if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_READ))) {
+        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_READ))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
@@ -73,7 +75,7 @@ public class RoleService {
                 .toList();
 
         // 권한 확인
-        if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_CREATE))) {
+        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_CREATE))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
@@ -90,7 +92,8 @@ public class RoleService {
         Role savedRole = roleRepository.save(createRole);
 
         List<RoleAuthority> saveRoleAuthorityList = new ArrayList<>();
-        for (Authority authority : requestDto.getAuthorities()) {
+        for (Long authorityId : requestDto.getAuthorities()) {
+            Authority authority = authorityRepository.findById(authorityId).orElseThrow(() -> new BusinessException(ExceptionCode.AUTHORITY_NOT_FOUND));
             if (AuthorityName.TEAM_DELETE == authority.getName()) {    // 팀 삭제 권한이 있는 역할 생성 불가
                 throw new BusinessException(ExceptionCode.BAD_REQUEST);
             }
@@ -116,7 +119,7 @@ public class RoleService {
                 .toList();
 
         // 권한 확인
-        if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_UPDATE))) {
+        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_UPDATE))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
@@ -156,7 +159,7 @@ public class RoleService {
                 .toList();
 
         // 권한 확인
-        if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_DELETE))) {
+        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_DELETE))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

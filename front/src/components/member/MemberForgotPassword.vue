@@ -113,8 +113,7 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert alertText="메일 전송에 실패했습니다. 다시 시도해주세요." v-if="EmailFailAlert" />
-    <BaseAlert alertText="인증에 실패했습니다. 다시 시도해주세요." v-if="OTPFailAlert" />
+    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
 
@@ -132,8 +131,11 @@ const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 // alert toggle
 const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
-const EmailFailAlert = ref(false)
-const OTPFailAlert = ref(false)
+const SignUpErrorAlert = ref(false)
+
+//signUpErrorMsg
+const SignUpErrorMsg = ref('')
+
 
 const email = ref('')
 const otpCode = ref('')
@@ -153,16 +155,11 @@ const showOTPSuccessAlert = () => {
   }, 3000)
   removeHidden('password')
 }
-const showEmailFailAlert = () => {
-  EmailFailAlert.value = true
+const showSignUpErrorAlert = (message) => {
+  SignUpErrorMsg.value = message
+  SignUpErrorAlert.value = true
   setTimeout(() => {
-    EmailFailAlert.value = false
-  }, 3000)
-}
-const showOTPFailAlert = () => {
-  OTPFailAlert.value = true
-  setTimeout(() => {
-    OTPFailAlert.value = false
+    SignUpErrorAlert.value = false
   }, 3000)
 }
 
@@ -195,7 +192,7 @@ const sendOtpCode = async () => {
     })
     .catch((error) => {
       console.error(error)
-      showEmailFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 
@@ -205,7 +202,6 @@ const checkOtpCode = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
-  // showOTPAlert();    테스트
   await localAxios.post('/totp/verification-email-code', body)
     .then(() => {
       emailVerified.value = true
@@ -215,7 +211,7 @@ const checkOtpCode = async () => {
     })
     .catch((error) => {
       console.error(error)
-      showOTPFailAlert()
+      showSignUpErrorAlert(error.response.data.message)
     })
 }
 </script>

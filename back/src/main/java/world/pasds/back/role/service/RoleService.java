@@ -59,6 +59,7 @@ public class RoleService {
 
         // 권한 확인
         if (roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_READ))) {
+            System.out.println("여기로 오나요?");
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

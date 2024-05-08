@@ -51,13 +51,13 @@ public class CookieProvider {
     }
 
     private String getDomainBasedOnRequest(HttpServletRequest request) {
-//        String host = request.getHeader("Host");
-//        System.out.println(host);
+        String host = request.getHeader("Host");
+        System.out.println(host);
 
-        String origin = request.getHeader("Origin");
-        System.out.println("Request Origin: " + origin);
+//        String origin = request.getHeader("Origin");
+//        System.out.println("Request Origin: " + origin);
 
-        if (origin != null && origin.contains("localhost")) {
+        if (host != null && host.contains("localhost")) {
             return "localhost";
         }
         return ".pasds.world";

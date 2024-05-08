@@ -43,7 +43,9 @@
             <BaseButton buttonText="인증완료" @click="getTotpKey" />
           </div>
         </div>
-        <BaseTimer />
+        <div id="timer">
+          <BaseTimer />
+        </div>
       </div>
       <div id="TOTP" class="hidden">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
@@ -75,7 +77,7 @@ import router from '@/router/index.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 
 const commonStore = useCommonStore()
-const { removeHidden, startTimer, stopTimer } = commonStore
+const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -146,6 +148,7 @@ const getTotpKey = async () => {
       emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
+      toggleHidden('timer')
       totpKey.value = response.data
       removeHidden('TOTP')
     })

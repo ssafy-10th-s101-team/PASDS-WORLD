@@ -43,7 +43,9 @@
             <BaseButton buttonText="인증완료" @click="checkOtpCode" />
           </div>
         </div>
-        <BaseTimer />
+        <div id="timer">
+          <BaseTimer />
+        </div>
       </div>
 
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
@@ -125,7 +127,7 @@ import { localAxios } from '@/utils/http-commons.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 
 const commonStore = useCommonStore()
-const { removeHidden, startTimer, stopTimer } = commonStore
+const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -209,6 +211,7 @@ const checkOtpCode = async () => {
       emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
+      toggleHidden('timer')
     })
     .catch((error) => {
       console.error(error)

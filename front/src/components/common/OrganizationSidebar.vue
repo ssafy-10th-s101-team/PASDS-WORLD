@@ -44,30 +44,10 @@
                 >
               </div> -->
                   <ul class="py-1" aria-labelledby="dropdown">
-                    <li>
+                    <li v-for="organization in organizations">
                       <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
-                        >내가 조직장인 조직</a
-                      >
-                    </li>
-                    <li>
-                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
-                        >리스트를 보여줍니다</a
-                      >
-                    </li>
-                    <li>
-                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
-                        >추후 스크롤바로 구현합니다</a
-                      >
-                    </li>
-                    <li>
-                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
-                        >조직 이름이 바뀝니다</a
-                      >
-                    </li>
-                    <li>
-                      <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2"
-                        >CSS를 수정합니다</a
-                      >
+                        >{{ organization }}
+                      </a>
                     </li>
                   </ul>
                 </div>
@@ -180,9 +160,17 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+const organizations = ref([
+  '내가 조직장인 조직',
+  '리스트를 보여줍니다',
+  '추후 스크롤바로 구현합니다',
+  '조직 이름이 바뀝니다',
+  'CSS를 수정합니다'
+])
 </script>
 
 <style scoped></style>

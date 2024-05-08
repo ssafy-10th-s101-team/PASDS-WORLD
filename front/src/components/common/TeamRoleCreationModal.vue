@@ -20,56 +20,25 @@
           <fieldset>
             <legend class="sr-only">Checkbox variants</legend>
 
-            <div class="flex items-center items-start mb-4">
+            <div
+              v-for="authority in authorities"
+              :key="authority.id"
+              class="flex items-center items-start mb-4"
+            >
               <input
-                id="checkbox-1"
-                aria-describedby="checkbox-1"
+                :id="'checkbox-' + authority.id"
+                :aria-describedby="'checkbox-' + authority.id"
                 type="checkbox"
                 class="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-blue-300 h-4 w-4 rounded"
+                v-model="selectedAuthorities"
+                :value="authority.id"
                 checked=""
               />
-              <label for="checkbox-1" class="text-sm ml-3 font-medium text-gray-900"
-                >비밀 읽기</label
+              <label
+                :for="'checkbox-' + authority.id"
+                class="text-sm ml-3 font-medium text-gray-900"
+                >{{ authority.name }}</label
               >
-            </div>
-
-            <div class="flex items-start items-center mb-4">
-              <input
-                id="checkbox-2"
-                aria-describedby="checkbox-2"
-                type="checkbox"
-                class="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-blue-300 h-4 w-4 rounded"
-              />
-              <label for="checkbox-2" class="text-sm ml-3 font-medium text-gray-900"
-                >비밀 관리</label
-              >
-            </div>
-
-            <div class="flex items-start items-center mb-4">
-              <input
-                id="checkbox-3"
-                aria-describedby="checkbox-3"
-                type="checkbox"
-                class="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-blue-300 h-4 w-4 rounded"
-              />
-              <label for="checkbox-3" class="text-sm ml-3 font-medium text-gray-900"
-                >역할 관리</label
-              >
-            </div>
-
-            <div class="flex items-start mb-4">
-              <div class="flex items-center h-5">
-                <input
-                  id="shipping-2"
-                  aria-describedby="shipping-2"
-                  type="checkbox"
-                  class="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-blue-300 h-4 w-4 rounded"
-                />
-              </div>
-              <div class="text-sm ml-3">
-                <label for="shipping-2" class="font-medium text-gray-900">팀원관리</label>
-                <div class="text-gray-500"></div>
-              </div>
             </div>
           </fieldset>
         </div>
@@ -77,6 +46,7 @@
         <button
           type="submit"
           class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          @click="postRole"
         >
           생성
         </button>
@@ -90,7 +60,71 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
 import BaseModal from './BaseModal.vue'
+import { getAuthority, createRole } from '@/api/role'
+const authorities = ref([])
+const roleName = ref('')
+const selectedAuthorities = ref([])
+
+onMounted(async () => {
+  const auth = await fetchAuthority()
+  authorities.value = auth
+})
+const props = defineProps({
+  teamId: {
+    type: Number,
+    required: true
+  }
+})
+
+// 권한 목록 가져오기
+const fetchAuthority = async () => {
+  try {
+    const handleSuccess = (response) => {
+      return response.data
+    }
+
+    const handleFail = (error) => {
+      console.error(error)
+      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+      console.error(errmsg)
+      return []
+    }
+    return await getAuthority(handleSuccess, handleFail)
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return []
+  }
+}
+
+const postRole = async (event) => {
+  event.preventDefault()
+  try {
+    const body = {
+      teamId: props.teamId,
+      roleName: roleName.value,
+      authorities: selectedAuthorities.value
+    }
+
+    const handleSuccess = (response) => {
+      return response.data
+    }
+
+    const handleFail = (error) => {
+      console.error(error)
+      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+      console.error(errmsg)
+      return []
+    }
+    return await createRole(body, handleSuccess, handleFail)
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return []
+  }
+}
+
+//
 </script>
 
 <style scoped></style>

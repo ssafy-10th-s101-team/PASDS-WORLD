@@ -88,7 +88,6 @@ const SignUpErrorMsg = ref('')
 
 const email = ref('')
 const otpCode = ref('')
-const emailVerified = ref(false)
 
 const totpKey = ref(null)
 
@@ -137,13 +136,14 @@ const getTotpKey = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
-  await localAxios.post('/totp/re-share-key', body)
+  await localAxios.post('/totp/re-share-key', body, {
+    responseType: 'arraybuffer' // 이미지를 arraybuffer 형태로 받음
+  })
     .then((response) => {
-      emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
       toggleHidden('timer')
-      totpKey.value = response.data
+      totpKey.value = URL.createObjectURL(new Blob([response.data],{ type: 'image/png' }));
       removeHidden('TOTP')
     })
     .catch((error) => {

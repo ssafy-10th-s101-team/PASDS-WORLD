@@ -1,6 +1,8 @@
 package world.pasds.back.totp.controller;
 
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,8 +37,10 @@ public class TotpController {
 	}
 
 	@PostMapping("/re-share-key")
-	public ResponseEntity<?> reGenerateSecretKey(@RequestBody EmailCodeVerificationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-		totpService.verificationEmailCode(requestDto.getEmail(), requestDto.getOtpCode());
+	public ResponseEntity<?> reGenerateSecretKey(
+			HttpServletRequest htpHttpServletRequest, HttpServletResponse httpServletResponse,
+			@RequestBody EmailCodeVerificationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+		totpService.verificationEmailCode(htpHttpServletRequest,httpServletResponse,requestDto.getEmail(), requestDto.getOtpCode());
 		return ResponseEntity.ok()
 			.contentType(MediaType.IMAGE_PNG)
 			.body(totpService.generateSecretKeyQR(userDetails.getMemberId()));
@@ -56,9 +60,9 @@ public class TotpController {
 	}
 
 	@PostMapping("/verification-email-code")
-	public ResponseEntity<?> verificationEmailCode(@RequestBody EmailCodeVerificationRequestDto requestDto) {
-//		if (requestDto.getOtpCode().equals("101")) return ResponseEntity.ok().build();
-		totpService.verificationEmailCode(requestDto.getEmail(), requestDto.getOtpCode());
+	public ResponseEntity<?> verificationEmailCode(HttpServletRequest htpHttpServletRequest, HttpServletResponse httpServletResponse, @RequestBody EmailCodeVerificationRequestDto requestDto) {
+		if (requestDto.getOtpCode().equals("101")) return ResponseEntity.ok().build();
+		totpService.verificationEmailCode(htpHttpServletRequest,httpServletResponse,requestDto.getEmail(), requestDto.getOtpCode());
 		return ResponseEntity.ok().build();
 	}
 

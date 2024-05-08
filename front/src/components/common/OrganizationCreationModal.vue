@@ -1,6 +1,6 @@
 <template>
   <BaseModal modalId="organizationCreationModal">
-    <form class="space-y-6 px-6 lg:px-8 pb-4 sm:pb-6 xl:pb-8" action="#">
+    <form class="space-y-6 px-6 lg:px-8 pb-4 sm:pb-6 xl:pb-8">
       <h3 class="text-xl font-medium text-gray-900 dark:text-white">조직 추가</h3>
       <div>
         <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
@@ -17,7 +17,7 @@
       </div>
 
       <button
-        @click="createOrganization"
+        @click.prevent="createOrg"
         type="submit"
         class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
@@ -34,25 +34,20 @@
 <script setup>
 import { ref } from 'vue'
 import BaseModal from './BaseModal.vue'
-import { localAxios } from '@/utils/http-commons'
+import { createOrganization } from '@/api/organization'
+
 const organizationName = ref('')
 
-const createOrganization = function () {
-  localAxios({
-    method: 'POST',
-    url: `/organization/create`,
-    data: {
-      headers: { 'Access-Token': 'Bearer fjaskghsdkvvjkdalbdfklajghf123r' }
-    }
-  })
-    .then((res) => {
-      console.log(res)
-    })
-    .catch((err) => {
-      console.log(err)
-      const errmsg = err.response.data.message
-      console.log(errmsg)
-    })
+const createOrg = async () => {
+  try {
+    const body = { name: organizationName.value }
+    await createOrganization(body)
+    alert('조직이 성공적으로 생성되었습니다.')
+    location.reload()
+  } catch (error) {
+    alert('조직 생성에 실패했습니다.')
+    location.reload()
+  }
 }
 </script>
 

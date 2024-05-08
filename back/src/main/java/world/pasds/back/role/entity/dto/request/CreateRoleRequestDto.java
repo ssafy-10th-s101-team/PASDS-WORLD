@@ -3,7 +3,6 @@ package world.pasds.back.role.entity.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import world.pasds.back.authority.entity.Authority;
 
 import java.util.List;
 
@@ -13,5 +12,5 @@ import java.util.List;
 public class CreateRoleRequestDto {
     private Long teamId;
     private String roleName;
-    private List<Authority> authorities;
+    private List<Long> authorities;
 }

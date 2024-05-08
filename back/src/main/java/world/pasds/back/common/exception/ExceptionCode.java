@@ -3,6 +3,7 @@ package world.pasds.back.common.exception;
 import lombok.Getter;
 
 public enum ExceptionCode {
+    AUTHORITY_NOT_FOUND(404, "권한을 찾을수 없습니다."),
     MEMBER_NOT_FOUND(404, "회원을 찾을 수 없습니다."),
     MEMBER_EXISTS(409, "이미 존재하는 회원입니다."),
     MEMBER_UNAUTHORIZED(401, "권한이 없는 회원입니다."),

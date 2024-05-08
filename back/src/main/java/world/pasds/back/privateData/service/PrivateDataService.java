@@ -178,7 +178,7 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
         PrivateData privateData;
-        if (requestDto.getType() == DataType.PW) {
+        if (requestDto.getType() == DataType.LOGIN) {
             privateData = PrivateData.builder()
                     .team(team)
                     .type(requestDto.getType())
@@ -236,7 +236,7 @@ public class PrivateDataService {
 
         // 비밀, 제목, 메모, 아이디, url 변경 가능
         PrivateData newPrivateData;
-        if (findPrivateData.getType() == DataType.PW) {
+        if (findPrivateData.getType() == DataType.LOGIN) {
             newPrivateData = PrivateData.builder()
                     .team(team)
                     .type(findPrivateData.getType())

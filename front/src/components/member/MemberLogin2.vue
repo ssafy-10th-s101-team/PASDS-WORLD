@@ -9,7 +9,7 @@
         <!-- TOTP 코드 입력 필드 -->
         <div class="basis-2/3">
           <label for="totp" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >인증 코드</label
+            >인증 코드</label
           >
           <input
             type="text"
@@ -56,7 +56,6 @@ const totpCode = ref('')
 const TOTPSuccessAlert = ref(false)
 const TOTPFailAlert = ref(false)
 
-
 const showTOTPSuccessAlert = () => {
   TOTPSuccessAlert.value = true
   setTimeout(() => {
@@ -74,7 +73,8 @@ const sendTotpCode = async () => {
   const body = {
     totpCode: totpCode.value
   }
-  await localAxios.post(`/member/second-login`, body)
+  await localAxios
+    .post(`/member/second-login`, body)
     .then(() => {
       sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
       sessionStorage.removeItem('tmpNickname')
@@ -92,10 +92,10 @@ const sendTotpCode = async () => {
       showTOTPFailAlert()
 
       // todo main-back 에서 ErrorResponse는 status, message 로 통일되어 있는데 exceptionCode 재처리 필요할 수도....
-      if (error.response.data.exceptionCode === 'TEMPORARY_TOKEN_EXPIRED') {
-        sessionStorage.removeItem('tmpNickname')
-        router.push({ name: 'memberLogin' })
-      }
+      // if (error.response.data.exceptionCode === 'TEMPORARY_TOKEN_EXPIRED') {
+      //   sessionStorage.removeItem('tmpNickname')
+      //   router.push({ name: 'memberLogin' })
+      // }
     })
 }
 </script>

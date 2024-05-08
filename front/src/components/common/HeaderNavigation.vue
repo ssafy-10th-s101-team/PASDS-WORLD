@@ -154,20 +154,14 @@ const logout = async () => {
     await localAxios.get(`/member/logout`)
     sessionStorage.removeItem('nickname')
     nickname.value = ''
-  } catch (error) {
-    console.error('Logout Error:', error)
-    alert('로그아웃 실패: ' + error.message)
-  }
+  } catch (error) {}
 }
 
 const jwtTest = async () => {
   try {
     const response = await localAxios.post(`/member/jwt-test`, null)
-
     console.log(response)
-  } catch (error) {
-    console.error('jwt-test 실패:', error)
-  }
+  } catch (error) {}
 }
 
 onMounted(() => {

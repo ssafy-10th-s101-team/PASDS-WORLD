@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
+import world.pasds.back.authority.entity.AuthorityDto;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
 import world.pasds.back.common.exception.BusinessException;
@@ -60,18 +61,17 @@ public class RoleService {
         }
 
         List<Role> teamRoleList = roleRepository.findAllByTeam(team);
-        Map<Long, List<Authority>> roleIdToAuthorities = new HashMap<>();
+        Map<Long, List<AuthorityDto>> roleIdToAuthorities = new HashMap<>();
         for (Role r : teamRoleList) {
             List<RoleAuthority> findRoleAuthorityList = roleAuthorityRepository.findAllByRole(r);
-            List<Authority> authorities = new ArrayList<>();
-            for (RoleAuthority roleAuthority : findRoleAuthorityList) {
-                authorities.add(roleAuthority.getAuthority());
-            }
+            List<AuthorityDto> authorities = findRoleAuthorityList.stream()
+                    .map(ra -> AuthorityDto.builder().id(ra.getAuthority().getId()).name(ra.getAuthority().getName()).build())
+                    .toList();
             roleIdToAuthorities.put(r.getId(), authorities);
         }
 
         return teamRoleList.stream().map(r -> {
-            List<Authority> authorities = roleIdToAuthorities.getOrDefault(r.getId(), Collections.emptyList());
+            List<AuthorityDto> authorities = roleIdToAuthorities.getOrDefault(r.getId(), Collections.emptyList());
             return GetRoleResponseDto.builder()
                     .roleId(r.getId())
                     .name(r.getName())

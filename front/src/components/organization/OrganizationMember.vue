@@ -1,5 +1,4 @@
 <template>
-  {{ selectedOrganizationId }}
   <div>
     <OrganizationMemberTable :selectedOrganizationId="selectedOrganizationId" />
   </div>
@@ -8,7 +7,7 @@
 <script setup>
 import OrganizationMemberTable from '../common/OrganizationMemberTable.vue'
 defineProps({
-  selectedOrganizationId: String
+  selectedOrganizationId: Number
 })
 </script>
 

@@ -5,7 +5,7 @@
 <script setup>
 import TeamTable from '@/components/common/TeamTable.vue'
 defineProps({
-  selectedOrganizationId: String
+  selectedOrganizationId: Number
 })
 </script>
 

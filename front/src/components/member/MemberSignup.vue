@@ -43,6 +43,7 @@
               required
             />
           </div>
+          <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
             <BaseButton buttonText="인증완료" @click="checkOtpCode" />
           </div>

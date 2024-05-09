@@ -22,16 +22,20 @@ public class PrivateData extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DataType type;
 
+    @Setter
     private String title;
 
     @Lob
     @Setter
     private byte[] content;
 
+    @Setter
     private String memo;
 
+    @Setter
     private String privateDataId;
 
+    @Setter
     private String url;
 
     private Integer count;

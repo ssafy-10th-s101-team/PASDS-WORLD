@@ -197,6 +197,7 @@ public class PrivateDataService {
                     .memo(requestDto.getMemo())
                     .privateDataId(requestDto.getPrivateDataId())
                     .url(requestDto.getUrl())
+                    .count(0)
                     .build();
         } else {
             privateData = PrivateData.builder()
@@ -205,6 +206,7 @@ public class PrivateDataService {
                     .title(requestDto.getTitle())
                     .content(encryptedPrivateData)
                     .memo(requestDto.getMemo())
+                    .count(0)
                     .build();
         }
         privateDataRepository.save(privateData);
@@ -252,27 +254,18 @@ public class PrivateDataService {
         byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
 
         // 비밀, 제목, 메모, 아이디, url 변경 가능
-        PrivateData newPrivateData;
         if (findPrivateData.getType() == DataType.LOGIN) {
-            newPrivateData = PrivateData.builder()
-                    .team(team)
-                    .type(findPrivateData.getType())
-                    .title(requestDto.getTitle())
-                    .content(encryptedPrivateData)
-                    .memo(requestDto.getMemo())
-                    .privateDataId(requestDto.getId())
-                    .url(requestDto.getUrl())
-                    .build();
+            findPrivateData.setTitle(requestDto.getTitle());
+            findPrivateData.setContent(encryptedPrivateData);
+            findPrivateData.setMemo(requestDto.getMemo());
+            findPrivateData.setUrl(requestDto.getUrl());
+            findPrivateData.setPrivateDataId(requestDto.getId());
         } else {
-            newPrivateData = PrivateData.builder()
-                    .team(team)
-                    .type(findPrivateData.getType())
-                    .title(requestDto.getTitle())
-                    .content(encryptedPrivateData)
-                    .memo(requestDto.getMemo())
-                    .build();
+            findPrivateData.setTitle(requestDto.getTitle());
+            findPrivateData.setContent(encryptedPrivateData);
+            findPrivateData.setMemo(requestDto.getMemo());
         }
-        privateDataRepository.save(newPrivateData);
+        privateDataRepository.save(findPrivateData);
     }
 
     @Transactional

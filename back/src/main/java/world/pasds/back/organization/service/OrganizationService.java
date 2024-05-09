@@ -316,6 +316,46 @@ public class OrganizationService {
         organizationRepository.save(organization);
     }
 
+    @Transactional
+    public void updateRole(UpdateRoleRequestDto requestDto, Long memberId) {
+        Member requestMember = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(requestDto.getOrganizationMember()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        MemberOrganization requestMemberOrganization = memberOrganizationRepository.findByMemberAndOrganization(requestMember, organization);
+        MemberOrganization memberOrganization = memberOrganizationRepository.findByMemberAndOrganization(member,organization);
+
+        // 두 명 모두 조직원이어야 함
+        if (requestMemberOrganization == null || memberOrganization == null) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_MEMBER_NOT_FOUND);
+        }
+
+        OrganizationRole newOrganizationRole = requestDto.getNewOrganizationRole();
+
+        // 역할 수정가능한지 권한 확인
+        if (requestMemberOrganization.getOrganizationRole() == OrganizationRole.MEMBER) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        }
+
+        // 조직장으로 조직 내 역할 수정 불가
+        if (newOrganizationRole == OrganizationRole.HEADER) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
+        // 조직장 역할 수정 불가
+        if (memberOrganization.getOrganizationRole() == OrganizationRole.HEADER) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
+        // 자기 자신 역할 수정 불가
+        if (member.getId().equals(requestMember.getId())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
+        memberOrganization.setOrganizationRole(newOrganizationRole);
+        memberOrganizationRepository.save(memberOrganization);
+    }
+
     private boolean isMyOrganization(String organizationName) {
         return "MY ORGANIZATION".equals(organizationName);
     }
@@ -337,6 +377,4 @@ public class OrganizationService {
 
         return o;
     }
-
-
 }

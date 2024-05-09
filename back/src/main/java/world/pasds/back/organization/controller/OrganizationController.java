@@ -23,9 +23,9 @@ public class OrganizationController {
     public ResponseEntity<?> getOrganizations(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(required = false) boolean isAdmin) {
         List<GetOrganizationsResponseDto> response;
 
-        if(isAdmin){
+        if (isAdmin) {
             response = organizationService.getAdminOrganizations(userDetails.getMemberId());
-        }else{
+        } else {
             response = organizationService.getOrganizations(userDetails.getMemberId());
         }
 
@@ -77,6 +77,12 @@ public class OrganizationController {
     @PostMapping("/assign")
     public ResponseEntity<?> assignNewHeader(@RequestBody AssignNewHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         organizationService.assignNewHeader(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/update-role")
+    public ResponseEntity<?> updateRole(@RequestBody UpdateRoleRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        organizationService.updateRole(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

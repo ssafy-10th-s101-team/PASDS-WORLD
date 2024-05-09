@@ -2,12 +2,12 @@
   <div>
     <BaseSearchBar />
     <div>
-      <DashboardTeamButtonGroup
+      <MainTeamButtonGroup
         @team-selected="handleTeamSelected"
         @loaded="handleLoaded"
         :selected-organization-id="selectedOrganizationId"
       />
-      <DashboardTable v-if="isLoaded" :selectedTeamId="selectedTeamId" />
+      <MainTable v-if="isLoaded" :selectedTeamId="selectedTeamId" />
       <div class="flex justify-center">
         <BasePagination />
       </div>
@@ -18,8 +18,8 @@
 <script setup>
 import BaseSearchBar from '@/components/common/BaseSearchBar.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
-import DashboardTable from '@/components/common/DashboardTable.vue'
-import DashboardTeamButtonGroup from '@/components/common/DashboardTeamButtonGroup.vue'
+import MainTable from '@/components/common/MainTable.vue'
+import MainTeamButtonGroup from '@/components/common/MainTeamButtonGroup.vue'
 import { defineProps, ref } from 'vue'
 
 const isLoaded = ref(false)

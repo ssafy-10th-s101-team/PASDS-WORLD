@@ -1,6 +1,8 @@
 package world.pasds.back.privateData.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.AuthorityName;
@@ -51,7 +53,8 @@ public class PrivateDataService {
     private final KeyService keyService;
 
     @Transactional
-    public List<GetPrivateDataListResponseDto> getPrivateDataList(Long teamId, Long memberId) {
+    public List<GetPrivateDataListResponseDto> getPrivateDataList(Long teamId, int offset, Long memberId) {
+        Pageable pageable = PageRequest.of(offset, 10);
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
@@ -70,15 +73,12 @@ public class PrivateDataService {
         Role role = findMemberRole.getRole();
 
         // 우리 팀 비밀 목록 조회
-        List<PrivateData> privateData = privateDataRepository.findAllByTeam(team);
+        List<PrivateData> privateData = privateDataRepository.findAllByTeam(team, pageable);
         // 내가 조회 가능한 비밀 목록 추가
         List<PrivateData> canReadData = new ArrayList<>();
         for (PrivateData data : privateData) {
-            System.out.println("조회 가능 1");
             if (privateDataRoleRepository.existsByPrivateDataAndRole(data, role)) { // 비밀에 나의 역할이 읽을 수 있는지 확인
-                System.out.println("조회 가능 2");
                 if (roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_READ)) {
-                    System.out.println("조회 가능 3");
                     canReadData.add(data);
                 }
             }

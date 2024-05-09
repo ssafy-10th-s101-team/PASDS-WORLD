@@ -70,15 +70,11 @@ public class MemberService {
 		}
 
 		// 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
-		String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
-		if (!signupRequestDto.getPassword().matches(passwordRegex)) {
-			throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
-		}
+		checkPasswordRegex(signupRequestDto.getPassword());
 
 		// 비밀번호와 비밀번호 확인이 일치
-		if (!signupRequestDto.getPassword().equals(signupRequestDto.getConfirmPassword())) {
-			throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
-		}
+		checkPasswordSame(signupRequestDto.getPassword(), signupRequestDto.getConfirmPassword());
+
 
 		// 닉네임이 2자리 이상 20자리 이하
 		if (signupRequestDto.getNickname().length() < 2 || signupRequestDto.getNickname().length() > 20) {

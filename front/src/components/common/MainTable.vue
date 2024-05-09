@@ -99,6 +99,13 @@
   <div class="flex justify-center">
     <BaseButton buttonText="추가 +" @click="toggleHidden('privateDataCreate')" />
   </div>
+  <div class="flex justify-center">
+    <BasePagination
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      @change-page="fetchData"
+    />
+  </div>
   <MainPrivateDataCreate :teamId="selectedTeamId" />
 </template>
 
@@ -109,17 +116,24 @@ import MainPrivateDataCreate from './MainPrivateDataCreate.vue'
 import MainPrivateDataDetail from './MainPrivateDataDetail.vue'
 import { watch, ref, defineProps, nextTick } from 'vue'
 import { getPrivateDatas } from '@/api/data'
+import BasePagination from '@/components/common/BasePagination.vue'
 
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const privateDataList = ref([])
 const selectedDataId = ref()
+const currentPage = ref(1)
+const totalPages = ref(10)
+
 const props = defineProps({
   selectedTeamId: Number
 })
 
-const fetchprivateDatas = async (teamId) => {
-  return await getPrivateDatas(teamId)
+const fetchprivateDatas = async (page) => {
+  currentPage.value = page
+  const response = await getPrivateDatas(props.selectedTeamId)
+  privateDataList.value = response
+  totalPages.value = response.totalPages
 }
 
 const showDetail = (privateDataId) => {
@@ -128,13 +142,16 @@ const showDetail = (privateDataId) => {
 }
 
 watch(
-  () => props.selectedTeamId,
-  async (newVal) => {
-    if (newVal === -1) {
+  [() => props.selectedTeamId, () => currentPage.value],
+
+  async ([newTeamId, newPage], [oldTeamId, oldPage]) => {
+    if (newTeamId === -1) {
       privateDataList.value = []
+    } else {
+      if (newTeamId !== oldTeamId || newPage !== oldPage) {
+        await fetchprivateDatas(newTeamId)
+      }
     }
-    const response = await fetchprivateDatas(newVal)
-    privateDataList.value = response
   },
   { immediate: true }
 )

@@ -211,7 +211,14 @@ public class PrivateDataService {
 
         // 설정하고자 하는 역할 조회
         List<Role> setRoleList = roleRepository.findAllById(requestDto.getRoleId());
+
+        // 조직장과 팀장도 비밀_역할 저장
+        Role header = roleRepository.findByTeamAndName(team, "HEADER");
+        Role leader = roleRepository.findByTeamAndName(team, "LEADER");
+
         List<PrivateDataRole> privateDataRoleList = new ArrayList<>();
+        privateDataRoleList.add(PrivateDataRole.builder().privateData(privateData).role(header).build());
+        privateDataRoleList.add(PrivateDataRole.builder().privateData(privateData).role(leader).build());
         for (Role setRole : setRoleList) {
             // 비밀_역할 저장
             privateDataRoleList

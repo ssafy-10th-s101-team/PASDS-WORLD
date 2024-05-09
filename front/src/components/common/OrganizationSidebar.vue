@@ -78,6 +78,13 @@
                     >설정</router-link
                   >
                 </li>
+                <li>
+                  <router-link
+                    :to="{ name: 'organizationDashboard' }"
+                    class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
+                    >대시보드
+                  </router-link>
+                </li>
               </ul>
             </li>
 
@@ -185,7 +192,7 @@ const selectOrganization = (organization) => {
 }
 
 onMounted(async () => {
-  console.log('온마운티드')
+  console.log('온마운티드 OrganizationSideBar')
   organizations.value = await getOrganizations()
   console.log('organizations.value :', organizations.value)
   console.log('organizations.value.length,', organizations.value.length)
@@ -203,9 +210,11 @@ onMounted(async () => {
   // ]
 
   if (organizations.value == null || organizations.value.length == 0) {
+    console.log('emit 함1')
     emit('organization-selected', null)
     emit('loaded', false)
   } else {
+    console.log('emit 함2')
     emit('organization-selected', organizations.value[0].organizationId)
     emit('loaded', true)
     currentOrganization.value = organizations.value[0]

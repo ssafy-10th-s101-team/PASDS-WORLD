@@ -74,6 +74,8 @@ watch(
       if (response.length > 0) {
         selectedTeamId.value = response[0].teamId
         selectTeam(selectedTeamId.value)
+      } else {
+        selectTeam(-1)
       }
     }
   },

@@ -130,10 +130,11 @@ const showDetail = (privateDataId) => {
 watch(
   () => props.selectedTeamId,
   async (newVal) => {
-    if (newVal) {
-      const response = await fetchprivateDatas(newVal)
-      privateDataList.value = response
+    if (newVal === -1) {
+      privateDataList.value = []
     }
+    const response = await fetchprivateDatas(newVal)
+    privateDataList.value = response
   },
   { immediate: true }
 )

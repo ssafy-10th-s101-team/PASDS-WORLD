@@ -8,7 +8,7 @@
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >e-mail</label
+          >이메일</label
           >
           <input
             type="email"

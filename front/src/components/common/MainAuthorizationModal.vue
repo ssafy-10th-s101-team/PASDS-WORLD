@@ -10,7 +10,7 @@
           <input
             type="text"
             id="roleName"
-            v-model="roleName"
+            v-model="localRoleName"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-samsung-blue focus:border-samsung-blue block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder=""
             required
@@ -43,14 +43,14 @@
         </div>
 
         <button
-          type="submit"
+          type="button"
           class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           @click="postRole"
         >
           수정
         </button>
 
-        <div class="text-red-500 text-sm" @clcik="removeRole">
+        <div class="text-red-500 text-sm" @click="removeRole">
           <a href=""> 역할 삭제 </a>
         </div>
         <!-- <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
@@ -71,10 +71,11 @@ const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const authorities = ref([])
 const selectedAuthorities = ref([])
-const roleName = ref('')
+const localRoleName = ref('')
 onMounted(async () => {
   const auth = await fetchAuthority()
   authorities.value = auth
+  localRoleName.value = props.roleName
 })
 const props = defineProps({
   teamId: {
@@ -83,6 +84,10 @@ const props = defineProps({
   },
   roleId: {
     type: Number,
+    required: true
+  },
+  roleName: {
+    type: String,
     required: true
   }
 })
@@ -107,7 +112,9 @@ const postRole = async (event) => {
   try {
     const body = {
       teamId: props.teamId,
-      roleId: props.roleId
+      roleId: props.roleId,
+      newRoleName: localRoleName.value,
+      authorities: selectedAuthorities.value
     }
     await updateRole(body)
     emit('role-updated')
@@ -128,14 +135,12 @@ const removeRole = async (event) => {
       roleId: props.roleId
     }
     await deleteRole(body)
-    // emit('role-updated')
-    // toggleHidden('teamRoleUpdateModal')
+    emit('role-updated')
+    toggleHidden('teamRoleUpdateModal')
   } catch (error) {
     console.error(error)
   }
 }
-
-//
 </script>
 
 <style scoped></style>

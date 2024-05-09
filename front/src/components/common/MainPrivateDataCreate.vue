@@ -14,7 +14,7 @@
               @click="changeToLogin"
               type="button"
               class="rounded-l-lg border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-              :class="{ 'bg-samsung-blue text-white': infoType === 'LOGIN' }"
+              :class="{ 'bg-samsung-blue text-white': type === 'LOGIN' }"
             >
               로그인
             </button>
@@ -24,7 +24,7 @@
               @click="changeToText"
               type="button"
               class="rounded-r-md border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-              :class="{ 'bg-samsung-blue text-white': infoType === 'TEXT' }"
+              :class="{ 'bg-samsung-blue text-white': type === 'TEXT' }"
             >
               텍스트
             </button>
@@ -34,7 +34,7 @@
       <!-- 버튼 끝 -->
       <form>
         <!-- 타입이 id, pw인 경우 -->
-        <div v-if="infoType === 'LOGIN'">
+        <div v-if="type === 'LOGIN'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
             <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
@@ -153,7 +153,7 @@
           </div>
         </div>
         <!-- 타입이 text인 경우 -->
-        <div v-else-if="infoType === 'TEXT'">
+        <div v-else-if="type === 'TEXT'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
             <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
@@ -265,7 +265,7 @@ import BaseModal from './BaseModal.vue'
 import { createPrivateData } from '@/api/data'
 
 const showPassword = ref(false)
-const infoType = ref('LOGIN')
+const type = ref('LOGIN')
 const loginButton = ref(null)
 const textButton = ref(null)
 const title = ref('')
@@ -281,13 +281,13 @@ const togglePasswordVisibility = (event) => {
 }
 
 const changeToText = () => {
-  infoType.value = 'TEXT'
+  type.value = 'TEXT'
   textButton.value.blur()
   loginButton.value.blur()
 }
 
 const changeToLogin = () => {
-  infoType.value = 'LOGIN'
+  type.value = 'LOGIN'
   textButton.value.blur()
   loginButton.value.blur()
 }
@@ -304,7 +304,7 @@ const createPrivate = async () => {
   try {
     const body = {
       teamId: props.teamId,
-      type: infoType.value,
+      type: type.value,
       title: title.value,
       content: content.value,
       memo: memo.value,

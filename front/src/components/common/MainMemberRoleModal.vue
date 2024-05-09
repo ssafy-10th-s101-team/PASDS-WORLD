@@ -36,64 +36,22 @@
             <fieldset class="mb-5">
               <legend class="sr-only">Roles</legend>
 
-              <div class="flex items-center mb-4">
+              <div v-for="role in roles" :key="role.roleId" class="flex items-center mb-4">
                 <input
-                  id="role-option-1"
+                  :id="`role-option-${role.roleId}`"
                   type="radio"
                   name="roles"
-                  value="USA"
+                  :value="role.roleId"
                   class="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300"
-                  aria-labelledby="role-option-1"
-                  aria-describedby="role-option-1"
-                  checked=""
+                  aria-labelledby="`role-option-${role.roleId}`"
+                  aria-describedby="`role-option-${role.roleId}`"
+                  v-model="selectedRoleId"
                 />
-                <label for="role-option-1" class="text-sm font-medium text-gray-900 ml-2 block">
-                  손님
-                </label>
-              </div>
-
-              <div class="flex items-center mb-4">
-                <input
-                  id="role-option-2"
-                  type="radio"
-                  name="roles"
-                  value="Germany"
-                  class="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300"
-                  aria-labelledby="role-option-2"
-                  aria-describedby="role-option-2"
-                />
-                <label for="role-option-2" class="text-sm font-medium text-gray-900 ml-2 block">
-                  팀원
-                </label>
-              </div>
-
-              <div class="flex items-center mb-4">
-                <input
-                  id="role-option-3"
-                  type="radio"
-                  name="roles"
-                  value="Spain"
-                  class="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300"
-                  aria-labelledby="role-option-3"
-                  aria-describedby="role-option-3"
-                />
-                <label for="role-option-3" class="text-sm font-medium text-gray-900 ml-2 block">
-                  진뚱
-                </label>
-              </div>
-
-              <div class="flex items-center mb-4">
-                <input
-                  id="role-option-4"
-                  type="radio"
-                  name="roles"
-                  value="United Kingdom"
-                  class="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300"
-                  aria-labelledby="role-option-4"
-                  aria-describedby="role-option-4"
-                />
-                <label for="role-option-4" class="text-sm font-medium text-gray-900 ml-2 block">
-                  과장
+                <label
+                  :for="`role-option-${role.roleId}`"
+                  class="text-sm font-medium text-gray-900 ml-2 block"
+                >
+                  {{ role.name }}
                 </label>
               </div>
             </fieldset>
@@ -101,7 +59,7 @@
 
           <!-- 체크박스 -->
 
-          <div @click="toggleHidden('memberRole')" class="flex justify-center pb-6">
+          <div @click="updateMemberRole" class="flex justify-center pb-6">
             <button
               type="submit"
               class="text-white bg-samsung-blue hover:bg-samsung-blue focus:ring-4 focus:ring-samsung-blue font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-samsung-blue dark:hover:bg-samsung-blue focus:outline-none dark:focus:ring-samsung-blue"
@@ -116,9 +74,44 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
+import { assignRole } from '@/api/role'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+
+const selectedRoleId = ref(0)
+const emit = defineEmits(['memberRole-updated'])
+const props = defineProps({
+  roles: {
+    type: Array,
+    required: true
+  },
+  memberId: {
+    type: Number,
+    required: true
+  },
+  teamId: {
+    type: String,
+    required: true
+  }
+})
+
+const updateMemberRole = async (event) => {
+  event.preventDefault()
+  const body = {
+    assignedMemberId: props.memberId,
+    roleId: selectedRoleId.value,
+    teamId: props.teamId
+  }
+  try {
+    await assignRole(body)
+    emit('memberRole-updated')
+    toggleHidden('memberRole')
+  } catch (error) {
+    return
+  }
+}
 </script>
 
 <style scoped></style>

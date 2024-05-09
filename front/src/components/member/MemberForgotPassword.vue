@@ -1,15 +1,15 @@
 <template>
   <div class="max-w-2xl mx-auto bg-white p-16">
     <form
-      @submit.prevent="changePassword"
+      @submit.prevent="resetPassword"
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 찾기</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 재설정</h3>
       <div class="gap-6 mb-6 flex flex-row">
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >e-mail</label
+          >이메일</label
           >
           <input
             type="email"
@@ -152,7 +152,7 @@ const showOTPSuccessAlert = () => {
   }, 3000)
   removeHidden('password')
 }
-const showSignUpErrorAlert = (message) => {
+const showErrorAlert = (message) => {
   ErrorMsg.value = message
   ErrorAlert.value = true
   setTimeout(() => {
@@ -193,7 +193,7 @@ const sendOtpCode = async () => {
     .catch((error) => {
       console.error(error)
       loading.value = false
-      showSignUpErrorAlert(error.response.data.message)
+      showErrorAlert(error.response.data.message)
     })
 }
 
@@ -213,24 +213,24 @@ const checkOtpCode = async () => {
     })
     .catch((error) => {
       console.error(error)
-      showSignUpErrorAlert(error.response.data.message)
+      showErrorAlert(error.response.data.message)
     })
 }
 
-const changePassword = async () => {
+const resetPassword = async () => {
   const body = {
     password: password.value,
     confirmPassword: confirmPassword.value
   }
   await localAxios
-    .post('/member/change-password', body)
+    .post('/member/reset-password', body)
     .then(() => {
       alert('변경되었습니다')
       router.push({ name: 'memberLogin' })
     })
     .catch((error) => {
       console.error(error)
-      showSignUpErrorAlert(error.response.data.message)
+      showErrorAlert(error.response.data.message)
     })
 }
 </script>

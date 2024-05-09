@@ -53,7 +53,7 @@ async function deleteRole(body) {
 //팀원 역할 설정
 async function assignRole(body) {
   return localAxios
-    .post(prefix + `/assgin-role`, body)
+    .post(prefix + `/assign-role`, body)
     .then(success)
     .catch(fail)
 }

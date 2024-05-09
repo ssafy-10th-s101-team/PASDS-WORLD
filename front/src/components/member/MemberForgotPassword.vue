@@ -1,6 +1,7 @@
 <template>
   <div class="max-w-2xl mx-auto bg-white p-16">
     <form
+      @submit.prevent="changePassword"
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
       <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 찾기</h3>
@@ -8,7 +9,7 @@
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >e-mail</label
+            >e-mail</label
           >
           <input
             type="email"
@@ -28,7 +29,7 @@
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
             <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >OTP 인증</label
+              >OTP 인증</label
             >
             <input
               type="text"
@@ -51,7 +52,7 @@
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >새 비밀번호</label
+            >새 비밀번호</label
           >
           <input
             type="password"
@@ -63,30 +64,29 @@
             placeholder="•••••••••"
             required
           />
-          <div v-if="!isPasswordValid" class="text-red-500 text-sm">
-            비밀번호는 대문자, 소문자, 특수문자(@$!%*?&), 숫자를 포함하고 10자리 이상이어야 합니다.
+          <div v-if="password.length === 0 || !isPasswordValid" class="text-red-500 text-sm">
+            대소문자, 특수기호, 숫자를 포함한 10자리 이상이어야 합니다
           </div>
+          <div v-else class="text-green-500 text-sm">비밀번호가 유효합니다</div>
         </div>
 
         <div>
           <label for="password2" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >새 비밀번호 확인</label
+            >새 비밀번호 확인</label
           >
           <input
             type="password"
-            id="password2"
-            v-model="password2"
+            id="confirmPassword"
+            v-model="confirmPassword"
             @input="checkPassword"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="•••••••••"
             required
           />
-          <div v-if="!isPasswordSame && password2" class="text-red-500 text-sm">
-            비밀번호가 일치하지 않습니다.
+          <div v-if="!isPasswordSame && confirmPassword" class="text-red-500 text-sm">
+            비밀번호가 일치하지 않습니다
           </div>
-          <div v-else-if="isPasswordSame" class="text-green-500 text-sm">
-            비밀번호가 일치합니다.
-          </div>
+          <div v-else-if="isPasswordSame" class="text-green-500 text-sm">비밀번호가 일치합니다</div>
         </div>
         <div class="flex justify-center">
           <button
@@ -111,6 +111,9 @@ import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const commonStore = useCommonStore()
 const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
@@ -122,7 +125,6 @@ const SignUpErrorAlert = ref(false)
 
 //signUpErrorMsg
 const SignUpErrorMsg = ref('')
-
 
 const email = ref('')
 const otpCode = ref('')
@@ -152,17 +154,18 @@ const showSignUpErrorAlert = (message) => {
 
 // password check
 const password = ref('')
-const password2 = ref('')
+const confirmPassword = ref('')
 const isPasswordValid = ref(true)
 const isPasswordSame = ref(false)
-const validatePassword = (event) => {
-  event.preventDefault()
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/
+
+const validatePassword = () => {
+  const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?\/~`\-|\\=])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?\/~`\-|\\=]{10,}$/
   isPasswordValid.value = regex.test(password.value)
 }
-const checkPassword = (event) => {
-  event.preventDefault()
-  isPasswordSame.value = password.value === password2.value
+
+const checkPassword = () => {
+  isPasswordSame.value = password.value === confirmPassword.value
 }
 
 // 이메일 인증 요청
@@ -171,7 +174,8 @@ const sendOtpCode = async () => {
     email: email.value,
     requestType: 2
   }
-  await localAxios.post('/totp/email-verification-requests', body)
+  await localAxios
+    .post('/totp/email-verification-requests', body)
     .then(() => {
       showEmailSuccessAlert()
       startTimer()
@@ -188,12 +192,30 @@ const checkOtpCode = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
-  await localAxios.post('/totp/verification-email-code', body)
+  await localAxios
+    .post('/totp/verification-email-code', body)
     .then(() => {
       emailVerified.value = true
       showOTPSuccessAlert()
       stopTimer()
       toggleHidden('timer')
+    })
+    .catch((error) => {
+      console.error(error)
+      showSignUpErrorAlert(error.response.data.message)
+    })
+}
+
+const changePassword = async () => {
+  const body = {
+    password: password.value,
+    confirmPassword: confirmPassword.value
+  }
+  await localAxios
+    .post('/member/change-password', body)
+    .then(() => {
+      alert('변경되었습니다')
+      router.push({ name: 'memberLogin' })
     })
     .catch((error) => {
       console.error(error)

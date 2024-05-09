@@ -9,7 +9,7 @@
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >이메일</label
+            >이메일</label
           >
           <input
             type="email"
@@ -29,7 +29,7 @@
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
             <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >OTP 인증</label
+              >OTP 인증</label
             >
             <input
               type="text"
@@ -53,7 +53,7 @@
       <div id="PW" class="hidden grid gap-6 mb-6 lg:grid-cols-2">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >비밀번호</label
+            >비밀번호</label
           >
           <input
             type="password"
@@ -74,7 +74,7 @@
         <!-- 비밀번호 확인 입력 필드 -->
         <div>
           <label for="confirmPassword" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >비밀번호 확인</label
+            >비밀번호 확인</label
           >
           <input
             type="password"
@@ -94,7 +94,7 @@
         <!-- 닉네임 입력 필드 -->
         <div>
           <label for="nickname" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >닉네임</label
+            >닉네임</label
           >
           <input
             type="text"
@@ -236,7 +236,6 @@ const validateNickname = () => {
 }
 
 const submitForm = async () => {
-
   const body = {
     email: email.value,
     password: password.value,

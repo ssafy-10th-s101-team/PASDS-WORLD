@@ -1,9 +1,9 @@
 <template>
-  <BaseModal modalId="privateDataDetail">
+  <BaseModal modalId="privateDataCreate">
     <div
       class="max-w-2xl mx-auto bg-white p-16 bg-white shadow-md rounded-lg p-4 sm:px-6 lg:px-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">비밀 상세 정보</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">새 개인정보</h3>
       <!-- 종류 변경 버튼 -->
       <!-- 버튼 -->
       <div class="max-w-2xl mx-auto flex justify-start justify-between pb-6">
@@ -273,7 +273,7 @@ const privateDataId = ref('')
 const content = ref('')
 const url = ref('')
 const memo = ref('')
-const roleList = ref([22])
+const roleList = ref([1])
 
 const togglePasswordVisibility = (event) => {
   event.preventDefault()

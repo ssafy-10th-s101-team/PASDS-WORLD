@@ -77,7 +77,13 @@
                     </div>
                   </td>
                   <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline">. . .</a>
+                    <DashboardPrivateDataDetail :data="data" />
+                    <a
+                      href="#"
+                      @click="toggleHidden('privateDataDetail')"
+                      class="text-blue-600 dark:text-blue-500 hover:underline"
+                      >. . .</a
+                    >
                   </td>
                 </tr>
               </tbody>
@@ -88,21 +94,24 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <BaseButton buttonText="추가 +" @click="toggleHidden('privateDataDetail')" />
+    <BaseButton buttonText="추가 +" @click="toggleHidden('privateDataCreate')" />
   </div>
-  <DashboardPrivateDataDetail :teamId="selectedTeamId" />
+  <DashboardPrivateDataCreate :teamId="selectedTeamId" />
 </template>
 
 <script setup>
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
+import DashboardPrivateDataCreate from './DashboardPrivateDataCreate.vue'
 import DashboardPrivateDataDetail from './DashboardPrivateDataDetail.vue'
-import { watch, ref, defineProps, defineEmits } from 'vue'
+import { watch, ref, defineProps } from 'vue'
 import { getPrivateDatas } from '@/api/data'
 
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const privateDataList = ref([])
+const showDetail = ref(false)
+const selectedDataId = ref(null)
 const props = defineProps({
   selectedTeamId: Number
 })

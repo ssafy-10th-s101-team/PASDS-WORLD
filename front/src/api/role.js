@@ -13,6 +13,11 @@ const fail = (error) => {
   return Promise.reject(error)
 }
 
+//권한 조회
+async function getAuthority() {
+  return localAxios.get('/authority').then(success).catch(fail)
+}
+
 //역할 조회
 async function getRole(teamId) {
   return localAxios
@@ -53,4 +58,4 @@ async function assignRole(body) {
     .catch(fail)
 }
 
-export { getRole, createRole, updateRole, deleteRole, assignRole }
+export { getAuthority, getRole, createRole, updateRole, deleteRole, assignRole }

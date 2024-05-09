@@ -215,19 +215,19 @@ const sendOtpCode = async () => {
     email: email.value,
     requestType: 1
   }
-  // await localAxios
-  //   .post('/totp/email-verification-requests', body)
-  //   .then(() => {
-  //     loading.value = false
-  //     showEmailSuccessAlert()
-  //     startTimer()
-  //   })
-  //   .catch((error) => {
-  //     console.error(error)
-  //     // 이메일 전송 실패 alert
-  //     loading.value = false
-  //     showSignUpErrorAlert(error.response.data.message)
-  //   })
+  await localAxios
+    .post('/totp/email-verification-requests', body)
+    .then(() => {
+      loading.value = false
+      showEmailSuccessAlert()
+      startTimer()
+    })
+    .catch((error) => {
+      console.error(error)
+      // 이메일 전송 실패 alert
+      loading.value = false
+      showSignUpErrorAlert(error.response.data.message)
+    })
 }
 
 const validatePassword = () => {

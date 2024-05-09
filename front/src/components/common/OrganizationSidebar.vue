@@ -78,6 +78,13 @@
                     >설정</router-link
                   >
                 </li>
+                <li>
+                  <router-link
+                    :to="{ name: 'organizationDashboard' }"
+                    class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
+                    >대시보드
+                  </router-link>
+                </li>
               </ul>
             </li>
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
+import world.pasds.back.authority.entity.AuthorityDto;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
 import world.pasds.back.common.exception.BusinessException;
@@ -53,13 +54,12 @@ public class RoleService {
         Role role = memberRole.getRole();
         List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
 
-        List<String> roleAuthorityNameList = roleAuthorityList
+        List<AuthorityName> roleAuthorityNameList = roleAuthorityList
                 .stream()
-                .map(roleAuthority -> String.valueOf(roleAuthority.getAuthority().getName()))
-                .toList();
+                .map(roleAuthority -> roleAuthority.getAuthority().getName()).toList();
 
         // 권한 확인
-        if (!roleAuthorityNameList.contains(String.valueOf(AuthorityName.ROLE_READ))) {
+        if (!roleAuthorityNameList.contains(AuthorityName.ROLE_READ)) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
@@ -72,10 +72,13 @@ public class RoleService {
         List<Role> roleList = roleRepository.findAllByTeam(team);
         return roleList.stream().map(r -> {
             List<Authority> authorities = roleIdToAuthorities.getOrDefault(r.getId(), Collections.emptyList());
+            List<AuthorityDto> authorityDto = authorities.stream()
+                    .map(authority -> new AuthorityDto(authority.getId(), authority.getName()))
+                    .toList();
             return GetRoleResponseDto.builder()
                     .roleId(r.getId())
                     .name(r.getName())
-                    .authorities(authorities)
+                    .authorities(authorityDto)
                     .build();
         }).collect(Collectors.toList());
     }
@@ -161,7 +164,7 @@ public class RoleService {
                         .role(newRole)
                         .authority(authority)
                         .build()).toList();
-        List<RoleAuthority> findRoleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        List<RoleAuthority> findRoleAuthorityList = roleAuthorityRepository.findAllByRole(newRole);
         roleAuthorityRepository.deleteAll(findRoleAuthorityList);
         roleAuthorityRepository.saveAll(newRoleAuthorities);
     }

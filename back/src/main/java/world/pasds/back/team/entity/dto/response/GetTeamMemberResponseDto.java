@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetTeamMemberResponseDto {
+    private Long id;
     private String memberNickname;
     private String role;
 }

@@ -40,15 +40,6 @@ public class OrganizationController {
         return ResponseEntity.ok().body(response);
     }
 
-
-    //조직원 역할변경 이걸로 조직장 위임할 생각도..
-    //바꾸려는 자가 자기와 동급이거나 그 이하인지 확인
-    //바꾸려는 역할이 현재 자기가 접근할 수 있는 역할인지 확인.
-    @PostMapping("/update-member-role")
-    public ResponseEntity<Void> updateOrganizationMemberRole(@RequestBody UpdateOrganizationMemberRoleRequestDto requestDto){
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
     @PostMapping("/create")
     public ResponseEntity<?> createOrganization(@RequestBody CreateOrganizationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         organizationService.createOrganization(requestDto, userDetails.getMemberId());

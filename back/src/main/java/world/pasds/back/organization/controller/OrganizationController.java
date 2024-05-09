@@ -1,6 +1,7 @@
 package world.pasds.back.organization.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +33,22 @@ public class OrganizationController {
         return ResponseEntity.ok().body(response);
     }
 
+    //조직에 해당하는 모든 조직원
     @GetMapping("/{organizationId}/{offset}")
     public ResponseEntity<?> getOrganizationMember(@PathVariable(name = "organizationId") Long organizationId, @PathVariable(name = "offset") int offset, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetOrganizationMemberResponseDto> response = organizationService.getOrganizationMember(organizationId, offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 
+
+    //조직원 역할변경 이걸로 조직장 위임할 생각도..
+    //바꾸려는 자가 자기와 동급이거나 그 이하인지 확인
+    //바꾸려는 역할이 현재 자기가 접근할 수 있는 역할인지 확인.
+    @PostMapping("/update-member-role")
+    public ResponseEntity<Void> updateOrganizationMemberRole(@RequestBody UpdateOrganizationMemberRoleRequestDto requestDto){
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     @PostMapping("/create")
     public ResponseEntity<?> createOrganization(@RequestBody CreateOrganizationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         organizationService.createOrganization(requestDto, userDetails.getMemberId());

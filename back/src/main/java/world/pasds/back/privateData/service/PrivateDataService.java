@@ -147,7 +147,14 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getDataKey()),
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
-        return GetPrivateDataResponseDto.builder().privateData(new String(decryptedData, StandardCharsets.UTF_8)).build();
+        return GetPrivateDataResponseDto.builder()
+                .type(privateData.getType())
+                .title(privateData.getTitle())
+                .privateData(new String(decryptedData, StandardCharsets.UTF_8))
+                .memo(privateData.getMemo())
+                .privateDataId(privateData.getPrivateDataId())
+                .url(privateData.getUrl())
+                .build();
     }
 
     @Transactional

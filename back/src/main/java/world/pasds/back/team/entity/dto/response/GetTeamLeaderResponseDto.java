@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetTeamMemberResponseDto {
+public class GetTeamLeaderResponseDto {
     private Long id;
-    private String memberNickname;
-    private String role;
+    private String nickname;
 }

@@ -28,10 +28,7 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.AssignRoleRequestDto;
 import world.pasds.back.team.repository.TeamRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,35 +47,29 @@ public class RoleService {
     public List<GetRoleResponseDto> getRole(Long teamId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-        MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
-        Role role = memberRole.getRole();
-        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);
 
-        List<AuthorityName> roleAuthorityNameList = roleAuthorityList
-                .stream()
-                .map(roleAuthority -> roleAuthority.getAuthority().getName()).toList();
-
-        // 권한 확인
-        if (!roleAuthorityNameList.contains(AuthorityName.ROLE_READ)) {
-            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        // 팀원인지 확인
+        if (findMemberAndTeam == null) {
+            throw new BusinessException(ExceptionCode.MEMBER_UNAUTHORIZED);
         }
 
-        Map<Long, List<Authority>> roleIdToAuthorities = roleAuthorityList.stream()
-                .collect(Collectors.groupingBy(
-                        ra -> ra.getRole().getId(),
-                        Collectors.mapping(RoleAuthority::getAuthority, Collectors.toList())
-                ));
-
-        List<Role> roleList = roleRepository.findAllByTeam(team);
-        return roleList.stream().map(r -> {
-            List<Authority> authorities = roleIdToAuthorities.getOrDefault(r.getId(), Collections.emptyList());
-            List<AuthorityDto> authorityDto = authorities.stream()
-                    .map(authority -> new AuthorityDto(authority.getId(), authority.getName()))
+        List<Role> teamRoleList = roleRepository.findAllByTeam(team);
+        Map<Long, List<AuthorityDto>> roleIdToAuthorities = new HashMap<>();
+        for (Role r : teamRoleList) {
+            List<RoleAuthority> findRoleAuthorityList = roleAuthorityRepository.findAllByRole(r);
+            List<AuthorityDto> authorities = findRoleAuthorityList.stream()
+                    .map(ra -> AuthorityDto.builder().id(ra.getAuthority().getId()).name(ra.getAuthority().getName()).build())
                     .toList();
+            roleIdToAuthorities.put(r.getId(), authorities);
+        }
+
+        return teamRoleList.stream().map(r -> {
+            List<AuthorityDto> authorities = roleIdToAuthorities.getOrDefault(r.getId(), Collections.emptyList());
             return GetRoleResponseDto.builder()
                     .roleId(r.getId())
                     .name(r.getName())
-                    .authorities(authorityDto)
+                    .authorities(authorities)
                     .build();
         }).collect(Collectors.toList());
     }

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible">
+  <div v-if="visible" class="mb-1.5">
     <svg role="status" class="inline h-6 w-6 animate-spin mr-2 text-gray-200 dark:text-gray-600 fill-blue-600"
          viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path

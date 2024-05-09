@@ -193,8 +193,7 @@ public class MemberService {
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
 		// 현재 비밀번호가 일치하는 지 확인
-		if (!bCryptPasswordEncoder.encode(changePasswordRequestDto.getPrevPassword() + pepper)
-			.equals(foundMember.getPassword())) {
+		if (!bCryptPasswordEncoder.matches(changePasswordRequestDto.getPrevPassword() + pepper, foundMember.getPassword())) {
 			throw new BusinessException(ExceptionCode.PASSWORD_MISMATCH);
 		}
 

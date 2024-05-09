@@ -24,7 +24,7 @@
           <BaseSpinner :loading="loading"/>
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading"/>
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -215,19 +215,19 @@ const sendOtpCode = async () => {
     email: email.value,
     requestType: 1
   }
-  await localAxios
-    .post('/totp/email-verification-requests', body)
-    .then(() => {
-      loading.value = false
-      showEmailSuccessAlert()
-      startTimer()
-    })
-    .catch((error) => {
-      console.error(error)
-      // 이메일 전송 실패 alert
-      loading.value = false
-      showSignUpErrorAlert(error.response.data.message)
-    })
+  // await localAxios
+  //   .post('/totp/email-verification-requests', body)
+  //   .then(() => {
+  //     loading.value = false
+  //     showEmailSuccessAlert()
+  //     startTimer()
+  //   })
+  //   .catch((error) => {
+  //     console.error(error)
+  //     // 이메일 전송 실패 alert
+  //     loading.value = false
+  //     showSignUpErrorAlert(error.response.data.message)
+  //   })
 }
 
 const validatePassword = () => {

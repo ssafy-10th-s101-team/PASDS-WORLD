@@ -20,10 +20,10 @@
           />
         </div>
         <div class="flex items-end justify-start basis-1/8">
-          <BaseSpinner :loading="loading"/>
+          <BaseSpinner :loading="loading" />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -154,7 +154,7 @@ const getTotpKey = async () => {
       showOTPSuccessAlert()
       stopTimer()
       toggleHidden('timer')
-      totpKey.value = URL.createObjectURL(new Blob([response.data],{ type: 'image/png' }));
+      totpKey.value = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }))
       removeHidden('TOTP')
     })
     .catch((error) => {

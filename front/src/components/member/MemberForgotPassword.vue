@@ -9,7 +9,7 @@
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >e-mail</label
+          >e-mail</label
           >
           <input
             type="email"
@@ -21,10 +21,10 @@
           />
         </div>
         <div class="flex items-end justify-start basis-1/8">
-          <BaseSpinner :loading="loading"/>
+          <BaseSpinner :loading="loading" />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -32,7 +32,7 @@
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
             <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >OTP 인증</label
+            >OTP 인증</label
             >
             <input
               type="text"
@@ -56,7 +56,7 @@
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >새 비밀번호</label
+          >새 비밀번호</label
           >
           <input
             type="password"
@@ -76,7 +76,7 @@
 
         <div>
           <label for="password2" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >새 비밀번호 확인</label
+          >새 비밀번호 확인</label
           >
           <input
             type="password"

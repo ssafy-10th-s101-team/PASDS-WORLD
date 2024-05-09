@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <div>
-      <DashboardSidebar
+      <MainSidebar
         @organization-selected="handleOrganizationSelected"
         @loaded="handleLoaded"
       />
@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import DashboardSidebar from '@/components/common/DashboardSidebar.vue'
+import MainSidebar from '@/components/common/MainSidebar.vue'
 import { ref } from 'vue'
 const isLoaded = ref(false)
 const selectedOrganizationId = ref(null)

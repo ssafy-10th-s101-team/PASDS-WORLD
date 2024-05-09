@@ -5,7 +5,7 @@ import HeaderNavigation from '@/components/common/HeaderNavigation.vue'
 
 <template>
   <div id="app" class="basic-font">
-    <HeaderNavigation />
+    <HeaderNavigation class="header-nav" />
     <RouterView />
   </div>
 </template>
@@ -14,4 +14,13 @@ import HeaderNavigation from '@/components/common/HeaderNavigation.vue'
 .basic-font {
   font-family: 'SamsungOne500', sans-serif;
 }
+
+.header-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* 높은 z-index 값으로 설정 */
+}
+
 </style>

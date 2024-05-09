@@ -202,8 +202,8 @@
       </div>
     </div>
   </div>
-  <DashboardAuthorizationModal :teamId="teamId" :roleId="selectedRoleId" />
-  <DashboardMemberRoleModal />
+  <MainAuthorizationModal :teamId="teamId" :roleId="selectedRoleId" />
+  <MainMemberRoleModal />
   <TeamInvitationModal />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
@@ -211,8 +211,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import DashboardAuthorizationModal from '../common/DashboardAuthorizationModal.vue'
-import DashboardMemberRoleModal from '../common/DashboardMemberRoleModal.vue'
+import MainAuthorizationModal from '../common/MainAuthorizationModal.vue'
+import MainMemberRoleModal from '../common/MainMemberRoleModal.vue'
 import TeamInvitationModal from '../common/TeamInvitationModal.vue'
 import TeamRoleCreationModal from '../common/TeamRoleCreationModal.vue'
 import BaseButton from '../common/BaseButton.vue'

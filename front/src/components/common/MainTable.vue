@@ -77,7 +77,7 @@
                     </div>
                   </td>
                   <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <DashboardPrivateDataDetail :data="data" />
+                    <MainPrivateDataDetail :data="data" />
                     <a
                       href="#"
                       @click="toggleHidden('privateDataDetail')"
@@ -96,14 +96,14 @@
   <div class="flex justify-center">
     <BaseButton buttonText="추가 +" @click="toggleHidden('privateDataCreate')" />
   </div>
-  <DashboardPrivateDataCreate :teamId="selectedTeamId" />
+  <MainPrivateDataCreate :teamId="selectedTeamId" />
 </template>
 
 <script setup>
 import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
-import DashboardPrivateDataCreate from './DashboardPrivateDataCreate.vue'
-import DashboardPrivateDataDetail from './DashboardPrivateDataDetail.vue'
+import MainPrivateDataCreate from './MainPrivateDataCreate.vue'
+import MainPrivateDataDetail from './MainPrivateDataDetail.vue'
 import { watch, ref, defineProps } from 'vue'
 import { getPrivateDatas } from '@/api/data'
 

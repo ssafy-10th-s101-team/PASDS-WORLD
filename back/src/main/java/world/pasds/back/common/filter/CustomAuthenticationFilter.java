@@ -79,7 +79,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 handleAuthenticationWithTemporaryToken(request, response, filterChain);
                 break;
             case "/app/api/member/signup":
-            case "/app/api/member/change-password":
+            case "/app/api/member/reset-password":
                 handleAuthenticationWithEmailToken(request, response, filterChain);
                 break;
             case "/app/api/member/logout":

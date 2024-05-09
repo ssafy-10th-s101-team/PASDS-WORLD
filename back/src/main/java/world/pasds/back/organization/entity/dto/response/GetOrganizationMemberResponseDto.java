@@ -13,4 +13,5 @@ import world.pasds.back.organization.entity.OrganizationRole;
 public class GetOrganizationMemberResponseDto {
     private String name;
     private OrganizationRole organizationRole;
+    private String email;
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
+import world.pasds.back.authority.entity.AuthorityDto;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
 import world.pasds.back.common.exception.BusinessException;
@@ -27,8 +28,7 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.AssignRoleRequestDto;
 import world.pasds.back.team.repository.TeamRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,18 +49,35 @@ public class RoleService {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = memberRole.getRole();
-        List<String> roleAuthorityList = roleAuthorityRepository.findAllByRole(role)
+        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+
+        List<AuthorityName> roleAuthorityNameList = roleAuthorityList
                 .stream()
-                .map(roleAuthority -> String.valueOf(roleAuthority.getAuthority().getName()))
-                .toList();
+                .map(roleAuthority -> roleAuthority.getAuthority().getName()).toList();
 
         // 권한 확인
-        if (!roleAuthorityList.contains(String.valueOf(AuthorityName.ROLE_READ))) {
+        if (!roleAuthorityNameList.contains(AuthorityName.ROLE_READ)) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
-        List<Role> roleList = roleRepository.findAllByTeam(team);
-        return roleList.stream().map(r -> GetRoleResponseDto.builder().roleId(r.getId()).name(r.getName()).build()).collect(Collectors.toList());
+        List<Role> teamRoleList = roleRepository.findAllByTeam(team);
+        Map<Long, List<AuthorityDto>> roleIdToAuthorities = new HashMap<>();
+        for (Role r : teamRoleList) {
+            List<RoleAuthority> findRoleAuthorityList = roleAuthorityRepository.findAllByRole(r);
+            List<AuthorityDto> authorities = findRoleAuthorityList.stream()
+                    .map(ra -> AuthorityDto.builder().id(ra.getAuthority().getId()).name(ra.getAuthority().getName()).build())
+                    .toList();
+            roleIdToAuthorities.put(r.getId(), authorities);
+        }
+
+        return teamRoleList.stream().map(r -> {
+            List<AuthorityDto> authorities = roleIdToAuthorities.getOrDefault(r.getId(), Collections.emptyList());
+            return GetRoleResponseDto.builder()
+                    .roleId(r.getId())
+                    .name(r.getName())
+                    .authorities(authorities)
+                    .build();
+        }).collect(Collectors.toList());
     }
 
     @Transactional
@@ -124,7 +141,7 @@ public class RoleService {
         }
 
         // 이미 존재하는 역할명으로 수정 불가
-        if (roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
+        if (!role.getName().equals(requestDto.getNewRoleName()) && roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
             throw new BusinessException(ExceptionCode.ROLE_EXISTS);
         }
 
@@ -133,18 +150,20 @@ public class RoleService {
         newRole.setName(requestDto.getNewRoleName());
         roleRepository.save(newRole);
 
+        List<Authority> authorityList = authorityRepository.findAllById(requestDto.getAuthorities());
+
         // 역할의 권한 수정
-        List<RoleAuthority> newAuthorities = requestDto.getAuthorities()
+        List<RoleAuthority> newRoleAuthorities = authorityList
                 .stream()
-                .filter(authority -> AuthorityName.TEAM_DELETE != authority.getName())
+                .filter(authority -> AuthorityName.TEAM_DELETE != authority.getName())  // 팀 삭제 권한 부여 불가
                 .map(authority -> RoleAuthority
                         .builder()
                         .role(newRole)
                         .authority(authority)
                         .build()).toList();
-        List<RoleAuthority> authorityList = roleAuthorityRepository.findAllByRole(role);
-        roleAuthorityRepository.deleteAll(authorityList);
-        roleAuthorityRepository.saveAll(newAuthorities);
+        List<RoleAuthority> findRoleAuthorityList = roleAuthorityRepository.findAllByRole(newRole);
+        roleAuthorityRepository.deleteAll(findRoleAuthorityList);
+        roleAuthorityRepository.saveAll(newRoleAuthorities);
     }
 
     @Transactional

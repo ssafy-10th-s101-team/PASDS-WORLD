@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ChangePasswordRequestDto {
-    private String password;
-    private String confirmPassword;
+	private String prevPassword;
+	private String password;
+	private String confirmPassword;
 }

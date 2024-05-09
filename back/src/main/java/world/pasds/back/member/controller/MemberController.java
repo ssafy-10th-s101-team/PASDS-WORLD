@@ -8,7 +8,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
+import world.pasds.back.member.dto.request.ResetPasswordRequestDto;
 import world.pasds.back.member.dto.request.SecondLoginRequestDto;
 import world.pasds.back.member.dto.request.SignupRequestDto;
 import world.pasds.back.member.entity.CustomUserDetails;
@@ -55,12 +57,21 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(HttpServletRequest httpServletRequest,
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(HttpServletRequest httpServletRequest,
                                     HttpServletResponse httpServletResponse,
                                     @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                            @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
-        memberService.changePassword(httpServletRequest, httpServletResponse, customUserDetails,changePasswordRequestDto);
+                                            @RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
+        memberService.resetPassword(httpServletRequest, httpServletResponse, customUserDetails, resetPasswordRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse,
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
+        memberService.changePassword(httpServletRequest, httpServletResponse, userDetails, changePasswordRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

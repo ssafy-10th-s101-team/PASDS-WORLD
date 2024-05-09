@@ -3,18 +3,21 @@ package world.pasds.back.member.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
+import world.pasds.back.member.dto.request.ResetPasswordRequestDto;
 import world.pasds.back.member.dto.request.SecondLoginRequestDto;
 import world.pasds.back.member.dto.request.SignupRequestDto;
 import world.pasds.back.member.dto.response.FirstLoginResponseDto;
@@ -25,163 +28,200 @@ import world.pasds.back.organization.entity.dto.request.CreateOrganizationReques
 import world.pasds.back.organization.service.OrganizationService;
 import world.pasds.back.totp.service.TotpService;
 
-import java.util.regex.Pattern;
-
 import static world.pasds.back.common.exception.ExceptionCode.TOTP_CODE_NOT_SAME;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final MemberRepository memberRepository;
-    private final InvitationService invitationService;
-    private final TotpService totpService;
-    private final OrganizationService organizationService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final CookieProvider cookieProvider;
-    private final RedisTemplate<String, String> redisTemplate;
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final MemberRepository memberRepository;
+	private final InvitationService invitationService;
+	private final TotpService totpService;
+	private final OrganizationService organizationService;
+	private final JwtTokenProvider jwtTokenProvider;
+	private final CookieProvider cookieProvider;
+	private final RedisTemplate<String, String> redisTemplate;
 
-    @Value("${security.pepper}")
-    private String pepper;
+	@Value("${security.pepper}")
+	private String pepper;
 
+	private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
 
-    @Transactional
-    public byte[] signup(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                         SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+	@Transactional
+	public byte[] signup(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+		SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-//        // 이메일 형식
-//        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
-//        Pattern pattern = Pattern.compile(emailRegex);
-//        if (!pattern.matcher(signupRequestDto.getEmail()).matches()) {
-//            throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
-//        }
-//
-//        // DB에 없는 이메일
-//        if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
-//            throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
-//        }
+		//        // 이메일 형식
+		//        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+		//        Pattern pattern = Pattern.compile(emailRegex);
+		//        if (!pattern.matcher(signupRequestDto.getEmail()).matches()) {
+		//            throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
+		//        }
+		//
+		//        // DB에 없는 이메일
+		//        if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
+		//            throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
+		//        }
 
-        // 들고온 이메일과 인증했던 이메일이 같아야 한다
-        if (!signupRequestDto.getEmail().equals(customUserDetails.getEmail())) {
-            throw new BusinessException(ExceptionCode.EMAIL_IS_NOT_SAME);
-        }
+		// 들고온 이메일과 인증했던 이메일이 같아야 한다
+		if (!signupRequestDto.getEmail().equals(customUserDetails.getEmail())) {
+			throw new BusinessException(ExceptionCode.EMAIL_IS_NOT_SAME);
+		}
 
-        // 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
-        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
-        if (!signupRequestDto.getPassword().matches(passwordRegex)) {
-            throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
-        }
+		// 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
+		String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
+		if (!signupRequestDto.getPassword().matches(passwordRegex)) {
+			throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
+		}
 
-        // 비밀번호와 비밀번호 확인이 일치
-        if (!signupRequestDto.getPassword().equals(signupRequestDto.getConfirmPassword())) {
-            throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
-        }
+		// 비밀번호와 비밀번호 확인이 일치
+		if (!signupRequestDto.getPassword().equals(signupRequestDto.getConfirmPassword())) {
+			throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
+		}
 
-        // 닉네임이 2자리 이상 20자리 이하
-        if (signupRequestDto.getNickname().length() < 2 || signupRequestDto.getNickname().length() > 20) {
-            throw new BusinessException(ExceptionCode.NICKNAME_INVALID_FORMAT);
-        }
+		// 닉네임이 2자리 이상 20자리 이하
+		if (signupRequestDto.getNickname().length() < 2 || signupRequestDto.getNickname().length() > 20) {
+			throw new BusinessException(ExceptionCode.NICKNAME_INVALID_FORMAT);
+		}
 
+		////////////////////// 성공
 
-        ////////////////////// 성공
+		// 비밀번호 암호화하여 저장
+		String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
+		Member newMember = Member.builder()
+			.email(signupRequestDto.getEmail())
+			.password(encryptedPassword)
+			.nickname(signupRequestDto.getNickname())
+			.build();
+		memberRepository.save(newMember);
 
-        // 비밀번호 암호화하여 저장
-        String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
-        Member newMember = Member.builder()
-                .email(signupRequestDto.getEmail())
-                .password(encryptedPassword)
-                .nickname(signupRequestDto.getNickname())
-                .build();
-        memberRepository.save(newMember);
+		String redisKey = customUserDetails.getEmail() + "_" + JwtTokenProvider.TokenType.EMAIL.name();
+		redisTemplate.delete(redisKey);
+		cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
 
-        String redisKey = customUserDetails.getEmail() + "_" + JwtTokenProvider.TokenType.EMAIL.name();
-        redisTemplate.delete(redisKey);
-        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
+		/**
+		 * 회원가입시 받은 초대 모두 가입시키기
+		 */
+		//        invitationService.checkInvitation(newMember, signupRequestDto.getEmail());
 
-        /**
-         * 회원가입시 받은 초대 모두 가입시키기
-         */
-//        invitationService.checkInvitation(newMember, signupRequestDto.getEmail());
+		Member member = memberRepository.findByEmail(newMember.getEmail());
+		organizationService.createOrganization(new CreateOrganizationRequestDto("MY ORGANIZATION"), newMember.getId());
+		// totp key 발급
+		return totpService.generateSecretKeyQR(member.getId());
+	}
 
-        Member member = memberRepository.findByEmail(newMember.getEmail());
-        organizationService.createOrganization(new CreateOrganizationRequestDto("MY ORGANIZATION"), newMember.getId());
-        // totp key 발급
-        return totpService.generateSecretKeyQR(member.getId());
-    }
+	public FirstLoginResponseDto firstLogin(HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
 
-    public FirstLoginResponseDto firstLogin(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
+		String temporaryJwtToken = jwtTokenProvider.generateToken(customUserDetails.getMemberId(),
+			JwtTokenProvider.TokenType.TEMPORARY, true);
+		cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name(),
+			temporaryJwtToken);
 
-        String temporaryJwtToken = jwtTokenProvider.generateToken(customUserDetails.getMemberId(), JwtTokenProvider.TokenType.TEMPORARY, true);
-        cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name(), temporaryJwtToken);
+		return FirstLoginResponseDto
+			.builder()
+			.nickname(customUserDetails.getNickname())
+			.build();
+	}
 
-        return FirstLoginResponseDto
-                .builder()
-                .nickname(customUserDetails.getNickname())
-                .build();
-    }
+	public void secondLogin(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+		CustomUserDetails customUserDetails
+		, SecondLoginRequestDto secondLoginRequestDto) {
 
-    public void secondLogin(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails
-            , SecondLoginRequestDto secondLoginRequestDto) {
+		Long memberId = customUserDetails.getMemberId();
+		String inputTotpCode = secondLoginRequestDto.getTotpCode();
 
-        Long memberId = customUserDetails.getMemberId();
-        String inputTotpCode = secondLoginRequestDto.getTotpCode();
+		if (!inputTotpCode.equals("101")) {
+			if (!totpService.verificationTotpCode(memberId, inputTotpCode)) {
+				throw new BusinessException(TOTP_CODE_NOT_SAME);
+			}
+		}
 
-        if (!inputTotpCode.equals("101")) {
-            if (!totpService.verificationTotpCode(memberId, inputTotpCode)) {
-                throw new BusinessException(TOTP_CODE_NOT_SAME);
-            }
-        }
+		// 성공
+		String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.TEMPORARY.name();
+		redisTemplate.delete(redisKey);
+		cookieProvider.removeCookie(httpServletRequest, httpServletResponse,
+			JwtTokenProvider.TokenType.TEMPORARY.name());
 
-        // 성공
-        String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.TEMPORARY.name();
-        redisTemplate.delete(redisKey);
-        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name());
+		String accessToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.ACCESS, true);
+		cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name(),
+			accessToken);
 
-        String accessToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.ACCESS, true);
-        cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name(), accessToken);
+		String refreshToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.REFRESH, true);
+		cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name(),
+			refreshToken);
+	}
 
-        String refreshToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.REFRESH, true);
-        cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name(), refreshToken);
-    }
+	public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+		CustomUserDetails customUserDetails) {
+		Long memberId = customUserDetails.getMemberId();
 
-    public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
-        Long memberId = customUserDetails.getMemberId();
+		String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.ACCESS.name();
+		redisTemplate.delete(redisKey);
+		cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name());
 
-        String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.ACCESS.name();
-        redisTemplate.delete(redisKey);
-        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name());
+		redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.REFRESH.name();
+		redisTemplate.delete(redisKey);
+		cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name());
+	}
 
-        redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.REFRESH.name();
-        redisTemplate.delete(redisKey);
-        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name());
-    }
+	public void resetPassword(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+		CustomUserDetails customUserDetails, ResetPasswordRequestDto resetPasswordRequestDto) {
 
-    public void changePassword(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails, ChangePasswordRequestDto changePasswordRequestDto) {
+		// 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
+		String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
+		if (!resetPasswordRequestDto.getPassword().matches(passwordRegex)) {
+			throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
+		}
 
-        // 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
-        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
-        if (!changePasswordRequestDto.getPassword().matches(passwordRegex)) {
-            throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
-        }
+		// 비밀번호와 비밀번호 확인이 일치
+		if (!resetPasswordRequestDto.getPassword().equals(resetPasswordRequestDto.getConfirmPassword())) {
+			throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
+		}
 
-        // 비밀번호와 비밀번호 확인이 일치
-        if (!changePasswordRequestDto.getPassword().equals(changePasswordRequestDto.getConfirmPassword())) {
-            throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
-        }
+		// 성공
+		Member foundMember = memberRepository.findByEmail(customUserDetails.getEmail());
 
-        // 성공
-        Member foundMember = memberRepository.findByEmail(customUserDetails.getEmail());
+		// 비밀번호 암호화하여 저장
+		String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequestDto.getPassword() + pepper);
 
-        // 비밀번호 암호화하여 저장
-        String encryptedPassword = bCryptPasswordEncoder.encode(changePasswordRequestDto.getPassword() + pepper);
+		foundMember.setPassword(encryptedPassword);
 
-        foundMember.setPassword(encryptedPassword);
+		memberRepository.save(foundMember);
 
-        memberRepository.save(foundMember);
+		redisTemplate.delete(customUserDetails.getEmail() + "_" + "EMAIL");
+		cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
 
-        redisTemplate.delete(customUserDetails.getEmail() + "_" + "EMAIL");
-        cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
+	}
 
-    }
+	public void changePassword(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+		CustomUserDetails userDetails, ChangePasswordRequestDto changePasswordRequestDto) {
+
+		// 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
+		if (!changePasswordRequestDto.getPassword().matches(PASSWORD_REGEX)) {
+			throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
+		}
+		// 새비밀번호와 새비밀번호 확인이 일치
+		if (!changePasswordRequestDto.getPassword().equals(changePasswordRequestDto.getConfirmPassword())) {
+			throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
+		}
+
+		// 성공
+		Member foundMember = memberRepository.findByEmail(userDetails.getEmail());
+
+		// 현재 비밀번호가 일치하는 지 확인
+		if (!bCryptPasswordEncoder.encode(changePasswordRequestDto.getPrevPassword() + pepper)
+			.equals(foundMember.getPassword())) {
+			throw new BusinessException(ExceptionCode.PASSWORD_MISMATCH);
+		}
+
+		// 새비밀번호 암호화하여 저장
+		String encryptedPassword = bCryptPasswordEncoder.encode(changePasswordRequestDto.getPassword() + pepper);
+
+		foundMember.setPassword(encryptedPassword);
+
+		memberRepository.save(foundMember);
+
+	}
 }

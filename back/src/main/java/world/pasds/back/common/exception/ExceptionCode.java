@@ -20,6 +20,7 @@ public enum ExceptionCode {
     PASSWORD_SAME(409, "비밀번호가 이전 비밀번호와 같습니다."),
     PASSWORD_INVALID_FORMAT(400, "비밀번호가 유효하지 않습니다"),
     PASSWORD_CONFIRM_INVALID(400, "비밀번호 확인이 일치하지 않습니다"),
+    PASSWORD_MISMATCH(400, "비밀번호가 일치하지 않습니다."),
 
     NICKNAME_INVALID_FORMAT(400, "닉네임이 유효하지 않습니다"),
 

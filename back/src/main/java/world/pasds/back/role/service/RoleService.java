@@ -169,6 +169,9 @@ public class RoleService {
             throw new BusinessException(ExceptionCode.ROLE_EXISTS);
         }
 
+        List<RoleAuthority> deleteRoleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        roleAuthorityRepository.deleteAll(deleteRoleAuthorityList);
+
         roleRepository.delete(role);
     }
 

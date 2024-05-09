@@ -19,8 +19,11 @@
             required
           />
         </div>
+        <div class="flex items-end justify-start basis-1/8">
+          <BaseSpinner :loading="loading" />
+        </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -39,6 +42,7 @@
               required
             />
           </div>
+          <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
             <BaseButton buttonText="인증완료" @click="getTotpKey" />
           </div>
@@ -62,7 +66,7 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
+    <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
 </template>
 
@@ -74,6 +78,7 @@ import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 import router from '@/router/index.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
+import BaseSpinner from '@/components/common/BaseSpinner.vue'
 
 const commonStore = useCommonStore()
 const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
@@ -81,10 +86,13 @@ const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 // alert toggle
 const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
-const SignUpErrorAlert = ref(false)
+const ErrorAlert = ref(false)
 
-//signUpErrorMsg
-const SignUpErrorMsg = ref('')
+//ErrorMsg
+const ErrorMsg = ref('')
+
+// loading spinner
+const loading = ref(false)
 
 const email = ref('')
 const otpCode = ref('')
@@ -106,26 +114,29 @@ const showOTPSuccessAlert = () => {
 }
 
 const showSignUpErrorAlert = (message) => {
-  SignUpErrorMsg.value = message
-  SignUpErrorAlert.value = true
+  ErrorMsg.value = message
+  ErrorAlert.value = true
   setTimeout(() => {
-    SignUpErrorAlert.value = false
+    ErrorAlert.value = false
   }, 3000)
 }
 // 이메일 인증 요청
 const sendOtpCode = async () => {
+  loading.value = true
   const body = {
     email: email.value,
     requestType: 2
   }
   await localAxios.post('/totp/email-verification-requests', body)
     .then(() => {
+      loading.value = false
       showEmailSuccessAlert()
       startTimer()
     })
     .catch((error) => {
       console.error(error)
       // 이메일 전송 실패 alert
+      loading.value = false
       showSignUpErrorAlert(error.response.data.message)
     })
 }
@@ -143,7 +154,7 @@ const getTotpKey = async () => {
       showOTPSuccessAlert()
       stopTimer()
       toggleHidden('timer')
-      totpKey.value = URL.createObjectURL(new Blob([response.data],{ type: 'image/png' }));
+      totpKey.value = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }))
       removeHidden('TOTP')
     })
     .catch((error) => {

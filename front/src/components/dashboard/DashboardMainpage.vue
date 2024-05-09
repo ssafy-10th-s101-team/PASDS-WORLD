@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h1>메인 페이지 뷰</h1>
+      <h1>메인페이지 뷰화면입니다</h1>
     </div>
   </template>
   

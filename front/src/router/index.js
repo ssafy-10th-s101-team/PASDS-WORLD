@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DashboardView from '../views/DashboardView.vue'
+import MainView from '@/views/MainView.vue'
 import MemberView from '@/views/MemberView.vue'
 import HomeView from '@/views/HomeView.vue'
 import OrganizationView from '@/views/OrganizationView.vue'
+import DashboardView from '@/views/DashboardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -66,20 +67,20 @@ const router = createRouter({
       ]
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardView,
-      redirect: { name: 'dashboardMain' },
+      path: '/main',
+      name: 'main',
+      component: MainView,
+      redirect: { name: 'mainpage' },
       children: [
         {
           path: 'vault',
-          name: 'dashboardMain',
-          component: () => import('@/components/dashboard/DashboardMain.vue')
+          name: 'mainpage',
+          component: () => import('@/components/main/MainMainpage.vue')
         },
         {
           path: 'team-management',
           name: 'teamManagement',
-          component: () => import('@/components/dashboard/DashboardTeamManagement.vue')
+          component: () => import('@/components/main/MainTeamManagement.vue')
         }
         // {
         //   path: 'vault/itemid',
@@ -113,6 +114,19 @@ const router = createRouter({
           name: 'organizationSetting',
           component: () => import('@/components/organization/OrganizationSetting.vue')
         }
+      ]
+    },
+    {
+      path: '/dashboard',
+      name : 'dashboard',
+      component: DashboardView,
+      redirect: {name: 'dashboardMainpage'},
+      children: [
+        {
+          path: 'default',
+          name: 'dashboardMainpage',
+          component: () => import('@/components/dashboard/DashboardMainpage.vue')
+        },
       ]
     }
   ]

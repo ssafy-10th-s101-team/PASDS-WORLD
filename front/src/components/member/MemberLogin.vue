@@ -99,7 +99,7 @@
           <router-link
             :to="{ name: 'memberForgotPassword' }"
             class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-            >비밀번호 찾기</router-link
+            >비밀번호 재설정</router-link
           >
         </div>
       </form>

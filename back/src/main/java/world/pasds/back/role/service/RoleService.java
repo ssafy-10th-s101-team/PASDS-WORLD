@@ -47,17 +47,11 @@ public class RoleService {
     public List<GetRoleResponseDto> getRole(Long teamId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-        MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
-        Role role = memberRole.getRole();
-        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        MemberTeam findMemberAndTeam = memberTeamRepository.findByMemberAndTeam(member, team);
 
-        List<AuthorityName> roleAuthorityNameList = roleAuthorityList
-                .stream()
-                .map(roleAuthority -> roleAuthority.getAuthority().getName()).toList();
-
-        // 권한 확인
-        if (!roleAuthorityNameList.contains(AuthorityName.ROLE_READ)) {
-            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        // 팀원인지 확인
+        if (findMemberAndTeam == null) {
+            throw new BusinessException(ExceptionCode.MEMBER_UNAUTHORIZED);
         }
 
         List<Role> teamRoleList = roleRepository.findAllByTeam(team);

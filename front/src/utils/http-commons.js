@@ -44,19 +44,19 @@ localAxios.interceptors.response.use(
     return response
   },
   (error) => {
-    if (error.response && error.response.data && error.response.data.exceptionCode) {
-      const exceptionCode = error.response.data.exceptionCode
-      if (errorCodes.includes(exceptionCode)) {
-        alert('세션이 만료되었습니다')
-        sessionStorage.clear()
-        router.push({ name: 'memberLogin' }).then(() => {
-          nextTick(() => {
-            window.location.reload()
-          })
-        })
-        return
-      }
-    }
+    // if (error.response && error.response.data && error.response.data.exceptionCode) {
+    //   const exceptionCode = error.response.data.exceptionCode
+    //   if (errorCodes.includes(exceptionCode)) {
+    //     alert('세션이 만료되었습니다')
+    //     sessionStorage.clear()
+    //     router.push({ name: 'memberLogin' }).then(() => {
+    //       nextTick(() => {
+    //         window.location.reload()
+    //       })
+    //     })
+    //     return
+    //   }
+    // }
     return Promise.reject(error)
   }
 )

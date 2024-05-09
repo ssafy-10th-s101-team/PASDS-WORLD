@@ -76,7 +76,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
-import { updateRole } from '@/api/role'
+import { assignRole } from '@/api/role'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 
@@ -105,7 +105,7 @@ const updateMemberRole = async (event) => {
     teamId: props.teamId
   }
   try {
-    await updateRole(body)
+    await assignRole(body)
     emit('memberRole-updated')
     toggleHidden('memberRole')
   } catch (error) {

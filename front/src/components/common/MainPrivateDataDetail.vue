@@ -1,30 +1,30 @@
 <template>
-  <BaseModal modalId="privateDataCreate">
+  <BaseModal modalId="privateDataDetail">
     <div
       class="max-w-2xl mx-auto bg-white p-16 bg-white shadow-md rounded-lg p-4 sm:px-6 lg:px-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">새 개인정보</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">비밀 상세 정보</h3>
       <!-- 종류 변경 버튼 -->
       <!-- 버튼 -->
       <div class="max-w-2xl mx-auto flex justify-start justify-between pb-6">
         <div class="max-w-lg">
           <div class="inline-flex shadow-sm rounded-md mt-5" role="group">
             <button
+              v-if="type === 'LOGIN'"
               ref="loginButton"
-              @click="changeToLogin"
               type="button"
               class="rounded-l-lg border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-              :class="{ 'bg-samsung-blue text-white': infoType === 'LOGIN' }"
+              :class="{ 'bg-samsung-blue text-white': type === 'LOGIN' }"
             >
               로그인
             </button>
 
             <button
+              v-if="type === 'TEXT'"
               ref="textButton"
-              @click="changeToText"
               type="button"
               class="rounded-r-md border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-              :class="{ 'bg-samsung-blue text-white': infoType === 'TEXT' }"
+              :class="{ 'bg-samsung-blue text-white': type === 'TEXT' }"
             >
               텍스트
             </button>
@@ -34,7 +34,7 @@
       <!-- 버튼 끝 -->
       <form>
         <!-- 타입이 id, pw인 경우 -->
-        <div v-if="infoType === 'LOGIN'">
+        <div v-if="type === 'LOGIN'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
             <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
@@ -153,7 +153,7 @@
           </div>
         </div>
         <!-- 타입이 text인 경우 -->
-        <div v-else-if="infoType === 'TEXT'">
+        <div v-else-if="type === 'TEXT'">
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
             <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
@@ -247,7 +247,7 @@
         </div>
         <div class="flex justify-center">
           <button
-            @click.prevent="createPrivate"
+            @click="toggleHidden('privateDataDetail')"
             type="submit"
             class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
@@ -260,72 +260,53 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, defineProps, watch } from 'vue'
 import BaseModal from './BaseModal.vue'
-import { createPrivateData } from '@/api/data'
+import { useCommonStore } from '@/stores/common'
+import { getPrivateData } from '@/api/data'
 
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const showPassword = ref(false)
-const infoType = ref('LOGIN')
-const loginButton = ref(null)
-const textButton = ref(null)
+const type = ref('LOGIN')
 const title = ref('')
-const privateDataId = ref('')
+const privateDataId = ref(null)
 const content = ref('')
 const url = ref('')
 const memo = ref('')
-const roleList = ref([1])
+
+const props = defineProps({
+  teamId: Number,
+  privateDataId: Number
+})
 
 const togglePasswordVisibility = (event) => {
   event.preventDefault()
   showPassword.value = !showPassword.value
 }
 
-const changeToText = () => {
-  infoType.value = 'TEXT'
-  textButton.value.blur()
-  loginButton.value.blur()
-}
-
-const changeToLogin = () => {
-  infoType.value = 'LOGIN'
-  textButton.value.blur()
-  loginButton.value.blur()
-}
-
-const props = defineProps({
-  teamId: Number
-})
-
-const createPrivate = async () => {
-  if (!validateFields()) {
-    alert('모든 항목을 채워주세요.')
-    return
-  }
-  try {
-    const body = {
-      teamId: props.teamId,
-      type: infoType.value,
-      title: title.value,
-      content: content.value,
-      memo: memo.value,
-      privateDataId: privateDataId.value,
-      url: url.value,
-      roleId: roleList.value
-    }
-    const response = await createPrivateData(body)
+const fetchPrivateData = async () => {
+  if (props.privateDataId) {
+    const response = await getPrivateData(props.teamId, props.privateDataId)
     if (response) {
-      alert('비밀이 성공적으로 생성되었습니다.')
+      title.value = response.title
+      type.value = response.type
+      privateDataId.value = response.privateDataId
+      content.value = response.privateData
+      url.value = response.url
+      memo.value = response.memo
     }
-  } catch (error) {
-    const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-    alert(errmsg)
   }
-  location.reload()
 }
 
-function validateFields() {
-  return title.value.trim() && content.value.trim()
-}
+watch(
+  () => props.privateDataId,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal && newVal) {
+      fetchPrivateData()
+    }
+  }
+)
 </script>
 
 <style scoped></style>

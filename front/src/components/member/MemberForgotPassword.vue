@@ -1,15 +1,15 @@
 <template>
   <div class="max-w-2xl mx-auto bg-white p-16">
     <form
-      @submit.prevent="changePassword"
+      @submit.prevent="resetPassword"
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 찾기</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">비밀번호 재설정</h3>
       <div class="gap-6 mb-6 flex flex-row">
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >e-mail</label
+          >이메일</label
           >
           <input
             type="email"
@@ -20,8 +20,11 @@
             required
           />
         </div>
+        <div class="flex items-end justify-start basis-1/8">
+          <BaseSpinner :loading="loading" />
+        </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -29,7 +32,7 @@
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
             <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >OTP 인증</label
+            >OTP 인증</label
             >
             <input
               type="text"
@@ -40,6 +43,7 @@
               required
             />
           </div>
+          <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
             <BaseButton buttonText="인증완료" @click="checkOtpCode" />
           </div>
@@ -52,7 +56,7 @@
       <div id="password" class="hidden grid gap-6 mb-6 lg:grid-cols-1">
         <div>
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >새 비밀번호</label
+          >새 비밀번호</label
           >
           <input
             type="password"
@@ -72,7 +76,7 @@
 
         <div>
           <label for="password2" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >새 비밀번호 확인</label
+          >새 비밀번호 확인</label
           >
           <input
             type="password"
@@ -100,7 +104,7 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
+    <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
 </template>
 
@@ -112,6 +116,7 @@ import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import { useRouter } from 'vue-router'
+import BaseSpinner from '@/components/common/BaseSpinner.vue'
 
 const router = useRouter()
 
@@ -121,10 +126,13 @@ const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 // alert toggle
 const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
-const SignUpErrorAlert = ref(false)
+const ErrorAlert = ref(false)
 
-//signUpErrorMsg
-const SignUpErrorMsg = ref('')
+// ErrorMsg
+const ErrorMsg = ref('')
+
+// loading spinner
+const loading = ref(false)
 
 const email = ref('')
 const otpCode = ref('')
@@ -144,11 +152,11 @@ const showOTPSuccessAlert = () => {
   }, 3000)
   removeHidden('password')
 }
-const showSignUpErrorAlert = (message) => {
-  SignUpErrorMsg.value = message
-  SignUpErrorAlert.value = true
+const showErrorAlert = (message) => {
+  ErrorMsg.value = message
+  ErrorAlert.value = true
   setTimeout(() => {
-    SignUpErrorAlert.value = false
+    ErrorAlert.value = false
   }, 3000)
 }
 
@@ -170,6 +178,7 @@ const checkPassword = () => {
 
 // 이메일 인증 요청
 const sendOtpCode = async () => {
+  loading.value = true
   const body = {
     email: email.value,
     requestType: 2
@@ -177,12 +186,14 @@ const sendOtpCode = async () => {
   await localAxios
     .post('/totp/email-verification-requests', body)
     .then(() => {
+      loading.value = false
       showEmailSuccessAlert()
       startTimer()
     })
     .catch((error) => {
       console.error(error)
-      showSignUpErrorAlert(error.response.data.message)
+      loading.value = false
+      showErrorAlert(error.response.data.message)
     })
 }
 
@@ -202,24 +213,24 @@ const checkOtpCode = async () => {
     })
     .catch((error) => {
       console.error(error)
-      showSignUpErrorAlert(error.response.data.message)
+      showErrorAlert(error.response.data.message)
     })
 }
 
-const changePassword = async () => {
+const resetPassword = async () => {
   const body = {
     password: password.value,
     confirmPassword: confirmPassword.value
   }
   await localAxios
-    .post('/member/change-password', body)
+    .post('/member/reset-password', body)
     .then(() => {
       alert('변경되었습니다')
       router.push({ name: 'memberLogin' })
     })
     .catch((error) => {
       console.error(error)
-      showSignUpErrorAlert(error.response.data.message)
+      showErrorAlert(error.response.data.message)
     })
 }
 </script>

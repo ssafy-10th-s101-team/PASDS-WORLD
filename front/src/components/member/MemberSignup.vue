@@ -20,8 +20,11 @@
             required
           />
         </div>
+        <div class="flex items-end justify-start basis-1/8">
+          <BaseSpinner :loading="loading"/>
+        </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading"/>
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -40,6 +43,7 @@
               required
             />
           </div>
+          <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
             <BaseButton buttonText="인증완료" @click="checkOtpCode" />
           </div>
@@ -135,6 +139,7 @@ import BaseButton from '@/components/common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import BaseTimer from '@/components/common/BaseTimer.vue'
+import BaseSpinner from '@/components/common/BaseSpinner.vue'
 
 const router = useRouter()
 
@@ -157,6 +162,9 @@ const SignUpErrorAlert = ref(false)
 
 //signUpErrorMsg
 const SignUpErrorMsg = ref('')
+
+// loading spinner
+const loading = ref(false)
 
 const showEmailSuccessAlert = () => {
   EmailSuccessAlert.value = true
@@ -202,6 +210,7 @@ const checkOtpCode = async () => {
 
 // 이메일 인증 요청
 const sendOtpCode = async () => {
+  loading.value = true
   const body = {
     email: email.value,
     requestType: 1
@@ -209,12 +218,14 @@ const sendOtpCode = async () => {
   await localAxios
     .post('/totp/email-verification-requests', body)
     .then(() => {
+      loading.value = false
       showEmailSuccessAlert()
       startTimer()
     })
     .catch((error) => {
       console.error(error)
       // 이메일 전송 실패 alert
+      loading.value = false
       showSignUpErrorAlert(error.response.data.message)
     })
 }

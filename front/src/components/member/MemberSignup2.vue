@@ -11,7 +11,7 @@
         @click="goToNextStep"
         class="w-full bg-samsung-blue hover:bg-blue-800 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors"
       >
-        앱 연동하기
+        앱 연동하러 가기
       </button>
     </div>
   </div>

@@ -6,7 +6,7 @@
     >
       <p class="text-gray-900 dark:text-white">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
-        pasds.world의 패스키를 생성하려는 기기의 앱 카메라로 이 QR 코드를 스캔하세요.
+        PASDSWORLD 의 패스키를 생성하려는 기기의 앱 카메라로 이 QR 코드를 스캔하세요.
       </p>
       <button
         @click="goToNextStep"

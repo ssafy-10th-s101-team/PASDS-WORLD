@@ -17,10 +17,7 @@ import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.KeyService;
 import world.pasds.back.invitaion.service.InvitationService;
-import world.pasds.back.member.entity.Member;
-import world.pasds.back.member.entity.MemberOrganization;
-import world.pasds.back.member.entity.MemberRole;
-import world.pasds.back.member.entity.MemberTeam;
+import world.pasds.back.member.entity.*;
 import world.pasds.back.member.repository.MemberOrganizationRepository;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
@@ -37,6 +34,7 @@ import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.*;
 import world.pasds.back.team.entity.dto.response.GetAdminTeamsResponseDto;
+import world.pasds.back.team.entity.dto.response.GetTeamLeaderResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamMemberResponseDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.repository.TeamRepository;
@@ -85,6 +83,14 @@ public class TeamService {
         return response;
     }
 
+    @Transactional
+    public GetTeamLeaderResponseDto getTeamLeader(Long teamId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        Member leader = team.getLeader();
+        return GetTeamLeaderResponseDto.builder().id(leader == null ? null : leader.getId()).nickname(leader == null ? null : leader.getNickname()).build();
+    }
     @Transactional
     public List<GetAdminTeamsResponseDto> getAdminTeams(Long organizationId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -581,6 +587,5 @@ public class TeamService {
     private boolean isMyTeam(String teamName) {
         return "MY TEAM".equals(teamName);
     }
-
 
 }

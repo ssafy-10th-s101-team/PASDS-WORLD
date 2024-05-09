@@ -18,6 +18,7 @@
         >
           팀 정보
         </button>
+        <!-- <div>뒤로가기</div> -->
       </div>
     </div>
     <div v-if="currentTab === 'info'" class="mt-5" @click="toggleHidden('teamInvitationModal')">
@@ -170,9 +171,13 @@
                 <tbody
                   class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
                 >
-                  <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <tr
+                    v-for="teamMember in teamMembers"
+                    :key="teamMember.id"
+                    class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
                     <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                      진뚱이용
+                      {{ teamMember.memberNickname }}
                     </td>
 
                     <td
@@ -180,7 +185,7 @@
                     ></td>
 
                     <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                      사원
+                      {{ teamMember.role }}
                     </td>
                     <td
                       class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
@@ -188,7 +193,7 @@
                     <td class="py-4 px-6 text-sm text-center whitespace-nowrap dark:text-white">
                       <div
                         class="text-samsung-blue dark:text-blue-500 hover:underline"
-                        @click="toggleHidden('memberRole')"
+                        @click="showMemberRoleModal(teamMember.id)"
                       >
                         . . .
                       </div>
@@ -202,9 +207,19 @@
       </div>
     </div>
   </div>
-  <DashboardAuthorizationModal :teamId="teamId" :roleId="selectedRoleId" />
-  <DashboardMemberRoleModal />
-  <TeamInvitationModal />
+  <DashboardAuthorizationModal
+    :teamId="teamId"
+    :roleId="selectedRoleId"
+    :roleName="selectedRoleName"
+    @role-updated="refreshRoles"
+  />
+  <DashboardMemberRoleModal
+    :teamId="teamId"
+    :roles="roles"
+    :memberId="selectedMemberId"
+    @memberRole-updated="refreshMembers"
+  />
+  <TeamInvitationModal :teamId="teamId" :organizationId="organizationId" />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
 
@@ -218,13 +233,18 @@ import TeamRoleCreationModal from '../common/TeamRoleCreationModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 import { getAuthority, getRole } from '@/api/role'
+import { getTeamMembers } from '@/api/team'
+import OrganizationSidebar from '../common/OrganizationSidebar.vue'
 const commonStore = useCommonStore()
 const route = useRoute()
+const organizationId = Number(route.query.organizationId)
 const teamId = ref(0)
 const teamName = ref('')
 const teamLeader = ref('')
 const { toggleHidden } = commonStore
 const selectedRoleId = ref(null)
+const selectedRoleName = ref('')
+const selectedMemberId = ref(null)
 
 const currentTab = ref('role')
 const moveToTeamInfo = () => {
@@ -234,32 +254,57 @@ const moveToTeamRole = () => {
   currentTab.value = 'role'
 }
 const showAuthorizationModal = (roleId) => {
-  selectedRoleId.value = roleId
+  const role = roles.value.find((r) => r.roleId === roleId)
+  if (role) {
+    selectedRoleId.value = roleId
+    selectedRoleName.value = role.name
+  }
   toggleHidden('teamRoleUpdateModal')
 }
-
+const showMemberRoleModal = (memberId) => {
+  selectedMemberId.value = memberId
+  toggleHidden('memberRole') // 모달 토글 함수, 이름 확인 필요
+}
 const roles = ref([])
-
+const teamMembers = ref([])
 onMounted(async () => {
   teamId.value = Number(route.query.teamId)
+  teamName.value = String(route.query.teamName)
   // teamName.value = route.query.teamName
   console.log('현재 팀의 id:', teamId.value)
   const fetchrole = await fetchRole(teamId.value)
   roles.value = fetchrole
+  const members = await fetchTeamMembers(teamId.value)
+  teamMembers.value = members
+  console.log('teamMember의 key 이름은 무엇으로 오는가', teamMembers.value)
+
   console.log('내 팀의 역할들', roles.value)
 })
-// 팀
 
 // 역할 목록 가져오기
 const fetchRole = async (teamId) => {
   try {
-    return await getRole(teamId)
+    const response = await getRole(teamId)
+    console.log('역할이 잘 올까요', response)
+    return response
   } catch (error) {
     console.error('Unexpected error:', error)
   }
 }
 const refreshRoles = async () => {
   roles.value = await fetchRole(teamId.value)
+}
+const refreshMembers = async () => {
+  teamMembers.value = await fetchTeamMembers(teamId.value)
+}
+// 팀원 조회
+
+const fetchTeamMembers = async (teamId) => {
+  try {
+    return await getTeamMembers(teamId, 0)
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
 }
 </script>
 

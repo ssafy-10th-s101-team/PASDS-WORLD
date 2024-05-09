@@ -40,12 +40,16 @@
                   <tbody
                     class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
                   >
-                    <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <tr
+                      v-for="orgMember in orgMembers"
+                      :key="orgMember.email"
+                      class="hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                        쿼카카
+                        {{ orgMember.name }}
                       </td>
                       <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                        name@domain.com
+                        {{ orgMember.email }}
                       </td>
 
                       <td
@@ -55,7 +59,8 @@
                       <td class="p-4 w-4">
                         <div class="flex items-center">
                           <input
-                            id="checkbox-table-1"
+                            v-model="selectedEmails"
+                            :value="orgMember.email"
                             type="checkbox"
                             class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                           />
@@ -72,21 +77,64 @@
       </div>
     </div>
     <div class="flex justify-center pb-6">
-      <BaseButton buttonText="초대" />
+      <BaseButton buttonText="초대" @click="inviteMembers" />
     </div>
   </BaseModal>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
+import { getOrganizationMembers } from '@/api/organization'
+import { inviteTeam } from '@/api/team'
 
-// const props = defineProps({
-//   teamId: {
-//     type: Number,
-//     required: true
-//   }
-// })
+const selectedEmails = ref([])
+const orgMembers = ref([])
+
+onMounted(async () => {
+  console.log('조직번호:', props.organizationId)
+  const fetchMembers = await fetchOrganizationMembers(props.organizationId)
+  orgMembers.value = fetchMembers
+})
+
+const props = defineProps({
+  teamId: {
+    type: Number,
+    required: true
+  },
+  organizationId: {
+    type: Number,
+    required: true
+  }
+})
+
+// 역할 목록 가져오기
+const fetchOrganizationMembers = async (organizationId) => {
+  try {
+    const response = await getOrganizationMembers(organizationId, 0)
+    console.log('멤버들이 잘 오나요', response)
+    return response
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
+}
+
+const inviteMembers = async (event) => {
+  event.preventDefault()
+  for (const email of selectedEmails.value) {
+    const body = {
+      teamId: props.teamId,
+      inviteMemberEmail: email
+    }
+    try {
+      const response = await inviteTeam(body)
+      return response
+    } catch (error) {
+      return
+    }
+  }
+}
 </script>
 
 <style scoped></style>

@@ -87,7 +87,7 @@ public class MemberService {
 
 		////////////////////// 성공
 
-		// 비밀번호 암호화하여 저장
+		// 회원가입
 		String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword() + pepper);
 		Member newMember = Member.builder()
 			.email(signupRequestDto.getEmail())
@@ -139,7 +139,7 @@ public class MemberService {
 		}
 
 		// 성공
-		String redisKey = String.valueOf(memberId) + "_" + JwtTokenProvider.TokenType.TEMPORARY.name();
+		String redisKey = memberId + "_" + JwtTokenProvider.TokenType.TEMPORARY.name();
 		redisTemplate.delete(redisKey);
 		cookieProvider.removeCookie(httpServletRequest, httpServletResponse,
 			JwtTokenProvider.TokenType.TEMPORARY.name());
@@ -170,45 +170,31 @@ public class MemberService {
 		CustomUserDetails customUserDetails, ResetPasswordRequestDto resetPasswordRequestDto) {
 
 		// 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
-		String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
-		if (!resetPasswordRequestDto.getPassword().matches(passwordRegex)) {
-			throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
-		}
+		checkPasswordRegex(resetPasswordRequestDto.getPassword());
 
 		// 비밀번호와 비밀번호 확인이 일치
-		if (!resetPasswordRequestDto.getPassword().equals(resetPasswordRequestDto.getConfirmPassword())) {
-			throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
-		}
+		checkPasswordSame(resetPasswordRequestDto.getPassword(), resetPasswordRequestDto.getConfirmPassword());
 
 		// 성공
 		Member foundMember = memberRepository.findByEmail(customUserDetails.getEmail());
-
-		// 비밀번호 암호화하여 저장
-		String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequestDto.getPassword() + pepper);
-
-		foundMember.setPassword(encryptedPassword);
-
-		memberRepository.save(foundMember);
+		saveEncryptedPassword(resetPasswordRequestDto.getPassword(), foundMember);
 
 		redisTemplate.delete(customUserDetails.getEmail() + "_" + "EMAIL");
 		cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
 
 	}
 
-	public void changePassword(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-		CustomUserDetails userDetails, ChangePasswordRequestDto changePasswordRequestDto) {
+	public void changePassword(CustomUserDetails userDetails, ChangePasswordRequestDto changePasswordRequestDto) {
 
 		// 정규 표현식: 소문자, 대문자, 숫자, 특수문자를 포함하며 길이가 10자 이상
-		if (!changePasswordRequestDto.getPassword().matches(PASSWORD_REGEX)) {
-			throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
-		}
-		// 새비밀번호와 새비밀번호 확인이 일치
-		if (!changePasswordRequestDto.getPassword().equals(changePasswordRequestDto.getConfirmPassword())) {
-			throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
-		}
+		checkPasswordRegex(changePasswordRequestDto.getPassword());
 
-		// 성공
-		Member foundMember = memberRepository.findByEmail(userDetails.getEmail());
+		// 새비밀번호와 새비밀번호 확인이 일치
+		checkPasswordSame(changePasswordRequestDto.getPassword(), changePasswordRequestDto.getConfirmPassword());
+
+		// 멤버 찾기
+		Member foundMember = memberRepository.findById(userDetails.getMemberId())
+			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
 		// 현재 비밀번호가 일치하는 지 확인
 		if (!bCryptPasswordEncoder.encode(changePasswordRequestDto.getPrevPassword() + pepper)
@@ -216,12 +202,27 @@ public class MemberService {
 			throw new BusinessException(ExceptionCode.PASSWORD_MISMATCH);
 		}
 
-		// 새비밀번호 암호화하여 저장
-		String encryptedPassword = bCryptPasswordEncoder.encode(changePasswordRequestDto.getPassword() + pepper);
+		// 비밀번호 변경
+		saveEncryptedPassword(changePasswordRequestDto.getPassword(), foundMember);
 
+	}
+
+	private void checkPasswordSame(String password, String confirmPassword) {
+		if (!password.equals(confirmPassword)) {
+			throw new BusinessException(ExceptionCode.PASSWORD_CONFIRM_INVALID);
+		}
+	}
+
+	private void checkPasswordRegex(String password) {
+		if (!password.matches(PASSWORD_REGEX)) {
+			throw new BusinessException(ExceptionCode.PASSWORD_INVALID_FORMAT);
+		}
+	}
+
+	private void saveEncryptedPassword(String rawPassword, Member foundMember) {
+		String encryptedPassword = bCryptPasswordEncoder.encode(rawPassword + pepper);
 		foundMember.setPassword(encryptedPassword);
 
 		memberRepository.save(foundMember);
-
 	}
 }

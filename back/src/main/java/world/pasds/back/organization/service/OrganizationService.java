@@ -86,6 +86,7 @@ public class OrganizationService {
                         .builder()
                         .name(mo.getMember().getNickname())
                         .organizationRole(mo.getOrganizationRole())
+                        .email(mo.getMember().getEmail())
                         .build()).collect(Collectors.toList());
     }
 

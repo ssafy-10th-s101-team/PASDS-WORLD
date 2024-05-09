@@ -20,6 +20,9 @@
             required
           />
         </div>
+        <div class="flex items-end justify-start basis-1/8">
+          <BaseSpinner :loading="loading"/>
+        </div>
         <div class="flex items-end justify-start basis-1/3">
           <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
         </div>
@@ -100,7 +103,7 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
+    <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
 </template>
 
@@ -112,6 +115,7 @@ import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import { useRouter } from 'vue-router'
+import BaseSpinner from '@/components/common/BaseSpinner.vue'
 
 const router = useRouter()
 
@@ -121,10 +125,13 @@ const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
 // alert toggle
 const EmailSuccessAlert = ref(false)
 const OTPSuccessAlert = ref(false)
-const SignUpErrorAlert = ref(false)
+const ErrorAlert = ref(false)
 
-//signUpErrorMsg
-const SignUpErrorMsg = ref('')
+// ErrorMsg
+const ErrorMsg = ref('')
+
+// loading spinner
+const loading = ref(false)
 
 const email = ref('')
 const otpCode = ref('')
@@ -145,10 +152,10 @@ const showOTPSuccessAlert = () => {
   removeHidden('password')
 }
 const showSignUpErrorAlert = (message) => {
-  SignUpErrorMsg.value = message
-  SignUpErrorAlert.value = true
+  ErrorMsg.value = message
+  ErrorAlert.value = true
   setTimeout(() => {
-    SignUpErrorAlert.value = false
+    ErrorAlert.value = false
   }, 3000)
 }
 
@@ -170,6 +177,7 @@ const checkPassword = () => {
 
 // 이메일 인증 요청
 const sendOtpCode = async () => {
+  loading.value = true
   const body = {
     email: email.value,
     requestType: 2
@@ -177,11 +185,13 @@ const sendOtpCode = async () => {
   await localAxios
     .post('/totp/email-verification-requests', body)
     .then(() => {
+      loading.value = false
       showEmailSuccessAlert()
       startTimer()
     })
     .catch((error) => {
       console.error(error)
+      loading.value = false
       showSignUpErrorAlert(error.response.data.message)
     })
 }

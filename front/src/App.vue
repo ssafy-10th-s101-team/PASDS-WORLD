@@ -16,7 +16,6 @@ import HeaderNavigation from '@/components/common/HeaderNavigation.vue'
 }
 
 .header-nav {
-  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

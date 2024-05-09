@@ -168,5 +168,14 @@
 <script setup></script>
 
 <style scoped>
-/* 필요에 따라 스타일링을 추가하세요 */
+.sticky {
+  height: 100vh; /* 뷰포트 높이를 100%로 설정 */
+}
+
+/* 화면 크기가 768px 미만일 때 적용할 스타일 */
+@media (max-width: 1200px) {
+  .sticky {
+    height: auto; /* 높이를 자동으로 설정 */
+  }
+}
 </style>

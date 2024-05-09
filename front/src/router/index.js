@@ -3,6 +3,7 @@ import MainView from '@/views/MainView.vue'
 import MemberView from '@/views/MemberView.vue'
 import HomeView from '@/views/HomeView.vue'
 import OrganizationView from '@/views/OrganizationView.vue'
+import DashboardView from '@/views/DashboardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -113,6 +114,19 @@ const router = createRouter({
           name: 'organizationSetting',
           component: () => import('@/components/organization/OrganizationSetting.vue')
         }
+      ]
+    },
+    {
+      path: '/dashboard',
+      name : 'dashboard',
+      component: DashboardView,
+      redirect: {name: 'dashboardMainpage'},
+      children: [
+        {
+          path: 'default',
+          name: 'dashboardMainpage',
+          component: () => import('@/components/dashboard/DashboardMainpage.vue')
+        },
       ]
     }
   ]

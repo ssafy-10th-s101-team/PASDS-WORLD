@@ -6,7 +6,6 @@ public enum AuthorityName {
     PRIVATE_DATA_UPDATE,
     PRIVATE_DATA_DELETE,
     ROLE_CREATE,
-    ROLE_READ,
     ROLE_UPDATE,
     ROLE_DELETE,
     TEAM_UPDATE,

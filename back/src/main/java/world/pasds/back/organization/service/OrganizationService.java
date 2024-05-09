@@ -25,6 +25,7 @@ import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
+import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.repository.TeamRepository;
 import world.pasds.back.team.service.TeamService;
 
@@ -77,17 +78,48 @@ public class OrganizationService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
+        //현재 멤버 권한있는지확인
         if (!memberOrganizationRepository.existsByMemberAndOrganization(member, organization)) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
         }
 
-        return memberOrganizationRepository.findAllByOrganization(organization, pageable)
-                .stream().map(mo -> GetOrganizationMemberResponseDto
-                        .builder()
-                        .name(mo.getMember().getNickname())
-                        .organizationRole(mo.getOrganizationRole())
-                        .email(mo.getMember().getEmail())
-                        .build()).collect(Collectors.toList());
+        //팀찾는데, 조직안에있는 팀만 보여주기
+        List<GetOrganizationMemberResponseDto> response = new ArrayList<>();
+
+        List<MemberOrganization> memberOrganizations = memberOrganizationRepository.findAllByOrganization(organization, pageable);
+
+        for(MemberOrganization memberOrganization  : memberOrganizations){
+            List<MemberTeam> memberTeams = memberTeamRepository.findByMemberIdAndOrganizationId(memberId, organizationId);
+            List<GetTeamsResponseDto> getTeamsResponseDtos = memberTeams
+                    .stream()
+                    .map(mt -> GetTeamsResponseDto
+                            .builder()
+                            .organizationId(organizationId)
+                            .teamId(mt.getTeam().getId())
+                            .teamName(mt.getTeam().getName())
+                            .build())
+                    .toList();
+
+            response.add(GetOrganizationMemberResponseDto
+                    .builder()
+                    .memberId(memberOrganization.getMember().getId())
+                    .name(memberOrganization.getMember().getNickname())
+                    .organizationRole(memberOrganization.getOrganizationRole())
+                    .email(memberOrganization.getMember().getEmail())
+                    .teams(getTeamsResponseDtos)
+                    .build());
+        }
+
+        return response;
+
+//        return memberOrganizations
+//                .stream().map(mo -> GetOrganizationMemberResponseDto
+//                        .builder()
+//                        .name(mo.getMember().getNickname())
+//                        .organizationRole(mo.getOrganizationRole())
+//                        .email(mo.getMember().getEmail())
+//                        .teams(teams)
+//                        .build()).collect(Collectors.toList());
     }
 
     @Transactional

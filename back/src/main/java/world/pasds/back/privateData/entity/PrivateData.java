@@ -33,4 +33,6 @@ public class PrivateData extends BaseEntity {
     private String privateDataId;
 
     private String url;
+
+    private Integer count;
 }

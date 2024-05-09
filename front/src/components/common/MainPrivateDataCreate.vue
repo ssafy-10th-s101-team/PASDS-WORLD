@@ -281,6 +281,43 @@
               placeholder="메모"
             ></textarea>
           </div>
+          <!-- 역할 선택 드롭다운 -->
+          <div class="mb-6">
+            <button
+              type="button"
+              class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700"
+              @click="toggleDropdown"
+            >
+              <span class="flex-1 ml-3 text-left whitespace-nowrap">접근 가능자 선택</span>
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
+              </svg>
+            </button>
+            <div v-if="showDropdown" class="mt-2">
+              <div v-for="role in roles" :key="role.roleId" class="flex items-center p-2">
+                <input
+                  type="checkbox"
+                  :id="'role-' + role.roleId"
+                  v-model="selectedRoles"
+                  :value="role.roleId"
+                />
+                <label :for="'role-' + role.roleId" class="ml-2 text-sm text-gray-600">{{
+                  role.name
+                }}</label>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="flex justify-center">
           <button
@@ -354,7 +391,7 @@ const createPrivate = async () => {
       memo: memo.value,
       privateDataId: privateDataId.value,
       url: url.value,
-      roleId: roles.value
+      roleId: selectedRoles.value
     }
     const response = await createPrivateData(body)
     if (response) {
@@ -369,7 +406,6 @@ const createPrivate = async () => {
 
 onMounted(async () => {
   const response = await getRole(props.teamId)
-  console.log(response)
   roles.value = response.filter((role) => role.name !== 'HEADER' && role.name !== 'LEADER')
 })
 

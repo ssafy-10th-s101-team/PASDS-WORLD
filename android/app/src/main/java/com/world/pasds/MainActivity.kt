@@ -7,14 +7,26 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -52,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 captureActivity = CaptureActivity::class.java
                 setOrientationLocked(false)
                 setBeepEnabled(true)
-                setPrompt("QR 코드를 스캔하세요")
+                setPrompt("패스키를 스캔하세요")
             }.initiateScan() // initiateScan으로 시작
         } else {
             requestCameraPermission()
@@ -98,7 +110,7 @@ class MainActivity : ComponentActivity() {
 //            Toast.makeText(this, "스캔됨: ${result.contents}", Toast.LENGTH_SHORT).show()
             saveQRCodeResult(result.contents) // 스캔 결과를 저장
         } else {
-            Toast.makeText(this, result?.contents ?: "스캔 실패", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, result?.contents ?: "패스키 스캔 실패", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -113,9 +125,9 @@ class MainActivity : ComponentActivity() {
         val wasSuccessful = editor.commit() // 데이터를 동기적으로 저장합니다.
 
         if (wasSuccessful) {
-            Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "패스키 저장되었습니다", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "저장에 실패했습니다ㅜㅜ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "패스키 저장에 실패했습니다ㅜㅜ", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -129,35 +141,51 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun ImageButtonWithText(
+    @DrawableRes icon: Int,
+    text: String,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = "Icon Button",
+            modifier = Modifier
+                .size(200.dp)  // 이미지 사이즈 조절
+                .padding(8.dp)  // 이미지 주변의 패딩
+                .border(2.dp, Color(0xFF024C7D), RoundedCornerShape(10.dp))  // 테두리 추가
+        )
+        Text(
+            text = text,
+            fontSize = 35.sp,  // 글씨 크기 조절
+            color = Color(0xFF024C7D)  // 글씨 색상 조정
+        )
+    }
+}
+
+// ButtonColumn 수정
+@Composable
 fun ButtonColumn(onQRButtonClick: () -> Unit, onGenerateTotpClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CustomButton(text = "연동", onClick = onQRButtonClick)
-        Spacer(modifier = Modifier.height(50.dp))  // Space between the buttons
-        CustomButton(text = "코드 발급", onClick = onGenerateTotpClick)
-    }
-}
-
-
-@Composable
-fun CustomButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1428A0)), // 새로운 색상 코드 적용
-        modifier = Modifier
-            .height(80.dp)  // 버튼 높이 증가
-            .fillMaxWidth()
-            .padding(horizontal = 50.dp, vertical = 8.dp),  // 좌우, 상하 패딩 조정
-        shape = RoundedCornerShape(12.dp)  // 버튼 모서리를 둥글게 처리
-    ) {
-        Text(
-            text = text,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            style = androidx.compose.ui.text.TextStyle(fontSize = 30.sp)  // 글씨 크기 증가
+        ImageButtonWithText(
+            icon = R.drawable.qr_code_scan,  // QR 코드 스캔 이미지 리소스
+            text = "패스키 스캔",
+            onClick = onQRButtonClick
+        )
+        Spacer(modifier = Modifier.height(32.dp))  // 버튼 사이의 공간
+        ImageButtonWithText(
+            icon = R.drawable.two_factor_authentication,  // TOTP 코드 발급 이미지 리소스
+            text = "패스 코드 발급",
+            onClick = onGenerateTotpClick
         )
     }
 }

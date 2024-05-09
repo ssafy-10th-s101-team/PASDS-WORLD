@@ -161,7 +161,10 @@ const logout = async () => {
     await localAxios.get(`/member/logout`)
     sessionStorage.removeItem('nickname')
     nickname.value = ''
-  } catch (error) {}
+  } catch (error) {
+    sessionStorage.removeItem('nickname')
+    nickname.value = ''
+  }
 }
 
 const jwtTest = async () => {

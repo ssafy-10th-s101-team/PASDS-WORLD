@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.Authority;
-import world.pasds.back.authority.entity.AuthorityDto;
 import world.pasds.back.authority.entity.AuthorityName;
 import world.pasds.back.authority.repository.AuthorityRepository;
 import world.pasds.back.common.exception.BusinessException;
@@ -28,10 +27,7 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.AssignRoleRequestDto;
 import world.pasds.back.team.repository.TeamRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,22 +59,23 @@ public class RoleService {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
-        Map<Long, List<Authority>> roleIdToAuthorities = roleAuthorityList.stream()
-                .collect(Collectors.groupingBy(
-                        ra -> ra.getRole().getId(),
-                        Collectors.mapping(RoleAuthority::getAuthority, Collectors.toList())
-                ));
+        List<Role> teamRoleList = roleRepository.findAllByTeam(team);
+        Map<Long, List<Authority>> roleIdToAuthorities = new HashMap<>();
+        for (Role r : teamRoleList) {
+            List<RoleAuthority> findRoleAuthorityList = roleAuthorityRepository.findAllByRole(r);
+            List<Authority> authorities = new ArrayList<>();
+            for (RoleAuthority roleAuthority : findRoleAuthorityList) {
+                authorities.add(roleAuthority.getAuthority());
+            }
+            roleIdToAuthorities.put(r.getId(), authorities);
+        }
 
-        List<Role> roleList = roleRepository.findAllByTeam(team);
-        return roleList.stream().map(r -> {
+        return teamRoleList.stream().map(r -> {
             List<Authority> authorities = roleIdToAuthorities.getOrDefault(r.getId(), Collections.emptyList());
-            List<AuthorityDto> authorityDto = authorities.stream()
-                    .map(authority -> new AuthorityDto(authority.getId(), authority.getName()))
-                    .toList();
             return GetRoleResponseDto.builder()
                     .roleId(r.getId())
                     .name(r.getName())
-                    .authorities(authorityDto)
+                    .authorities(authorities)
                     .build();
         }).collect(Collectors.toList());
     }

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import world.pasds.back.authority.entity.AuthorityDto;
+import world.pasds.back.authority.entity.Authority;
 
 import java.util.List;
 
@@ -15,5 +15,5 @@ import java.util.List;
 public class GetRoleResponseDto {
     private Long roleId;
     private String name;
-    private List<AuthorityDto> authorities;
+    private List<Authority> authorities;
 }

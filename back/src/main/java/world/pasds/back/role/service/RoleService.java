@@ -165,14 +165,14 @@ public class RoleService {
 
         Role deleteRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
 
-        if (memberRoleRepository.existsByRoleAndTeam(deleteRole, team)) {
+        if (memberRoleRepository.existsByRole(deleteRole)) {
             throw new BusinessException(ExceptionCode.ROLE_EXISTS);
         }
 
-        List<RoleAuthority> deleteRoleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        List<RoleAuthority> deleteRoleAuthorityList = roleAuthorityRepository.findAllByRole(deleteRole);
         roleAuthorityRepository.deleteAll(deleteRoleAuthorityList);
 
-        roleRepository.delete(role);
+        roleRepository.delete(deleteRole);
     }
 
     @Transactional

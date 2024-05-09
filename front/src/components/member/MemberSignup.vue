@@ -24,7 +24,7 @@
           <BaseSpinner :loading="loading"/>
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" />
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading"/>
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -43,6 +43,7 @@
               required
             />
           </div>
+          <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
             <BaseButton buttonText="인증완료" @click="checkOtpCode" />
           </div>

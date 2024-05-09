@@ -192,7 +192,7 @@ const selectOrganization = (organization) => {
 }
 
 onMounted(async () => {
-  console.log('온마운티드')
+  console.log('온마운티드 OrganizationSideBar')
   organizations.value = await getOrganizations()
   console.log('organizations.value :', organizations.value)
   console.log('organizations.value.length,', organizations.value.length)
@@ -210,9 +210,11 @@ onMounted(async () => {
   // ]
 
   if (organizations.value == null || organizations.value.length == 0) {
+    console.log('emit 함1')
     emit('organization-selected', null)
     emit('loaded', false)
   } else {
+    console.log('emit 함2')
     emit('organization-selected', organizations.value[0].organizationId)
     emit('loaded', true)
     currentOrganization.value = organizations.value[0]

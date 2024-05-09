@@ -77,10 +77,13 @@
                     </div>
                   </td>
                   <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <MainPrivateDataDetail :data="data" />
+                    <MainPrivateDataDetail
+                      :privateDataId="selectedDataId"
+                      :teamId="props.selectedTeamId"
+                    />
                     <a
                       href="#"
-                      @click="toggleHidden('privateDataDetail')"
+                      @click="showDetail(data.privateDataId)"
                       class="text-blue-600 dark:text-blue-500 hover:underline"
                       >. . .</a
                     >
@@ -104,20 +107,24 @@ import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 import MainPrivateDataCreate from './MainPrivateDataCreate.vue'
 import MainPrivateDataDetail from './MainPrivateDataDetail.vue'
-import { watch, ref, defineProps } from 'vue'
+import { watch, ref, defineProps, nextTick } from 'vue'
 import { getPrivateDatas } from '@/api/data'
 
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const privateDataList = ref([])
-const showDetail = ref(false)
-const selectedDataId = ref(null)
+const selectedDataId = ref()
 const props = defineProps({
   selectedTeamId: Number
 })
 
 const fetchprivateDatas = async (teamId) => {
   return await getPrivateDatas(teamId)
+}
+
+const showDetail = (privateDataId) => {
+  selectedDataId.value = privateDataId
+  toggleHidden('privateDataDetail')
 }
 
 watch(

@@ -25,7 +25,16 @@
         </button>
       </div>
     </div>
-    <router-link :to="{ name: 'teamManagement', query: { teamId: selectedTeamId } }">
+    <router-link
+      :to="{
+        name: 'teamManagement',
+        query: {
+          teamId: selectedTeamId,
+          teamName: selectedTeamName,
+          organizationId: props.selectedOrganizationId
+        }
+      }"
+    >
       <div class="mt-5">
         <BaseButton buttonText="팀 설정" />
       </div>
@@ -49,6 +58,7 @@ const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const teamList = ref([])
 const selectedTeamId = ref(null)
+const selectedTeamName = ref('')
 const teamButtons = ref([])
 
 const fetchTeams = async (orgId) => {
@@ -64,6 +74,8 @@ watch(
       if (response.length > 0) {
         selectedTeamId.value = response[0].teamId
         selectTeam(selectedTeamId.value)
+      } else {
+        selectTeam(-1)
       }
     }
   },
@@ -72,6 +84,8 @@ watch(
 
 function selectTeam(id) {
   selectedTeamId.value = id
+  const team = teamList.value.find((t) => t.teamId === id)
+  selectedTeamName.value = team ? team.teamName : ''
   emit('team-selected', id)
   emit('loaded', true)
 

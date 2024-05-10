@@ -88,7 +88,7 @@ const fetchAuthority = async () => {
       ...authority,
       id: Number(authority.id) // id를 숫자로 변환
     }))
-    console.log('Converted authorities:', authorities)
+
     return authorities
   } catch (error) {
     console.error('Unexpected error:', error)

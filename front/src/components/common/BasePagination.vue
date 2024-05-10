@@ -4,8 +4,9 @@
     <nav aria-label="Page navigation example">
       <ul class="inline-flex items-center -space-x-px">
         <li>
-          <a
-            href="#"
+          <button
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
             class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
           >
             <span class="sr-only">Previous</span>
@@ -21,47 +22,27 @@
                 clip-rule="evenodd"
               ></path>
             </svg>
-          </a>
+          </button>
         </li>
-        <li>
-          <a
-            href="#"
-            class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >1</a
+
+        <li v-for="page in visiblePages" :key="page">
+          <button
+            @click="changePage(page)"
+            :aria-current="page === currentPage ? 'page' : null"
+            :class="{
+              'py-2 px-3 leading-tight text-white bg-samsung-blue border border-blue-300 dark:border-gray-700 dark:bg-gray-700':
+                page === currentPage,
+              'py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white':
+                page !== currentPage
+            }"
           >
+            {{ page }}
+          </button>
         </li>
         <li>
-          <a
-            href="#"
-            class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >2</a
-          >
-        </li>
-        <li>
-          <a
-            href="#"
-            aria-current="page"
-            class="z-10 py-2 px-3 leading-tight text-white bg-samsung-blue border border-blue-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-            >3</a
-          >
-        </li>
-        <li>
-          <a
-            href="#"
-            class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >4</a
-          >
-        </li>
-        <li>
-          <a
-            href="#"
-            class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >5</a
-          >
-        </li>
-        <li>
-          <a
-            href="#"
+          <button
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
             class="block py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
           >
             <span class="sr-only">Next</span>
@@ -77,13 +58,44 @@
                 clip-rule="evenodd"
               ></path>
             </svg>
-          </a>
+          </button>
         </li>
       </ul>
     </nav>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { defineProps, computed, defineEmits } from 'vue'
+
+const props = defineProps({
+  currentPage: Number,
+  totalPages: Number
+})
+
+const emit = defineEmits(['change-page'])
+
+const visiblePages = computed(() => {
+  const pages = []
+  let startPage = Math.max(props.currentPage - 2, 1)
+  let endPage = startPage + 4
+
+  if (endPage > props.totalPages) {
+    endPage = props.totalPages
+    startPage = Math.max(endPage - 4, 1)
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+function changePage(page) {
+  if (page > 0 && page <= props.totalPages) {
+    emit('change-page', page)
+  }
+}
+</script>
 
 <style lang="scss" scoped></style>

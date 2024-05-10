@@ -24,7 +24,7 @@
           <BaseSpinner :loading="loading" />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
+          <BaseButton @click="sendOtpCode" buttonText="인증코드 받기" :loading="loading" />
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -32,7 +32,7 @@
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
             <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >OTP 인증</label
+              >이메일 인증코드</label
             >
             <input
               type="text"
@@ -45,7 +45,7 @@
           </div>
           <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
-            <BaseButton buttonText="인증완료" @click="checkOtpCode" />
+            <BaseButton buttonText="인증하기" @click="checkOtpCode" />
           </div>
         </div>
         <div id="timer">
@@ -106,7 +106,7 @@
             v-model="nickname"
             @input="validateNickname"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="홍길동"
+            placeholder="진뚱이용"
             required
           />
           <div v-if="!isNicknameValid" class="text-red-500 text-sm">
@@ -170,14 +170,14 @@ const showEmailSuccessAlert = () => {
   EmailSuccessAlert.value = true
   setTimeout(() => {
     EmailSuccessAlert.value = false
-  }, 3000)
+  }, 5000)
   removeHidden('OTP')
 }
 const showOTPSuccessAlert = () => {
   OTPSuccessAlert.value = true
   setTimeout(() => {
     OTPSuccessAlert.value = false
-  }, 3000)
+  }, 5000)
   removeHidden('PW')
 }
 
@@ -186,7 +186,7 @@ const showSignUpErrorAlert = (message) => {
   SignUpErrorAlert.value = true
   setTimeout(() => {
     SignUpErrorAlert.value = false
-  }, 3000)
+  }, 5000)
 }
 // otp 코드 검증
 const checkOtpCode = async () => {

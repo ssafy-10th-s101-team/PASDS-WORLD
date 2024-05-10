@@ -3,19 +3,19 @@
     <form
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">앱 재연동하기</h3>
-      <div class="gap-6 mb-6 flex flex-row">
+      <h3 class="text-xl text-gray-900 dark:text-white">패스키 재발급 하기</h3>
+      <div v-show="showEmailDiv" class="gap-6 mb-6 flex flex-row">
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >이메일</label
+            >이메일</label
           >
           <input
             type="email"
             id="email"
             v-model="tmpEmail"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            :placeholder=tmpEmail
+            :placeholder="tmpEmail"
             readonly
             required
           />
@@ -24,15 +24,15 @@
           <BaseSpinner :loading="loading" />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
+          <BaseButton @click="sendOtpCode" buttonText="인증코드 받기" :loading="loading" />
         </div>
       </div>
-      <div id="OTP" class="gap-6 mb-6">
+      <div v-show="showOTPDiv" id="OTP" class="gap-6 mb-6">
         <div class="flex flex-row gap-6 mb-2">
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
             <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >OTP 인증</label
+              >이메일 인증코드</label
             >
             <input
               type="text"
@@ -45,7 +45,7 @@
           </div>
           <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
-            <BaseButton buttonText="인증완료" @click="getTotpKey" />
+            <BaseButton buttonText="인증하기" @click="getTotpKey" />
           </div>
         </div>
         <div id="timer">
@@ -54,11 +54,12 @@
       </div>
       <div id="TOTP" class="hidden">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
-        <h2 class="text-lg font-semibold text-gray-800 mt-4">
-          PASDSWORLD 의 패스키를 생성하려는 기기의 앱 카메라로 이 QR 코드를 스캔하세요.
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-300 mt-4">
+          PasdsWorld Authentication 앱을 실행하여 <br />패스키를 스캔을 하세요
         </h2>
         <button
           @click="goToLogin"
+          type="button"
           class="mt-6 bg-samsung-blue hover:bg-blue-800 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors"
         >
           로그인
@@ -101,6 +102,9 @@ const otpCode = ref('')
 
 const totpKey = ref(null)
 
+const showEmailDiv = ref(true)
+const showOTPDiv = ref(true)
+
 onMounted(() => {
   tmpEmail.value = sessionStorage.getItem('tmpEmail')
   sendOtpCode()
@@ -129,7 +133,8 @@ const showErrorAlert = (message) => {
 // 이메일 인증 요청
 const sendOtpCode = async () => {
   loading.value = true
-  await localAxios.get('/email/totp-key-verification-requests')
+  await localAxios
+    .get('/email/totp-key-verification-requests')
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
@@ -149,13 +154,16 @@ const getTotpKey = async () => {
     email: email.value,
     otpCode: otpCode.value
   }
-  await localAxios.post('/totp/re-share-key', body, {
-    responseType: 'arraybuffer' // 이미지를 arraybuffer 형태로 받음
-  })
+  await localAxios
+    .post('/totp/re-share-key', body, {
+      responseType: 'arraybuffer' // 이미지를 arraybuffer 형태로 받음
+    })
     .then((response) => {
       showOTPSuccessAlert()
       stopTimer()
       toggleHidden('timer')
+      showEmailDiv.value = false
+      showOTPDiv.value = false
       totpKey.value = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }))
       removeHidden('TOTP')
     })

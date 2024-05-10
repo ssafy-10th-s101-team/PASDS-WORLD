@@ -4,9 +4,7 @@
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
       <h3 class="text-xl text-gray-900 dark:text-white">회원가입 완료</h3>
-      <p class="text-gray-900 dark:text-white">
-        회원가입이 성공적으로 완료되었습니다. 로그인하여 서비스를 이용해보세요.
-      </p>
+      <p class="text-gray-900 dark:text-white">회원가입이 성공적으로 완료되었습니다.</p>
       <button
         @click="goToLogin"
         class="w-full bg-samsung-blue hover:bg-blue-800 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors"

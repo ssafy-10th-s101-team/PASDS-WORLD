@@ -31,6 +31,10 @@ async function getOrganizationMembers(organizationId, offset) {
     .catch(fail)
 }
 
+//조직원 역할 수정
+async function updateOrganizationRole(body){
+  return localAxios.post(prefix +`/update-role`, body).then(success).catch(fail);
+}
 //조직 생성
 async function createOrganization(body) {
   return localAxios
@@ -101,6 +105,7 @@ export {
   getOrganizations,
   getAdminOrganizations,
   getOrganizationMembers,
+  updateOrganizationRole,
   createOrganization,
   inviteOrganization,
   removeOrganization,

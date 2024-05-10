@@ -54,7 +54,7 @@
                     {{ member.email }}
                   </td>
                   <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
-                    Header
+                    {{ member.organizationRole }}
                   </td>
                   <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-white">
                     <div
@@ -74,11 +74,17 @@
 
                   <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <div
+                      v-if="member.organizationRole != 'HEADER'"
                       class="text-samsung-blue dark:text-blue-500 hover:underline"
-                      @click="showAuthorizationModal(role.roleId)"
+                      @click="toggleHidden('organizationRole')"
                     >
                       . . .
                     </div>
+                    <OrganizationMemberRoleModal
+                      @organizationRoleChanged="changeOrganizationRole"
+                      :selectedOrganizedId="selectedOrganizationId"
+                      :member="member"
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -90,16 +96,16 @@
     <div class="mt-5 flex justify-center" @click="toggleHidden('organizationInvitationModal')">
       <BaseButton buttonText="초대하기 +" />
     </div>
-    <MainMemberRoleModal />
   </div>
 
-  <OrganizationInvitationModal />
+  <OrganizationInvitationModal :selectedOrganizationId="selectedOrganizationId" />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import OrganizationInvitationModal from '@/components/common/OrganizationInvitationModal.vue'
+import OrganizationMemberRoleModal from '@/components/organization/OrganizationMemberRoleModal.vue'
 import { useCommonStore } from '@/stores/common'
 import { getOrganizationMembers } from '@/api/organization'
 const commonStore = useCommonStore()
@@ -149,10 +155,21 @@ const members = ref([
     ]
   }
 ])
-const showAuthorizationModal = (roleId) => {
-  selectedRoleId.value = roleId
-  toggleHidden('teamRoleUpdateModal')
+function changeOrganizationRole(data) {
+  const { memberId, role } = data
+  const member = members.value.find((m) => m.memberId === memberId)
+  if (member) {
+    member.organizationRole = role // 역할 업데이트, 역할이 `member` 객체 내에 있다고 가정
+  }
 }
+watch(
+  () => props.selectedOrganizationId,
+  async (newVal, oldVal) => {
+    if (newVal != oldVal) {
+      members.value = await getOrganizationMembers(newVal, 0)
+    }
+  }
+)
 onMounted(async () => {
   members.value = await getOrganizationMembers(props.selectedOrganizationId, 0)
 })

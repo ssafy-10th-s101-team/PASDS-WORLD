@@ -165,6 +165,19 @@ public class PrivateDataService {
                         .build())
                 .toList();
 
+        // 멤버가 수정, 삭제 권한이 있는지 확인
+        boolean canUpdate = false;
+        boolean canDelete = false;
+        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        for (RoleAuthority roleAuthority : roleAuthorityList) {
+            if (AuthorityName.PRIVATE_DATA_UPDATE == roleAuthority.getAuthority().getName()) {
+                canUpdate = true;
+            }
+            if (AuthorityName.PRIVATE_DATA_DELETE == roleAuthority.getAuthority().getName()) {
+                canDelete = true;
+            }
+        }
+
         return GetPrivateDataResponseDto.builder()
                 .type(privateData.getType())
                 .title(privateData.getTitle())
@@ -173,6 +186,8 @@ public class PrivateDataService {
                 .privateDataId(privateData.getPrivateDataId())
                 .url(privateData.getUrl())
                 .roles(roles)
+                .canUpdate(canUpdate)
+                .canDelete(canDelete)
                 .build();
     }
 
@@ -368,7 +383,7 @@ public class PrivateDataService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
-        // 비밀 생성 가능한지 권한 확인
+        // 비밀 삭제 가능한지 권한 확인
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
@@ -377,6 +392,7 @@ public class PrivateDataService {
         }
 
         PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        privateDataRoleRepository.deleteAll(privateDataRoleRepository.findAllByPrivateData(privateData));
         privateDataRepository.delete(privateData);
 
         // 조직 및 팀 비밀 개수 감소

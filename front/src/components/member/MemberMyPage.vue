@@ -156,7 +156,7 @@ import BaseButton from '../common/BaseButton.vue'
 
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
-const nickname = ref('')
+const nickname = ref(sessionStorage.getItem("nickname"))
 const isNicknameValid = ref(true)
 
 const organizations = ref([

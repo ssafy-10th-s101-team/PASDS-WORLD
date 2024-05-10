@@ -13,9 +13,10 @@
           <input
             type="email"
             id="email"
-            v-model="email"
+            v-model="tmpEmail"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="name@domain.com"
+            :placeholder=tmpEmail
+            readonly
             required
           />
         </div>
@@ -26,7 +27,7 @@
           <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
         </div>
       </div>
-      <div id="OTP" class="hidden gap-6 mb-6">
+      <div id="OTP" class="gap-6 mb-6">
         <div class="flex flex-row gap-6 mb-2">
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
@@ -73,7 +74,7 @@
 <script setup>
 import BaseAlert from '../common/BaseAlert.vue'
 import BaseButton from '../common/BaseButton.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 import router from '@/router/index.js'
@@ -95,16 +96,20 @@ const ErrorMsg = ref('')
 const loading = ref(false)
 
 const email = ref('')
+const tmpEmail = ref('')
 const otpCode = ref('')
 
 const totpKey = ref(null)
+
+onMounted(() => {
+  tmpEmail.value = sessionStorage.getItem('tmpEmail')
+})
 
 const showEmailSuccessAlert = () => {
   EmailSuccessAlert.value = true
   setTimeout(() => {
     EmailSuccessAlert.value = false
   }, 3000)
-  removeHidden('OTP')
 }
 const showOTPSuccessAlert = () => {
   OTPSuccessAlert.value = true
@@ -113,7 +118,7 @@ const showOTPSuccessAlert = () => {
   }, 3000)
 }
 
-const showSignUpErrorAlert = (message) => {
+const showErrorAlert = (message) => {
   ErrorMsg.value = message
   ErrorAlert.value = true
   setTimeout(() => {
@@ -123,11 +128,7 @@ const showSignUpErrorAlert = (message) => {
 // 이메일 인증 요청
 const sendOtpCode = async () => {
   loading.value = true
-  const body = {
-    email: email.value,
-    requestType: 2
-  }
-  await localAxios.post('/totp/email-verification-requests', body)
+  await localAxios.get('/email/totp-key-verification-requests')
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
@@ -137,7 +138,7 @@ const sendOtpCode = async () => {
       console.error(error)
       // 이메일 전송 실패 alert
       loading.value = false
-      showSignUpErrorAlert(error.response.data.message)
+      showErrorAlert(error.response.data.message)
     })
 }
 
@@ -160,7 +161,7 @@ const getTotpKey = async () => {
     .catch((error) => {
       console.error(error)
       // otp 인증 실패 alert
-      showSignUpErrorAlert(error.response.data.message)
+      showErrorAlert(error.response.data.message)
     })
 }
 

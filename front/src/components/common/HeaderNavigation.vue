@@ -67,6 +67,7 @@
                 <div
                   v-for="notification in notifications"
                   :key="notification.id"
+                  @click="handleNotificationClick(notification)"
                   class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
                 >
                   {{ notification.message }}
@@ -174,7 +175,9 @@
 import { onMounted, ref, onUnmounted } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
-
+import { getNotifications, readNotification } from '@/api/notification.js'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const commonStore = useCommonStore()
 const { toggleDropdown, toggleHidden } = commonStore
 const nickname = ref('')
@@ -203,27 +206,44 @@ const jwtTest = async () => {
   } catch (error) {}
 }
 
+//알림 관련 함수
 const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value
 }
 
+//알림 목록 끄기
 const handleClickOutside = (event) => {
   if (!event.target.closest('.notification') && showNotifications.value) {
     showNotifications.value = false
   }
 }
 
-const fetchNotifications = async () => {
+//알림 클릭시 이동
+const handleNotificationClick = async (notification) => {
   try {
-    const { data } = await localAxios.get('/notifications')
-    notifications.value = data
+    // 알림 읽음 처리 API 호출
+    await readNotification(notification.id)
+    // 알림토글 끄기
+    showNotifications.value = !showNotifications.value
+    // 알림 하나 제거
+    const index = notifications.value.findIndex((n) => n.id === notification.id)
+    if (index !== -1) {
+      notifications.value.splice(index, 1)
+    }
+    // myPage로 라우팅
+    router.push({ name: 'myPage' })
   } catch (error) {
-    console.error('Error fetching notifications:', error)
+    console.error('Notification read error:', error)
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   nickname.value = sessionStorage.getItem('nickname')
+  try {
+    notifications.value = await getNotifications(0)
+  } catch (error) {
+    console.log('에러 발생. ', error.respnse.data.message)
+  }
   document.addEventListener('mousedown', handleClickOutside)
   // fetchUnreadNotifications()
 })

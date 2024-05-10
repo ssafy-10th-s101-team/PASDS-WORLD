@@ -83,6 +83,7 @@ const sendTotpCode = async () => {
     .then(() => {
       sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
       sessionStorage.removeItem('tmpNickname')
+      sessionStorage.removeItem('tmpEmail')
       showTOTPSuccessAlert()
 
       router.push({ name: 'home' })

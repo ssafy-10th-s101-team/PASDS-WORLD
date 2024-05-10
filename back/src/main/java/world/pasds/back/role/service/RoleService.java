@@ -159,6 +159,13 @@ public class RoleService {
 
         // 역할명 변경
         Role newRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+
+        if ("HEADER".equals(newRole.getName()) ||
+                "LEADER".equals(newRole.getName()) ||
+                "MEMBER".equals(newRole.getName())) {
+            throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
+        }
+
         newRole.setName(requestDto.getNewRoleName());
         roleRepository.save(newRole);
 
@@ -196,8 +203,15 @@ public class RoleService {
 
         Role deleteRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
 
+        if ("HEADER".equals(deleteRole.getName()) ||
+                "LEADER".equals(deleteRole.getName()) ||
+                "MEMBER".equals(deleteRole.getName())) {
+            throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
+        }
+
+        // 역할을 가진 팀원이 존재할 경우 삭제 불가능
         if (memberRoleRepository.existsByRole(deleteRole)) {
-            throw new BusinessException(ExceptionCode.ROLE_EXISTS);
+            throw new BusinessException(ExceptionCode.ROLE_MEMBER_EXISTS);
         }
 
         List<RoleAuthority> deleteRoleAuthorityList = roleAuthorityRepository.findAllByRole(deleteRole);

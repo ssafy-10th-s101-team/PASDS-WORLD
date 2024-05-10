@@ -55,6 +55,7 @@ public enum ExceptionCode {
 
     ROLE_NOT_FOUND(404, "역할을 찾을 수 없습니다."),
     ROLE_EXISTS(409, "역할이 이미 존재합니다."),
+    ROLE_UNAUTHORIZED(401, "해당 역할은 변경이 불가능합니다."),
     ROLE_MEMBER_EXISTS(403, "해당 역할을 가진 팀원이 존재합니다.\n" +
             "해당 역할을 가진 팀원이 존재하지 않는 경우만 역할 삭제가 가능합니다."),
 

@@ -72,42 +72,24 @@ public class PrivateDataService {
         }
 
         Role role = findMemberRole.getRole();
-        Page<PrivateData> resultPage = privateDataRepository.findAllByTeam(team, pageable);
 
-        // 우리 팀 비밀 목록 조회
-        List<PrivateData> privateData = resultPage.getContent();
-        // 내가 조회 가능한 비밀 목록 추가
-        List<PrivateDataResponse> canReadData = new ArrayList<>();
-        for (PrivateData data : privateData) {
-            if (privateDataRoleRepository.existsByPrivateDataAndRole(data, role)) { // 비밀에 나의 역할이 읽을 수 있는지 확인
-                if (roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_READ)) {
+        // 내가 조회 가능한 비밀 목록 조회
+        Page<PrivateData> resultPage = privateDataRepository.findAccessiblePrivateData(teamId, role, pageable);
+
+        List<PrivateDataResponse> canReadData = resultPage.getContent().stream()
+                .map(data -> {
                     Member createMember = memberRepository.findById(data.getCreatedBy()).orElse(null);
-                    PrivateDataResponse response;
-                    if (createMember == null) {
-                        response = PrivateDataResponse.builder()
-                                .teamId(team.getId())
-                                .privateDataId(data.getId())
-                                .title(data.getTitle())
-                                .type(data.getType())
-                                .createdBy("탈퇴한 유저")
-                                .dataId(data.getPrivateDataId())
-                                .url(data.getUrl())
-                                .build();
-                    } else {
-                        response = PrivateDataResponse.builder()
-                                .teamId(team.getId())
-                                .privateDataId(data.getId())
-                                .title(data.getTitle())
-                                .type(data.getType())
-                                .createdBy(createMember.getNickname())
-                                .dataId(data.getPrivateDataId())
-                                .url(data.getUrl())
-                                .build();
-                    }
-                    canReadData.add(response);
-                }
-            }
-        }
+                    return PrivateDataResponse.builder()
+                            .teamId(team.getId())
+                            .privateDataId(data.getId())
+                            .title(data.getTitle())
+                            .type(data.getType())
+                            .createdBy(createMember != null ? createMember.getNickname() : "탈퇴한 유저")
+                            .dataId(data.getPrivateDataId())
+                            .url(data.getUrl())
+                            .build();
+                })
+                .toList();
 
         return GetPrivateDataListResponseDto.builder()
                 .totalPages(resultPage.getTotalPages())

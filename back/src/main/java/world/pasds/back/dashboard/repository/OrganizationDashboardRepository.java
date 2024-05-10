@@ -17,4 +17,4 @@ public interface OrganizationDashboardRepository extends JpaRepository<Organizat
     Optional<OrganizationDashboard> findByYearAndMonthAndOrganization(int year, int month, Organization organization);
     List<OrganizationDashboard> findByOrganization(Organization organization);
 
-}   
+}

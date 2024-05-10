@@ -28,7 +28,7 @@ import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.privateData.entity.PrivateData;
-import world.pasds.back.privateData.repository.PrivateDataRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;

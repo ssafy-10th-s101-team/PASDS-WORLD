@@ -31,8 +31,8 @@ import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.team.entity.Team;
-import world.pasds.back.privateData.repository.PrivateDataRepository;
-import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRoleRepository;
 import world.pasds.back.team.repository.TeamRepository;
 import world.pasds.back.team.service.TeamService;
 
@@ -55,6 +55,7 @@ public class PrivateDataService {
     private final OrganizationDashboardService organizationDashboardService;
     private final TeamDashboardService teamDashboardService;
     private final TeamService teamService;
+    private final PrivateDataSearchService privateDataSearchService;
 
     @Transactional
     public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {
@@ -243,7 +244,8 @@ public class PrivateDataService {
                     .count(0)
                     .build();
         }
-        privateDataRepository.save(privateData);
+        PrivateData save = privateDataRepository.save(privateData);
+        privateDataSearchService.savePrivateData(save, team.getOrganization().getId(), team.getId());
 
         // 설정하고자 하는 역할 조회
         List<Role> setRoleList = roleRepository.findAllById(requestDto.getRoleId());
@@ -336,6 +338,7 @@ public class PrivateDataService {
         privateDataRoleRepository.deleteAll(privateDataRoleList);
         privateDataRoleRepository.saveAll(newPrivateDataRole);
         privateDataRepository.save(findPrivateData);
+        privateDataSearchService.updatePrivateData(findPrivateData);
     }
 
     @Transactional
@@ -394,6 +397,7 @@ public class PrivateDataService {
         PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
         privateDataRoleRepository.deleteAll(privateDataRoleRepository.findAllByPrivateData(privateData));
         privateDataRepository.delete(privateData);
+        privateDataSearchService.deletePrivateData(privateData);
 
         // 조직 및 팀 비밀 개수 감소
         Long teamId = team.getId();

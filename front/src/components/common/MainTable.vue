@@ -103,7 +103,7 @@
     <BasePagination
       :current-page="currentPage"
       :total-pages="totalPages"
-      @change-page="fetchData"
+      @change-page="changePage"
     />
   </div>
   <MainPrivateDataCreate :teamId="selectedTeamId" />
@@ -131,8 +131,8 @@ const props = defineProps({
 
 const fetchprivateDatas = async (page) => {
   currentPage.value = page
-  const response = await getPrivateDatas(props.selectedTeamId)
-  privateDataList.value = response
+  const response = await getPrivateDatas(props.selectedTeamId, page)
+  privateDataList.value = response.privateDataResponse
   totalPages.value = response.totalPages
 }
 
@@ -149,12 +149,16 @@ watch(
       privateDataList.value = []
     } else {
       if (newTeamId !== oldTeamId || newPage !== oldPage) {
-        await fetchprivateDatas(newTeamId)
+        await fetchprivateDatas(newPage)
       }
     }
   },
   { immediate: true }
 )
+
+function changePage(page) {
+  currentPage.value = page
+}
 </script>
 
 <style scoped></style>

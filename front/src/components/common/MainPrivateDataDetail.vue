@@ -151,6 +151,43 @@
               placeholder="메모"
             ></textarea>
           </div>
+          <!-- 역할 선택 드롭다운 -->
+          <div class="mb-6">
+            <button
+              type="button"
+              class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700"
+              @click="toggleDropdown"
+            >
+              <span class="flex-1 ml-3 text-left whitespace-nowrap">접근 가능자 선택</span>
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
+              </svg>
+            </button>
+            <div v-if="showDropdown" class="mt-2">
+              <div v-for="role in roles" :key="role.roleId" class="flex items-center p-2">
+                <input
+                  type="checkbox"
+                  :id="'role-' + role.roleId"
+                  v-model="selectedRoles"
+                  :value="role.roleId"
+                />
+                <label :for="'role-' + role.roleId" class="ml-2 text-sm text-gray-600">{{
+                  role.name
+                }}</label>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- 타입이 text인 경우 -->
         <div v-else-if="type === 'TEXT'">
@@ -244,14 +281,51 @@
               placeholder="메모"
             ></textarea>
           </div>
+          <!-- 역할 선택 드롭다운 -->
+          <div class="mb-6">
+            <button
+              type="button"
+              class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700"
+              @click="toggleDropdown"
+            >
+              <span class="flex-1 ml-3 text-left whitespace-nowrap">접근 가능자 선택</span>
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
+              </svg>
+            </button>
+            <div v-if="showDropdown" class="mt-2">
+              <div v-for="role in roles" :key="role.roleId" class="flex items-center p-2">
+                <input
+                  type="checkbox"
+                  :id="'role-' + role.roleId"
+                  v-model="selectedRoles"
+                  :value="role.roleId"
+                />
+                <label :for="'role-' + role.roleId" class="ml-2 text-sm text-gray-600">{{
+                  role.name
+                }}</label>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="flex justify-center">
           <button
-            @click="toggleHidden('privateDataDetail')"
+            @click="updatePrivate"
             type="submit"
             class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
-            확인
+            수정
           </button>
         </div>
       </form>
@@ -263,7 +337,8 @@
 import { ref, defineProps, watch } from 'vue'
 import BaseModal from './BaseModal.vue'
 import { useCommonStore } from '@/stores/common'
-import { getPrivateData } from '@/api/data'
+import { getPrivateData, updatePrivateData } from '@/api/data'
+import { getRole } from '@/api/role'
 
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
@@ -274,6 +349,9 @@ const privateDataId = ref(null)
 const content = ref('')
 const url = ref('')
 const memo = ref('')
+const roles = ref([])
+const selectedRoles = ref([])
+const showDropdown = ref(false)
 
 const props = defineProps({
   teamId: Number,
@@ -285,16 +363,28 @@ const togglePasswordVisibility = (event) => {
   showPassword.value = !showPassword.value
 }
 
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value
+}
+
 const fetchPrivateData = async () => {
   if (props.privateDataId) {
-    const response = await getPrivateData(props.teamId, props.privateDataId)
-    if (response) {
-      title.value = response.title
-      type.value = response.type
-      privateDataId.value = response.privateDataId
-      content.value = response.privateData
-      url.value = response.url
-      memo.value = response.memo
+    const roleResponse = await getRole(props.teamId)
+    roles.value = roleResponse.filter((role) => role.name !== 'HEADER' && role.name !== 'LEADER')
+
+    const dataResponse = await getPrivateData(props.teamId, props.privateDataId)
+    if (dataResponse) {
+      title.value = dataResponse.title
+      type.value = dataResponse.type
+      privateDataId.value = dataResponse.privateDataId
+      content.value = dataResponse.privateData
+      url.value = dataResponse.url
+      memo.value = dataResponse.memo
+
+      selectedRoles.value = dataResponse.roles
+        .filter((role) => role.roleId !== 1 && role.roleId !== 2)
+        .map((role) => role.roleId)
+      showPassword.value = false
     }
   }
 }
@@ -307,6 +397,39 @@ watch(
     }
   }
 )
+
+const updatePrivate = async (event) => {
+  event.preventDefault()
+  if (!validateFields()) {
+    alert('모든 항목을 채워주세요.')
+    return
+  }
+  try {
+    const body = {
+      teamId: props.teamId,
+      privateDataId: props.privateDataId,
+      title: title.value,
+      content: content.value,
+      memo: memo.value,
+      id: privateDataId.value,
+      url: url.value,
+      roleId: selectedRoles.value
+    }
+    const response = await updatePrivateData(body)
+    if (response) {
+      alert('비밀이 성공적으로 생성되었습니다.')
+    }
+    toggleHidden('privateDataDetail')
+  } catch (error) {
+    const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+    alert(errmsg)
+  }
+  location.reload()
+}
+
+function validateFields() {
+  return title.value.trim() && content.value.trim()
+}
 </script>
 
 <style scoped></style>

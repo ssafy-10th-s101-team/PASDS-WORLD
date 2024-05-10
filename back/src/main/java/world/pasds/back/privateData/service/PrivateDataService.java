@@ -55,7 +55,7 @@ public class PrivateDataService {
 
     @Transactional
     public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {
-        Pageable pageable = PageRequest.of(offset, 10);
+        Pageable pageable = PageRequest.of(offset - 1, 10);
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 

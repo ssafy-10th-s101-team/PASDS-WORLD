@@ -98,11 +98,11 @@
     </div>
   </div>
 
-  <OrganizationInvitationModal />
+  <OrganizationInvitationModal :selectedOrganizationId="selectedOrganizationId" />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import OrganizationInvitationModal from '@/components/common/OrganizationInvitationModal.vue'
 import OrganizationMemberRoleModal from '@/components/organization/OrganizationMemberRoleModal.vue'
@@ -162,6 +162,14 @@ function changeOrganizationRole(data) {
     member.organizationRole = role // 역할 업데이트, 역할이 `member` 객체 내에 있다고 가정
   }
 }
+watch(
+  () => props.selectedOrganizationId,
+  async (newVal, oldVal) => {
+    if (newVal != oldVal) {
+      members.value = await getOrganizationMembers(newVal, 0)
+    }
+  }
+)
 onMounted(async () => {
   members.value = await getOrganizationMembers(props.selectedOrganizationId, 0)
 })

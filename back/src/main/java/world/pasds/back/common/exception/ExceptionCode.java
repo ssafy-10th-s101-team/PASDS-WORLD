@@ -92,7 +92,12 @@ public enum ExceptionCode {
     EMAIL_COOKIE_NOT_FOUND(401,"이메일 쿠키를 찾을 수 없습니다."),
     TEMPORARY_COOKIE_NOT_FOUND(401,"임시 쿠키를 찾을 수 없습니다."),
     ACCESS_COOKIE_NOT_FOUND(401,"엑세스 쿠키를 찾을 수 없습니다."),
-    REFRESH_COOKIE_NOT_FOUND(401,"재발급 쿠키를 찾을 수 없습니다.");
+    REFRESH_COOKIE_NOT_FOUND(401,"재발급 쿠키를 찾을 수 없습니다."),
+
+    TEAM_DASHBOARD_NOT_FOUNT(401, "팀 대시보드를 찾을 수 없습니다."),
+    ORGANIZATION_DASHBOARD_NOT_FOUNT(401, "조직 대시보드를 찾을 수 없습니다.");
+
+
 
     @Getter
     private int status;

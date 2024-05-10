@@ -109,6 +109,9 @@ public class PrivateDataService {
 
         PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
+        //팀 및 조직의 팀 조회수 증가
+        
+
         // 요청한 멤버가 해당 팀에서 어떤 역할을 가지는지 확인
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = memberRole.getRole();

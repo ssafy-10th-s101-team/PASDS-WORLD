@@ -22,7 +22,7 @@ public class PrivateDataRole extends BaseEntity {
     @JoinColumn(name = "privatedata_id")
     private PrivateData privateData;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
 }

@@ -2,8 +2,8 @@ import axios from 'axios'
 import { nextTick } from 'vue'
 import router from '@/router'
 
-const baseURL = 'https://pasds.world/app/api'
-// const baseURL = 'http://localhost:8080/app/api'
+// const baseURL = 'https://pasds.world/app/api'
+const baseURL = 'http://localhost:8080/app/api'
 
 const localAxios = axios.create({
   baseURL,

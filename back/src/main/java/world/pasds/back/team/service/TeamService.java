@@ -66,7 +66,6 @@ public class TeamService {
     private final PrivateDataRepository privateDataRepository;
     private final OrganizationDashboardService organizationDashboardService;
     private final TeamDashboardService teamDashboardService;
-    private final TeamService teamService;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(Long organizationId, Long memberId) {
@@ -531,7 +530,7 @@ public class TeamService {
                     Long teamId = team.getId();
                     teamDashboardService.checkTeamDashboardDay(teamId);
                     teamDashboardService.upTeamDashBoard(teamId, 'r');
-                    Long organizationId = teamService.getOrganizationId(teamId);
+                    Long organizationId = getOrganizationId(teamId);
                     organizationDashboardService.checkOrganizationDashboardDay(organizationId);
                     organizationDashboardService.upOrganizationDashBoard(organizationId, 'r');
 

@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RemoveMemberFromTeamRequestDto {
     private Long teamId;
-    private String removeMemberEmail;
+    private Long memberId;
 }

@@ -166,7 +166,7 @@ public class OrganizationService {
 
         // 개인 고유 조직은 조직원 초대 불가
         if (isMyOrganization(findOrganization.getName())) {
-            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+            throw new BusinessException(ExceptionCode.MY_ORGANIZATION_INVITATION);
         }
 
         MemberOrganization findMO = memberOrganizationRepository.findByMemberAndOrganization(sender, findOrganization);
@@ -178,19 +178,25 @@ public class OrganizationService {
 
         // 역할 부여시 HEADER 역할 부여는 불가능
         if (OrganizationRole.HEADER == requestDto.getOrganizationRole()) {
-            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+            throw new BusinessException(ExceptionCode.NO_HEADER);
         }
-
-        // 조직원 초대시 조직에서의 역할 부여
-        invitationService.inviteMemberToOrganization(findOrganization, sender, requestDto.getOrganizationRole(), requestDto.getEmail());
 
         Member receiver = memberRepository.findByEmail(requestDto.getEmail());
         if (receiver != null) { // 우리 회원인 경우 알림 전송
+
+            //우리회원인데 이미 조직원인경우 보낼수 없음.
+            MemberOrganization receiverMO =  memberOrganizationRepository.findByMemberAndOrganization(receiver, findOrganization);
+            if(receiverMO != null){
+                throw new BusinessException(ExceptionCode.ALREADY_ORGANIZATION_MEMBER);
+            }
             /**
              * TODO: 알림 설정
              */
             notificationService.notify(sender, receiver, "조직 초대", "조직 초대 메시지", NotificationType.USER, null);
         }
+
+        // 조직원 초대시 조직에서의 역할 부여
+        invitationService.inviteMemberToOrganization(findOrganization, sender, requestDto.getOrganizationRole(), requestDto.getEmail());
     }
 
     @Transactional

@@ -1,6 +1,25 @@
 <template>
   <!-- 버튼 -->
-  <div class="max-w-2xl mx-auto flex justify-between sm:p-6 lg:p-8">
+  <div class="max-w-2xl mx-auto flex justify-between sm:px-6 lg:px-8">
+    <h2>{{ teamName }} 팀 설정 페이지</h2>
+    <button type="button" @click="goBack">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"
+        />
+      </svg>
+    </button>
+  </div>
+  <div class="max-w-2xl mx-auto flex justify-between sm:px-6 lg:px-8">
     <div class="max-w-lg">
       <div class="inline-flex shadow-sm rounded-md mt-5" role="group">
         <button
@@ -120,7 +139,7 @@
           </div>
         </div>
         <div class="inline-block align-baseline">
-          <BaseButton buttonText="변경" />
+          <BaseButton buttonText="변경" @click="toggleHidden('changeTeamNameModal')" />
         </div>
         <div>
           <label for="input_text" class="block mb-2 text-sm text-gray-900 dark:text-gray-300">
@@ -130,12 +149,12 @@
             id="teamLeader"
             class="text-gray-900 text-lg rounded-lg block w-full py-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
           >
-            {{ teamLeader }}
+            {{ teamLeader || '없음' }}
           </div>
         </div>
 
         <div class="inline-block align-baseline">
-          <BaseButton buttonText="변경" />
+          <BaseButton buttonText="변경" @click="toggleHidden('changeTeamLeaderModal')" />
         </div>
       </div>
       <div class="flex flex-col">
@@ -219,22 +238,27 @@
     :memberId="selectedMemberId"
     @memberRole-updated="refreshMembers"
   />
+  <ChangeTeamNameModal :teamId="teamId" :teamName="teamName" @teamName-updated="refreshTeam" />
+  <ChangeTeamLeaderModal :teamId="teamId" :teamMembers="teamMembers" />
   <TeamInvitationModal :teamId="teamId" :organizationId="organizationId" />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import MainAuthorizationModal from '../common/MainAuthorizationModal.vue'
 import MainMemberRoleModal from '../common/MainMemberRoleModal.vue'
 import TeamInvitationModal from '../common/TeamInvitationModal.vue'
 import TeamRoleCreationModal from '../common/TeamRoleCreationModal.vue'
+import ChangeTeamNameModal from '../common/TeamChangeNameModal.vue'
+import ChangeTeamLeaderModal from '../common/TeamChangeLeaderModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 import { getAuthority, getRole } from '@/api/role'
-import { getTeamMembers } from '@/api/team'
+import { getLeader, getTeamMembers } from '@/api/team'
 import OrganizationSidebar from '../common/OrganizationSidebar.vue'
+import router from '@/router'
 const commonStore = useCommonStore()
 const route = useRoute()
 const organizationId = Number(route.query.organizationId)
@@ -247,12 +271,36 @@ const selectedRoleName = ref('')
 const selectedMemberId = ref(null)
 
 const currentTab = ref('role')
+const roles = ref([])
+const teamMembers = ref([])
+
+// onMounted 시 정보들 가져옴
+onMounted(async () => {
+  teamId.value = Number(route.query.teamId)
+  watch(
+    () => route.query.teamName,
+    (newName) => {
+      if (newName) teamName.value = newName
+    },
+    { immediate: true }
+  )
+  const fetchrole = await fetchRole(teamId.value)
+  roles.value = fetchrole
+  const members = await fetchTeamMembers(teamId.value)
+  teamMembers.value = members
+  const leader = fetchLeader(teamId.value)
+  teamLeader.value = leader.nickname
+})
+
+// 버튼 토글
 const moveToTeamInfo = () => {
   currentTab.value = 'info'
 }
 const moveToTeamRole = () => {
   currentTab.value = 'role'
 }
+
+// 모달창 띄우기
 const showAuthorizationModal = (roleId) => {
   const role = roles.value.find((r) => r.roleId === roleId)
   if (role) {
@@ -261,25 +309,16 @@ const showAuthorizationModal = (roleId) => {
   }
   toggleHidden('teamRoleUpdateModal')
 }
+
 const showMemberRoleModal = (memberId) => {
   selectedMemberId.value = memberId
   toggleHidden('memberRole') // 모달 토글 함수, 이름 확인 필요
 }
-const roles = ref([])
-const teamMembers = ref([])
-onMounted(async () => {
-  teamId.value = Number(route.query.teamId)
-  teamName.value = String(route.query.teamName)
-  // teamName.value = route.query.teamName
-  console.log('현재 팀의 id:', teamId.value)
-  const fetchrole = await fetchRole(teamId.value)
-  roles.value = fetchrole
-  const members = await fetchTeamMembers(teamId.value)
-  teamMembers.value = members
-  console.log('teamMember의 key 이름은 무엇으로 오는가', teamMembers.value)
 
-  console.log('내 팀의 역할들', roles.value)
-})
+// 뒤로가기
+const goBack = () => {
+  router.go(-1)
+}
 
 // 역할 목록 가져오기
 const fetchRole = async (teamId) => {
@@ -291,11 +330,17 @@ const fetchRole = async (teamId) => {
     console.error('Unexpected error:', error)
   }
 }
+
+// 새로고침
 const refreshRoles = async () => {
   roles.value = await fetchRole(teamId.value)
 }
 const refreshMembers = async () => {
   teamMembers.value = await fetchTeamMembers(teamId.value)
+}
+const refreshTeam = async (newTeamName) => {
+  teamName.value = newTeamName
+  router.push({ query: { ...route.query, teamName: newTeamName } })
 }
 // 팀원 조회
 
@@ -304,6 +349,17 @@ const fetchTeamMembers = async (teamId) => {
     return await getTeamMembers(teamId, 0)
   } catch (error) {
     console.error('Unexpected error:', error)
+  }
+}
+
+// 팀장 조회
+const fetchLeader = async (teamId) => {
+  try {
+    const response = await getLeader(teamId)
+    console.log('팀장', response)
+    return response
+  } catch (error) {
+    return
   }
 }
 </script>

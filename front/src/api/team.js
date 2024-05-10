@@ -61,6 +61,14 @@ async function removeTeam(body) {
     .catch(fail)
 }
 
+//팀장 조회
+async function getLeader(teamId) {
+  return localAxios
+    .get(prefix + `/leader/${teamId}`)
+    .then(success)
+    .catch(fail)
+}
+
 //팀장 위임
 async function assignLeader(body) {
   return localAxios
@@ -118,6 +126,7 @@ export {
   createTeam,
   inviteTeam,
   removeTeam,
+  getLeader,
   assignLeader,
   leaveTeam,
   deleteTeam,

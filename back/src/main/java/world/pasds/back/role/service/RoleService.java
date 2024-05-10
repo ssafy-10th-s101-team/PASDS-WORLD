@@ -155,21 +155,24 @@ public class RoleService {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
-        // 역할명 변경
+        // 변경하고자 하는 역할 조회
         Role newRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
 
-        // 이미 존재하는 역할명으로 수정 불가
-        if (!newRole.getName().equals(requestDto.getNewRoleName()) && roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
-            throw new BusinessException(ExceptionCode.ROLE_EXISTS);
-        }
-
-        if ("HEADER".equals(newRole.getName()) ||
-                "LEADER".equals(newRole.getName()) ||
-                "GUEST".equals(newRole.getName()) ||
-                "HEADER".equals(requestDto.getNewRoleName()) ||
-                "LEADER".equals(requestDto.getNewRoleName()) ||
-                "GUEST".equals(requestDto.getNewRoleName())) {
-            throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
+        // 역할명 수정하는 경우
+        if (!newRole.getName().equals(requestDto.getNewRoleName())) {
+            // 기본 역할 수정 불가 + 기본 역할 이름으로 수정 불가
+            if ("HEADER".equals(newRole.getName()) ||
+                    "LEADER".equals(newRole.getName()) ||
+                    "GUEST".equals(newRole.getName()) ||
+                    "HEADER".equals(requestDto.getNewRoleName()) ||
+                    "LEADER".equals(requestDto.getNewRoleName()) ||
+                    "GUEST".equals(requestDto.getNewRoleName())) {
+                throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
+            }
+            // 이미 존재하는 역할명으로 수정 불가
+            if (roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
+                throw new BusinessException(ExceptionCode.ROLE_EXISTS);
+            }
         }
 
         newRole.setName(requestDto.getNewRoleName());

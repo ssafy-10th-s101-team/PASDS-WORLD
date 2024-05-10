@@ -6,6 +6,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.privateData.entity.dto.request.*;
+import world.pasds.back.privateData.entity.dto.response.GetPrivateDataAuthoritiesResponseDto;
+import world.pasds.back.privateData.entity.dto.response.GetPrivateDataRolesResponseDto;
 import world.pasds.back.privateData.service.PrivateDataService;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
@@ -19,9 +21,21 @@ public class PrivateDataController {
 
     private final PrivateDataService privateDataService;
 
-    @GetMapping("/{teamId}")
-    public ResponseEntity<?> getPrivateDataList(@PathVariable(name = "teamId") Long teamId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetPrivateDataListResponseDto> response = privateDataService.getPrivateDataList(teamId, userDetails.getMemberId());
+    @GetMapping("/role/{teamId}/{privateDataId}")
+    public ResponseEntity<?> getPrivateDataRoles(@PathVariable(name = "teamId") Long teamId, @PathVariable(name = "privateDataId") Long privateDataId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        GetPrivateDataRolesResponseDto response = privateDataService.getPrivateDataRoles(teamId, privateDataId, userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/authority/{teamId}/{privateDataId}")
+    public ResponseEntity<?> getPrivateDataAuthorities(@PathVariable(name = "teamId") Long teamId, @PathVariable(name = "privateDataId") Long privateDataId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<GetPrivateDataAuthoritiesResponseDto> response = privateDataService.getPrivateDataAuthorities(teamId, privateDataId, userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/list/{teamId}/{offset}")
+    public ResponseEntity<?> getPrivateDataList(@PathVariable(name = "teamId") Long teamId, @PathVariable(name = "offset") int offset,  @AuthenticationPrincipal CustomUserDetails userDetails) {
+        GetPrivateDataListResponseDto response = privateDataService.getPrivateDataList(teamId, offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

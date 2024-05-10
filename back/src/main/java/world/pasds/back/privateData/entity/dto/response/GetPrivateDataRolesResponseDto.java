@@ -6,12 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetPrivateDataListResponseDto {
-    private int totalPages;
-    private List<PrivateDataResponse> privateDataResponse;
+public class GetPrivateDataRolesResponseDto {
+    private Map<Long, String> roles;
+    private List<Long> hasAuthorities;
 }

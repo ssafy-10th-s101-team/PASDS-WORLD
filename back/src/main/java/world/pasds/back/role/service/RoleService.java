@@ -196,7 +196,8 @@ public class RoleService {
         Role role = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
         Organization organization = team.getOrganization();
 
-        if (!(team.getLeader().getId().equals(member.getId()) || organization.getHeader().getId().equals(member.getId()))) {
+        // 팀장과 조직장만이 팀내 역할 수정 가능
+        if (!(team.getLeader() != null &&(team.getLeader().getId().equals(member.getId())) || organization.getHeader().getId().equals(member.getId()))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

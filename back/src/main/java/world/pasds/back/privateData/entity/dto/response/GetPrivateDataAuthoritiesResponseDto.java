@@ -4,14 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import world.pasds.back.authority.entity.AuthorityName;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetPrivateDataListResponseDto {
-    private int totalPages;
-    private List<PrivateDataResponse> privateDataResponse;
+public class GetPrivateDataAuthoritiesResponseDto {
+    private AuthorityName name;
 }

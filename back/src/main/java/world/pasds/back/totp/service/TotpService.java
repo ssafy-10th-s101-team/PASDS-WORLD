@@ -25,6 +25,7 @@ import world.pasds.back.common.service.KeyService;
 import world.pasds.back.common.util.AesUtil;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
+import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.totp.repository.TotpRepository;
@@ -176,69 +177,29 @@ public class TotpService {
         }
     }
 
-    public void verificationEmailCode(HttpServletRequest htpHttpServletRequest, HttpServletResponse httpServletResponse, String email, String authCode) {
+    // totp key 재발급 관련 이메일 인증 요청 처리
+    public void verificationEmailCode(HttpServletRequest request, HttpServletResponse response, CustomUserDetails userDetails, String authCode) {
+        String email = memberRepository.findById(userDetails.getMemberId())
+            .orElseThrow(() -> new BusinessException(ExceptionCode.EMAIL_NOT_FOUND)).getEmail();
+
         String redisAuthCode = emailService.getRedisAuthCode(AUTH_CODE_PREFIX + email);
 
         if (redisAuthCode != null && authCode.equals("101")) {
             redisTemplate.delete(AUTH_CODE_PREFIX + email);
             String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
-            cookieProvider.addCookie(htpHttpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+            cookieProvider.addCookie(request, response, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
             return;
         }
 
         if (redisAuthCode != null && redisAuthCode.equals(authCode)) {
             redisTemplate.delete(AUTH_CODE_PREFIX + email);
             String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
-            cookieProvider.addCookie(htpHttpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+            cookieProvider.addCookie(request, response, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
             return;
         }
 
         throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
-
-//        if (!(emailService.checkExistsValue(redisAuthCode) && redisAuthCode.equals(authCode))) {
-//            throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
-//        }
-
     }
-
-    public void sendCodeToEmail(String toEmail, int requestType) {
-
-        // 이메일 형식 검사
-        if (!toEmail.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
-            throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
-        }
-
-        if (requestType == 1) {         // 회원가입 시 이메일 인증 요청
-            // DB에 존재하는 이메일인지 확인
-            if (memberRepository.existsByEmail(toEmail)) {
-                throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
-            }
-        } else {                        // 비밀번호 찾기, totpKey 재발급 시 이메일 인증 요청
-            if (!memberRepository.existsByEmail(toEmail)) {
-                throw new BusinessException(ExceptionCode.EMAIL_NOT_FOUND);
-            }
-        }
-
-        String subject = "[PASDSWORLD] 이메일 인증 코드입니다.";
-        String authCode = createCode();
-
-        emailService.sendMessage(toEmail, subject, authCode + " 를 화면에 입력해주세요.");
-
-        // 이메일 인증 요청 시 인증 번호 Redis 에 저장 ( key = "AuthCode " + Email / value = AuthCode )
-        emailService.setRedisAuthCode(AUTH_CODE_PREFIX + toEmail,
-                authCode, Duration.ofMillis(authCodeExpirationMillis));
-    }
-
-    private String createCode() {
-        int length = 8;
-        SecureRandom secureRandom = new SecureRandom();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            sb.append(secureRandom.nextInt(10));
-        }
-        return sb.toString();
-    }
-
 
     @Async
     @Transactional

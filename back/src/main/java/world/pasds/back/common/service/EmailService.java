@@ -1,50 +1,160 @@
 package world.pasds.back.common.service;
 
+import java.security.SecureRandom;
 import java.time.Duration;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.util.CookieProvider;
+import world.pasds.back.common.util.JwtTokenProvider;
+import world.pasds.back.member.entity.CustomUserDetails;
+import world.pasds.back.member.repository.MemberRepository;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class EmailService {
-    private final JavaMailSender mailSender;
-    private final RedisTemplate redisTemplate;
+	private final JavaMailSender mailSender;
+	private final RedisTemplate redisTemplate;
+	private final JwtTokenProvider jwtTokenProvider;
+	private final CookieProvider cookieProvider;
+	private final MemberRepository memberRepository;
+	private static final String AUTH_CODE_PREFIX = "AuthCode ";
+	@Value("${spring.mail.auth-code-expiration-millis}")
+	private long authCodeExpirationMillis;
 
-    public void sendMessage(String toEmail, String subject, String text){
-        try {
-            SimpleMailMessage emailForm = createEmailForm(toEmail, subject, text);
-            mailSender.send(emailForm);
-        }
-        catch(Exception e){
-            throw new BusinessException(ExceptionCode.EMAIL_SENDER_ERROR);
-        }
-    }
+	private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
-    private SimpleMailMessage createEmailForm(String toEmail, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject(subject);
-        message.setText(text);
-        return message;
-    }
+	public void sendMessage(String toEmail, String subject, String text) {
+		try {
+			SimpleMailMessage emailForm = createEmailForm(toEmail, subject, text);
+			mailSender.send(emailForm);
+		} catch (Exception e) {
+			throw new BusinessException(ExceptionCode.EMAIL_SENDER_ERROR);
+		}
+	}
 
-    public boolean checkExistsValue(String value) {
-        return value != null;
-    }
+	private SimpleMailMessage createEmailForm(String toEmail, String subject, String text) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(toEmail);
+		message.setSubject(subject);
+		message.setText(text);
+		return message;
+	}
 
-    public String getRedisAuthCode(String authCodeRedisKey) {
-        return (String) redisTemplate.opsForValue().get(authCodeRedisKey);
-    }
+	public String getRedisAuthCode(String authCodeRedisKey) {
+		return (String)redisTemplate.opsForValue().get(authCodeRedisKey);
+	}
 
-    public void setRedisAuthCode(String authCodeRedisKey, String authCode, Duration duration) {
-        redisTemplate.opsForValue().set(authCodeRedisKey, authCode, duration);
-    }
+	private void setRedisAuthCode(String authCodeRedisKey, String authCode, Duration duration) {
+		redisTemplate.opsForValue().set(authCodeRedisKey, authCode, duration);
+	}
+
+	public void verificationEmailCode(HttpServletRequest request, HttpServletResponse response,
+		String email, String authCode) {
+		String redisAuthCode = getRedisAuthCode(AUTH_CODE_PREFIX + email);
+
+		// 슈퍼 코드
+		if (redisAuthCode != null && authCode.equals("101")) {
+			redisTemplate.delete(AUTH_CODE_PREFIX + email);
+			String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
+			cookieProvider.addCookie(request, response,
+				JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+			return;
+		}
+
+		if (redisAuthCode != null && redisAuthCode.equals(authCode)) {
+			redisTemplate.delete(AUTH_CODE_PREFIX + email);
+			String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
+			cookieProvider.addCookie(request, response,
+				JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+			return;
+		}
+
+		throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
+
+	}
+
+	public void sendCodeToEmailForSignup(String toEmail) {
+
+		// 이메일 형식 검사
+		checkEmailRegex(toEmail);
+
+		if (memberRepository.existsByEmail(toEmail)) {
+			throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
+		}
+
+		String authCode = createCode();
+		sendMessage(toEmail, "[PASDSWORLD] 이메일 인증 코드입니다.", "인증코드 : " + authCode);
+
+		// 이메일 인증 요청 시 인증 번호 Redis 에 저장 ( key = "AuthCode " + Email / value = AuthCode )
+		saveAuthCode(toEmail, authCode);
+	}
+
+	public void sendCodeToEmailForResetPassword(String toEmail) {
+
+		// 이메일 형식 검사
+		checkEmailRegex(toEmail);
+
+		if (!memberRepository.existsByEmail(toEmail)) {
+			throw new BusinessException(ExceptionCode.EMAIL_NOT_FOUND);
+		}
+
+		String authCode = createCode();
+		sendMessage(toEmail, "[PASDSWORLD] 이메일 인증 코드입니다.", "인증코드 : " + authCode);
+
+		// 이메일 인증 요청 시 인증 번호 Redis 에 저장 ( key = "AuthCode " + Email / value = AuthCode )
+		saveAuthCode(toEmail, authCode);
+	}
+
+	public void sendCodeToEmailForReShareTotpKey(CustomUserDetails userDetails) {
+
+		String toEmail = memberRepository.findById(userDetails.getMemberId())
+			.orElseThrow(() -> new BusinessException(ExceptionCode.EMAIL_NOT_FOUND)).getEmail();
+
+		// 이메일 형식 검사
+		checkEmailRegex(toEmail);
+		String authCode = createCode();
+
+		sendMessage(toEmail, "[PASDSWORLD] 이메일 인증 코드입니다.", "인증코드 : " + authCode);
+
+		// 이메일 인증 요청 시 인증 번호 Redis 에 저장 ( key = "AuthCode " + Email / value = AuthCode )
+		saveAuthCode(toEmail, authCode);
+	}
+
+	private String createCode() {
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		SecureRandom random = new SecureRandom();
+		StringBuilder sb = new StringBuilder(8);
+
+		for (int i = 0; i < 8; i++) {
+			int index = random.nextInt(characters.length());
+			sb.append(characters.charAt(index));
+		}
+		return sb.toString();
+	}
+
+	private void checkEmailRegex(String toEmail) {
+		if (!toEmail.matches(EMAIL_REGEX)) {
+			throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
+		}
+	}
+
+	private void saveAuthCode(String toEmail, String authCode) {
+		setRedisAuthCode(AUTH_CODE_PREFIX + toEmail,
+			authCode, Duration.ofMillis(authCodeExpirationMillis));
+	}
+
 }

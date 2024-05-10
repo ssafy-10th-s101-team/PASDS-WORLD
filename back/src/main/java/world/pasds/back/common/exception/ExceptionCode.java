@@ -93,11 +93,12 @@ public enum ExceptionCode {
     TEMPORARY_COOKIE_NOT_FOUND(401,"임시 쿠키를 찾을 수 없습니다."),
     ACCESS_COOKIE_NOT_FOUND(401,"엑세스 쿠키를 찾을 수 없습니다."),
     REFRESH_COOKIE_NOT_FOUND(401,"재발급 쿠키를 찾을 수 없습니다."),
+    MY_ORGANIZATION_INVITATION(400, "MY_ORGANIZATION에는 조직원을 초대할 수 없습니다."),
+    NO_HEADER(400, "조직장 역할은 위임 외에 설정할 수 없습니다."),
+    ALREADY_ORGANIZATION_MEMBER(400, "이미 우리 조직입니다."),
 
     TEAM_DASHBOARD_NOT_FOUNT(401, "팀 대시보드를 찾을 수 없습니다."),
     ORGANIZATION_DASHBOARD_NOT_FOUNT(401, "조직 대시보드를 찾을 수 없습니다.");
-
-
 
     @Getter
     private int status;

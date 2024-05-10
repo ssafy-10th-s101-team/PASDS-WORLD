@@ -1,6 +1,7 @@
 package world.pasds.back.organization.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,15 +24,16 @@ public class OrganizationController {
     public ResponseEntity<?> getOrganizations(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(required = false) boolean isAdmin) {
         List<GetOrganizationsResponseDto> response;
 
-        if(isAdmin){
+        if (isAdmin) {
             response = organizationService.getAdminOrganizations(userDetails.getMemberId());
-        }else{
+        } else {
             response = organizationService.getOrganizations(userDetails.getMemberId());
         }
 
         return ResponseEntity.ok().body(response);
     }
 
+    //조직에 해당하는 모든 조직원
     @GetMapping("/{organizationId}/{offset}")
     public ResponseEntity<?> getOrganizationMember(@PathVariable(name = "organizationId") Long organizationId, @PathVariable(name = "offset") int offset, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetOrganizationMemberResponseDto> response = organizationService.getOrganizationMember(organizationId, offset, userDetails.getMemberId());
@@ -77,6 +79,12 @@ public class OrganizationController {
     @PostMapping("/assign")
     public ResponseEntity<?> assignNewHeader(@RequestBody AssignNewHeaderRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         organizationService.assignNewHeader(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/update-role")
+    public ResponseEntity<?> updateRole(@RequestBody UpdateRoleRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        organizationService.updateRole(requestDto, userDetails.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

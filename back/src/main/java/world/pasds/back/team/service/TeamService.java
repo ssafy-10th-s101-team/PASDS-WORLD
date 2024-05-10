@@ -91,6 +91,7 @@ public class TeamService {
         Member leader = team.getLeader();
         return GetTeamLeaderResponseDto.builder().id(leader == null ? null : leader.getId()).nickname(leader == null ? null : leader.getNickname()).build();
     }
+
     @Transactional
     public List<GetAdminTeamsResponseDto> getAdminTeams(Long organizationId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -98,8 +99,8 @@ public class TeamService {
 
         //권한 체크
         List<OrganizationRole> roles = Arrays.asList(OrganizationRole.HEADER, OrganizationRole.ADMIN);
-        boolean authorized =  memberOrganizationRepository.existsByMemberAndOrganizationAndOrganizationRoleIn(member, organization,roles);
-        if(!authorized) throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+        boolean authorized = memberOrganizationRepository.existsByMemberAndOrganizationAndOrganizationRoleIn(member, organization, roles);
+        if (!authorized) throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
 
         //모든 팀목록 조회
         List<Team> findTeamList = teamRepository.findAllByOrganization(organization);
@@ -111,7 +112,7 @@ public class TeamService {
             //내가 맡은 역할 찾기
             MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
             Role role;
-            if(memberRole ==null)
+            if (memberRole == null)
                 role = null;
             else {
                 role = memberRole.getRole();
@@ -137,6 +138,7 @@ public class TeamService {
         List<GetTeamMemberResponseDto> response = new ArrayList<>();
         for (MemberRole memberRole : memberRoleList) {
             response.add(GetTeamMemberResponseDto.builder()
+                    .id(memberRole.getMember().getId())
                     .memberNickname(memberRole.getMember().getNickname())
                     .role(memberRole.getRole().getName())
                     .build());

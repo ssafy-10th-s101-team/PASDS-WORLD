@@ -293,6 +293,24 @@ public class PrivateDataService {
             findPrivateData.setContent(encryptedPrivateData);
             findPrivateData.setMemo(requestDto.getMemo());
         }
+
+        Role header = roleRepository.findByTeamAndName(team, "HEADER");
+        Role leader = roleRepository.findByTeamAndName(team, "LEADER");
+
+        List<Long> roleId = requestDto.getRoleId();
+        List<Role> findRoleList = roleRepository.findAllById(roleId);
+        findRoleList.add(header);
+        findRoleList.add(leader);
+
+        List<PrivateDataRole> newPrivateDataRole = new ArrayList<>();
+        for (Role r : findRoleList) {
+            newPrivateDataRole.add(PrivateDataRole.builder()
+                    .privateData(findPrivateData)
+                    .role(r)
+                    .build());
+        }
+
+        privateDataRoleRepository.saveAll(newPrivateDataRole);
         privateDataRepository.save(findPrivateData);
     }
 

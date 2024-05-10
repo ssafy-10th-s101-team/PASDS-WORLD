@@ -6,11 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.dashboard.entity.TeamDashboard;
+import world.pasds.back.dashboard.entity.dto.response.MainDashboardResponseDto;
 import world.pasds.back.dashboard.repository.TeamDashboardRepository;
+import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service

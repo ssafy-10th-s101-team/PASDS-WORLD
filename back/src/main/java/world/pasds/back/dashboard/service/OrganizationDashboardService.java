@@ -6,11 +6,13 @@ import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.dashboard.entity.OrganizationDashboard;
+import world.pasds.back.dashboard.entity.dto.response.MainDashboardResponseDto;
 import world.pasds.back.dashboard.repository.OrganizationDashboardRepository;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.repository.OrganizationRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,12 +23,37 @@ public class OrganizationDashboardService {
     private final OrganizationDashboardRepository organizationDashboardRepository;
 
     @Transactional
-    public void checkOrganizationDashboardDay(Long OrganizationId) {
+    public MainDashboardResponseDto getMainDashboard(Long organizationId) {
+
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
+
+        List<OrganizationDashboard> organizationDashboardList = organizationDashboardRepository.findByOrganization(organization);
+
+        MainDashboardResponseDto mainDashboardResponseDto = new MainDashboardResponseDto();
+
+        for(OrganizationDashboard organizationDashboard : organizationDashboardList) {
+            int year = organizationDashboard.getYear();
+            int mon = organizationDashboard.getMonth();
+            int view = organizationDashboard.getViews();
+            int count = organizationDashboard.getCount();
+            int rotate = organizationDashboard.getRotate();
+            mainDashboardResponseDto.getOrganizationCountList().add(new int[] {year, mon, count});
+            mainDashboardResponseDto.getOrganizationViewList().add(new int[] {year, mon, view});
+            mainDashboardResponseDto.getOrganizationRotateList().add(new int[] {year, mon, rotate});
+        }
+
+        return mainDashboardResponseDto;
+
+    }
+
+    @Transactional
+    public void checkOrganizationDashboardDay(Long organizationId) {
         LocalDate currentDate = LocalDate.now();
         int year = currentDate.getYear();
         int month = currentDate.getMonthValue();
 
-        Organization organization = organizationRepository.findById(OrganizationId)
+        Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         Optional<OrganizationDashboard> existingRecord = organizationDashboardRepository
@@ -43,12 +70,12 @@ public class OrganizationDashboardService {
     }
 
     @Transactional
-    public void upOrganizationDashBoard(Long OrganizationId, char code) {
+    public void upOrganizationDashBoard(Long organizationId, char code) {
         LocalDate currentDate = LocalDate.now();
         int year = currentDate.getYear();
         int month = currentDate.getMonthValue();
 
-        Organization Organization = organizationRepository.findById(OrganizationId)
+        Organization Organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         OrganizationDashboard organizationDashboard = organizationDashboardRepository

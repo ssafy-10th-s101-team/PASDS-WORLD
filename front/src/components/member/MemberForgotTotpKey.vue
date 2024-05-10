@@ -167,7 +167,7 @@ const getTotpKey = async () => {
 }
 
 const goToLogin = () => {
-  router.push({ name: 'memberLogin' })
+  router.push({ name: 'memberLogin2' })
 }
 </script>
 

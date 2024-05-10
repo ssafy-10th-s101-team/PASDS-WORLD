@@ -115,7 +115,7 @@ public class RoleService {
 
         if ("HEADER".equals(createRole.getName()) ||
                 "LEADER".equals(createRole.getName()) ||
-                "MEMBER".equals(createRole.getName())) {
+                "GUEST".equals(createRole.getName())) {
             throw new BusinessException(ExceptionCode.AUTHORITY_NAME_CONFLICT);
         }
         Role savedRole = roleRepository.save(createRole);
@@ -162,7 +162,10 @@ public class RoleService {
 
         if ("HEADER".equals(newRole.getName()) ||
                 "LEADER".equals(newRole.getName()) ||
-                "MEMBER".equals(newRole.getName())) {
+                "GUEST".equals(newRole.getName()) ||
+                "HEADER".equals(requestDto.getNewRoleName()) ||
+                "LEADER".equals(requestDto.getNewRoleName()) ||
+                "GUEST".equals(requestDto.getNewRoleName())) {
             throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
         }
 
@@ -205,7 +208,7 @@ public class RoleService {
 
         if ("HEADER".equals(deleteRole.getName()) ||
                 "LEADER".equals(deleteRole.getName()) ||
-                "MEMBER".equals(deleteRole.getName())) {
+                "GUEST".equals(deleteRole.getName())) {
             throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
         }
 

@@ -147,7 +147,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             authentication = jwtTokenProvider.getAuthentication(temporaryToken, keyService.getJwtSecretKey());
             // ttk curKey 성공 -> 패스
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " ttk curKey 성공");
+            // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " ttk curKey 성공");
             return true;
         } catch (BusinessException e) {
             switch (e.getExceptionCode()) {
@@ -158,7 +158,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                         authentication = jwtTokenProvider.getAuthentication(temporaryToken, keyService.getPrevJwtSecretKey());
                         // ttk prevKey 성공 -> 패스
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " ttk prevKey 성공");
+                        // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " ttk prevKey 성공");
                         return true;
                     } catch (BusinessException e2) {
                         switch (e2.getExceptionCode()) {
@@ -221,7 +221,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         try {
             authentication = jwtTokenProvider.getAuthenticationByEmailToken(emailToken, keyService.getJwtSecretKey());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println(((CustomUserDetails) authentication.getPrincipal()).getEmail() + " etk curKey 성공");
+            // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getEmail() + " etk curKey 성공");
             return true;
         } catch (BusinessException e) {
             switch (e.getExceptionCode()) {
@@ -229,7 +229,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                     try {
                         authentication = jwtTokenProvider.getAuthenticationByEmailToken(emailToken, keyService.getPrevJwtSecretKey());
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        System.out.println(((CustomUserDetails) authentication.getPrincipal()).getEmail() + " etk prevKey 성공");
+                        // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getEmail() + " etk prevKey 성공");
                         return true;
                     } catch (BusinessException e2) {
                         switch (e2.getExceptionCode()) {
@@ -292,7 +292,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             authentication = jwtTokenProvider.getAuthentication(accessToken, keyService.getJwtSecretKey());
             // atk curKey 성공 -> 패스
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " atk curKey 성공");
+            // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " atk curKey 성공");
             return true;
         } catch (BusinessException e) {
             switch (e.getExceptionCode()) {
@@ -309,7 +309,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                         cookieProvider.addCookie(request, response, JwtTokenProvider.TokenType.REFRESH.name(), refreshToken);
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " atk prevKey 성공");
+                        // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " atk prevKey 성공");
                         return true;
 
                     } catch (BusinessException e2) {
@@ -336,7 +336,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
                                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                                    System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " rtk prevKey 성공");
+                                    // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " rtk prevKey 성공");
 
                                     return true;
                                 } catch (BusinessException e3) {
@@ -394,7 +394,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                        System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " rtk curKey 성공");
+                        // System.out.println(((CustomUserDetails) authentication.getPrincipal()).getMemberId() + " rtk curKey 성공");
 
                         return true;
                     } catch (BusinessException e2) {
@@ -456,7 +456,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         response.getWriter().write(json);
         response.getWriter().flush();
         response.getWriter().close();
-        System.out.println("CustomFilter respondCaseFail :" + exceptionCode);
+        // System.out.println("CustomFilter respondCaseFail :" + exceptionCode);
     }
 }
 

@@ -16,6 +16,8 @@ public enum ExceptionCode {
 
     EMAIL_CODE_NOT_SAME(409, "이메일 인증코드가 다릅니다."),
     EMAIL_CODE_GENERATION_ERROR(500, "이메일 인증코드 발급에 문제가 발생했습니다."),
+    EMAIL_CODE_EXPIRED(400,"이메일 코드가 만료되었습니다."),
+    EMAIL_AUTHENTICATION_ALREADY(400,"이미 인증된 이메일입니다."),
 
     PASSWORD_SAME(409, "비밀번호가 이전 비밀번호와 같습니다."),
     PASSWORD_INVALID_FORMAT(400, "비밀번호가 유효하지 않습니다"),

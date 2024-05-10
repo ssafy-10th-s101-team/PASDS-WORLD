@@ -43,7 +43,36 @@
                 토큰테스트
               </button>
             </div>
-            <div v-else>
+
+            <!-- 알림 시작 -->
+            <div class="relative notification">
+              <svg
+                v-if="nickname"
+                @click="toggleNotifications"
+                class="icon-bell cursor-pointer text-gray-800 dark:text-white hover:text-white hover:bg-samsung-blue p-2 rounded-full"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 21c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-3v-5c0-3.11-1.64-5.87-4.5-6.64V5.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.76C7.64 6.13 6 8.89 6 12v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.68-4.5 4-4.5s4 2.02 4 4.5v6z"
+                />
+              </svg>
+              <div
+                v-show="showNotifications"
+                class="absolute bg-white border border-gray-300 shadow-lg mt-2 py-2 w-48 right-0"
+              >
+                <!-- Loop through notifications -->
+                <div
+                  v-for="notification in notifications"
+                  :key="notification.id"
+                  class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+                >
+                  {{ notification.message }}
+                </div>
+              </div>
+            </div>
+            <!-- 알림 끝-->
+            <div v-if="!nickname">
               <router-link
                 :to="{ name: 'memberLogin' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
@@ -140,14 +169,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onUnmounted } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 
 const commonStore = useCommonStore()
 const { toggleDropdown, toggleHidden } = commonStore
-
 const nickname = ref('')
+const showNotifications = ref(false)
+const notifications = ref([
+  {
+    message: 'hello'
+  }
+])
 
 const logout = async () => {
   try {
@@ -167,9 +201,45 @@ const jwtTest = async () => {
   } catch (error) {}
 }
 
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value
+}
+
+const handleClickOutside = (event) => {
+  if (!event.target.closest('.notification') && showNotifications.value) {
+    showNotifications.value = false
+  }
+}
+
+const fetchNotifications = async () => {
+  try {
+    const { data } = await localAxios.get('/notifications')
+    notifications.value = data
+  } catch (error) {
+    console.error('Error fetching notifications:', error)
+  }
+}
+
 onMounted(() => {
   nickname.value = sessionStorage.getItem('nickname')
+  document.addEventListener('mousedown', handleClickOutside)
+  // fetchUnreadNotifications()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.notification {
+  width: 50px;
+  height: 50px;
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  user-select: none; /* Standard syntax */
+  position: relative;
+  z-index: 1000; /* 높은 값으로 설정하여 다른 요소들 위에 위치하도록 함 */
+}
+</style>

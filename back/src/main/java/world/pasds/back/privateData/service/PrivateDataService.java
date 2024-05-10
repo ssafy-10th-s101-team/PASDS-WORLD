@@ -20,7 +20,7 @@ import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.privateData.entity.DataType;
 import world.pasds.back.privateData.entity.dto.request.*;
-import world.pasds.back.privateData.entity.dto.response.PrivateDataResponse;
+import world.pasds.back.privateData.entity.dto.response.*;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -28,16 +28,12 @@ import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.team.entity.Team;
-import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
-import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
 import world.pasds.back.privateData.repository.PrivateDataRepository;
 import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +48,56 @@ public class PrivateDataService {
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final KeyService keyService;
+
+    @Transactional
+    public GetPrivateDataRolesResponseDto getPrivateDataRoles(Long teamId, Long privateDataId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        if (findMemberRole == null) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+
+        PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        List<PrivateDataRole> privateDataRoleList = privateDataRoleRepository.findAllByPrivateData(privateData);
+
+        List<Role> teamRoleList = roleRepository.findAllByTeam(team);
+        Map<Long, String> roleMap = new HashMap<>();
+        for (Role role : teamRoleList) {
+            roleMap.put(role.getId(), role.getName());
+        }
+        return GetPrivateDataRolesResponseDto
+                .builder()
+                .roles(roleMap)
+                .hasAuthorities(privateDataRoleList.stream().map(pd -> pd.getRole().getId()).toList())
+                .build();
+    }
+
+    @Transactional
+    public List<GetPrivateDataAuthoritiesResponseDto> getPrivateDataAuthorities(Long teamId, Long privateDataId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+        if (findMemberRole == null) {
+            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
+        }
+        Role role = findMemberRole.getRole();
+
+        PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        if (!privateDataRoleRepository.existsByPrivateDataAndRole(privateData, role)) {
+            throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
+        }
+
+        return roleAuthorityRepository.findAllByRole(role)
+                .stream()
+                .map(ra -> GetPrivateDataAuthoritiesResponseDto
+                        .builder()
+                        .name(ra.getAuthority().getName())
+                        .build())
+                .toList();
+    }
 
     @Transactional
     public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {

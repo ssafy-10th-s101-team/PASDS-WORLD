@@ -21,6 +21,7 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.privateData.entity.DataType;
+import world.pasds.back.privateData.entity.dto.PrivateDataRoleDto;
 import world.pasds.back.privateData.entity.dto.request.*;
 import world.pasds.back.privateData.entity.dto.response.*;
 import world.pasds.back.role.entity.Role;
@@ -157,8 +158,11 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getDataKey()),
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
-        List<Long> roles = privateDataRoleRepository.findAllByPrivateData(privateData).stream()
-                .map(pd -> pd.getRole().getId())
+        List<PrivateDataRoleDto> roles = privateDataRoleRepository.findAllByPrivateData(privateData).stream()
+                .map(pd -> PrivateDataRoleDto.builder()
+                        .roleId(pd.getRole().getId())
+                        .name(pd.getRole().getName())
+                        .build())
                 .toList();
 
         return GetPrivateDataResponseDto.builder()

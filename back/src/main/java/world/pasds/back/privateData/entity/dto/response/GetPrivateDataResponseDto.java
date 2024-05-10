@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import world.pasds.back.privateData.entity.DataType;
+import world.pasds.back.privateData.entity.dto.PrivateDataRoleDto;
 
 import java.util.List;
 
@@ -19,5 +20,5 @@ public class GetPrivateDataResponseDto {
     private String memo;
     private String privateDataId;
     private String url;
-    private List<Long> roles;
+    private List<PrivateDataRoleDto> roles;
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import world.pasds.back.member.entity.CustomUserDetails;
@@ -49,8 +50,8 @@ public class NotificationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/{offset}")
-    public ResponseEntity<?> findAllNotifications(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable(name = "offset") int offset) {
+    @GetMapping("")
+    public ResponseEntity<?> findAllNotifications(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(name = "offset") int offset) {
         List<NotificationResponseDto> response = notificationService.findAllNotifications(userDetails.getMemberId(), offset);
         return ResponseEntity.ok().body(response);
     }

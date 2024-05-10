@@ -12,6 +12,8 @@ import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.KeyService;
+import world.pasds.back.dashboard.service.OrganizationDashboardService;
+import world.pasds.back.dashboard.service.TeamDashboardService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberRole;
 import world.pasds.back.member.entity.MemberTeam;
@@ -31,6 +33,7 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.privateData.repository.PrivateDataRepository;
 import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
 import world.pasds.back.team.repository.TeamRepository;
+import world.pasds.back.team.service.TeamService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -48,6 +51,9 @@ public class PrivateDataService {
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final KeyService keyService;
+    private final OrganizationDashboardService organizationDashboardService;
+    private final TeamDashboardService teamDashboardService;
+    private final TeamService teamService;
 
     @Transactional
     public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {
@@ -107,7 +113,11 @@ public class PrivateDataService {
         PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
         //팀 및 조직의 팀 조회수 증가
-
+        teamDashboardService.checkTeamDashboardDay(teamId);
+        teamDashboardService.upTeamDashBoard(teamId, 'v');
+        Long organizationId = teamService.getOrganizationId(teamId);
+        organizationDashboardService.checkOrganizationDashboardDay(organizationId);
+        organizationDashboardService.upOrganizationDashBoard(organizationId, 'v');
 
         // 요청한 멤버가 해당 팀에서 어떤 역할을 가지는지 확인
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
@@ -235,6 +245,15 @@ public class PrivateDataService {
                             .build());
         }
         privateDataRoleRepository.saveAll(privateDataRoleList);
+
+        //조직 및 팀 비밀 개수 증가
+        Long teamId = team.getId();
+        teamDashboardService.checkTeamDashboardDay(teamId);
+        teamDashboardService.upTeamDashBoard(teamId, 'c');
+        Long organizationId = teamService.getOrganizationId(teamId);
+        organizationDashboardService.checkOrganizationDashboardDay(organizationId);
+        organizationDashboardService.upOrganizationDashBoard(organizationId, 'c');
+
     }
 
     @Transactional
@@ -328,5 +347,14 @@ public class PrivateDataService {
 
         PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
         privateDataRepository.delete(privateData);
+
+        // 조직 및 팀 비밀 개수 감소
+        Long teamId = team.getId();
+        teamDashboardService.checkTeamDashboardDay(teamId);
+        teamDashboardService.upTeamDashBoard(teamId, 'm');
+        Long organizationId = teamService.getOrganizationId(teamId);
+        organizationDashboardService.checkOrganizationDashboardDay(organizationId);
+        organizationDashboardService.upOrganizationDashBoard(organizationId, 'm');
+
     }
 }

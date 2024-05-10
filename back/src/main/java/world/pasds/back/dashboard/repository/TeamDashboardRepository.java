@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface TeamDashboardRepository extends JpaRepository<TeamDashboard, Long> {
 
-    Optional<TeamDashboard> findByYearAndMonthAndTeam(Integer year, Integer month, Team team);
+    Optional<TeamDashboard> findByYearAndMonthAndTeam(int year, int month, Team team);
 
 }

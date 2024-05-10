@@ -15,13 +15,13 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class DashboardService {
+public class TeamDashboardService {
 
     private final TeamRepository teamRepository;
     private final TeamDashboardRepository teamDashboardRepository;
 
     @Transactional
-    public void checkTeamDay(Long teamId) {
+    public void checkTeamDashboardDay(Long teamId) {
         LocalDate currentDate = LocalDate.now();
         int year = currentDate.getYear();
         int month = currentDate.getMonthValue();
@@ -43,14 +43,28 @@ public class DashboardService {
     }
 
     @Transactional
-    public void upTeamView(Long teamId) {
+    public void upTeamDashBoard(Long teamId, char code) {
         LocalDate currentDate = LocalDate.now();
         int year = currentDate.getYear();
         int month = currentDate.getMonthValue();
 
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-        //here
+
+        TeamDashboard teamDashboard = teamDashboardRepository
+                .findByYearAndMonthAndTeam(year, month, team)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_DASHBOARD_NOT_FOUNT));
+
+        if(code == 'v') {
+            teamDashboard.setViews(teamDashboard.getViews() + 1);
+        } else if(code == 'c') {
+            teamDashboard.setCount(teamDashboard.getCount() + 1);
+        } else if(code == 'r') {
+            teamDashboard.setRotate(teamDashboard.getRotate() + 1);
+        } else if(code == 'm') {
+            teamDashboard.setCount(teamDashboard.getCount() - 1);
+        }
+        teamDashboardRepository.save(teamDashboard);
 
     }
 

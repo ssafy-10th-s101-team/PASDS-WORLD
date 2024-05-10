@@ -1,6 +1,9 @@
 package world.pasds.back.privateData.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.authority.entity.AuthorityName;
@@ -17,6 +20,7 @@ import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.privateData.entity.DataType;
 import world.pasds.back.privateData.entity.dto.request.*;
+import world.pasds.back.privateData.entity.dto.response.PrivateDataResponse;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -34,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +54,8 @@ public class PrivateDataService {
     private final KeyService keyService;
 
     @Transactional
-    public List<GetPrivateDataListResponseDto> getPrivateDataList(Long teamId, Long memberId) {
+    public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {
+        Pageable pageable = PageRequest.of(offset - 1, 10);
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
@@ -69,31 +73,28 @@ public class PrivateDataService {
 
         Role role = findMemberRole.getRole();
 
-        // 우리 팀 비밀 목록 조회
-        List<PrivateData> privateData = privateDataRepository.findAllByTeam(team);
-        // 내가 조회 가능한 비밀 목록 추가
-        List<PrivateData> canReadData = new ArrayList<>();
-        for (PrivateData data : privateData) {
-            System.out.println("조회 가능 1");
-            if (privateDataRoleRepository.existsByPrivateDataAndRole(data, role)) { // 비밀에 나의 역할이 읽을 수 있는지 확인
-                System.out.println("조회 가능 2");
-                if (roleAuthorityRepository.checkAuthority(role, AuthorityName.PRIVATE_DATA_READ)) {
-                    System.out.println("조회 가능 3");
-                    canReadData.add(data);
-                }
-            }
-        }
+        // 내가 조회 가능한 비밀 목록 조회
+        Page<PrivateData> resultPage = privateDataRepository.findAccessiblePrivateData(teamId, role, pageable);
 
-        return canReadData.stream()
-                .map(pd -> new GetPrivateDataListResponseDto(
-                        team.getId(),
-                        pd.getId(),
-                        pd.getTitle(),
-                        pd.getType(),
-                        pd.getCreatedBy(),
-                        pd.getPrivateDataId(),
-                        pd.getUrl()))
-                .collect(Collectors.toList());
+        List<PrivateDataResponse> canReadData = resultPage.getContent().stream()
+                .map(data -> {
+                    Member createMember = memberRepository.findById(data.getCreatedBy()).orElse(null);
+                    return PrivateDataResponse.builder()
+                            .teamId(team.getId())
+                            .privateDataId(data.getId())
+                            .title(data.getTitle())
+                            .type(data.getType())
+                            .createdBy(createMember != null ? createMember.getNickname() : "탈퇴한 유저")
+                            .dataId(data.getPrivateDataId())
+                            .url(data.getUrl())
+                            .build();
+                })
+                .toList();
+
+        return GetPrivateDataListResponseDto.builder()
+                .totalPages(resultPage.getTotalPages())
+                .privateDataResponse(canReadData)
+                .build();
     }
 
     @Transactional
@@ -197,6 +198,7 @@ public class PrivateDataService {
                     .memo(requestDto.getMemo())
                     .privateDataId(requestDto.getPrivateDataId())
                     .url(requestDto.getUrl())
+                    .count(0)
                     .build();
         } else {
             privateData = PrivateData.builder()
@@ -205,13 +207,21 @@ public class PrivateDataService {
                     .title(requestDto.getTitle())
                     .content(encryptedPrivateData)
                     .memo(requestDto.getMemo())
+                    .count(0)
                     .build();
         }
         privateDataRepository.save(privateData);
 
         // 설정하고자 하는 역할 조회
         List<Role> setRoleList = roleRepository.findAllById(requestDto.getRoleId());
+
+        // 조직장과 팀장도 비밀_역할 저장
+        Role header = roleRepository.findByTeamAndName(team, "HEADER");
+        Role leader = roleRepository.findByTeamAndName(team, "LEADER");
+
         List<PrivateDataRole> privateDataRoleList = new ArrayList<>();
+        privateDataRoleList.add(PrivateDataRole.builder().privateData(privateData).role(header).build());
+        privateDataRoleList.add(PrivateDataRole.builder().privateData(privateData).role(leader).build());
         for (Role setRole : setRoleList) {
             // 비밀_역할 저장
             privateDataRoleList
@@ -245,27 +255,18 @@ public class PrivateDataService {
         byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
 
         // 비밀, 제목, 메모, 아이디, url 변경 가능
-        PrivateData newPrivateData;
         if (findPrivateData.getType() == DataType.LOGIN) {
-            newPrivateData = PrivateData.builder()
-                    .team(team)
-                    .type(findPrivateData.getType())
-                    .title(requestDto.getTitle())
-                    .content(encryptedPrivateData)
-                    .memo(requestDto.getMemo())
-                    .privateDataId(requestDto.getId())
-                    .url(requestDto.getUrl())
-                    .build();
+            findPrivateData.setTitle(requestDto.getTitle());
+            findPrivateData.setContent(encryptedPrivateData);
+            findPrivateData.setMemo(requestDto.getMemo());
+            findPrivateData.setUrl(requestDto.getUrl());
+            findPrivateData.setPrivateDataId(requestDto.getId());
         } else {
-            newPrivateData = PrivateData.builder()
-                    .team(team)
-                    .type(findPrivateData.getType())
-                    .title(requestDto.getTitle())
-                    .content(encryptedPrivateData)
-                    .memo(requestDto.getMemo())
-                    .build();
+            findPrivateData.setTitle(requestDto.getTitle());
+            findPrivateData.setContent(encryptedPrivateData);
+            findPrivateData.setMemo(requestDto.getMemo());
         }
-        privateDataRepository.save(newPrivateData);
+        privateDataRepository.save(findPrivateData);
     }
 
     @Transactional

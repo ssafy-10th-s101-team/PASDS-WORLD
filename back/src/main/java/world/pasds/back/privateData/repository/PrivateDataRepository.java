@@ -8,7 +8,6 @@ import world.pasds.back.team.entity.Team;
 import java.util.List;
 
 @Repository
-public interface PrivateDataRepository extends JpaRepository<PrivateData, Long> {
-
+public interface PrivateDataRepository extends JpaRepository<PrivateData, Long>, PrivateDataCustomRepository {
     List<PrivateData> findAllByTeam(Team team);
 }

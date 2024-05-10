@@ -152,13 +152,13 @@ public class RoleService {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
-        // 이미 존재하는 역할명으로 수정 불가
-        if (!role.getName().equals(requestDto.getNewRoleName()) && roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
-            throw new BusinessException(ExceptionCode.ROLE_EXISTS);
-        }
-
         // 역할명 변경
         Role newRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+
+        // 이미 존재하는 역할명으로 수정 불가
+        if (!newRole.getName().equals(requestDto.getNewRoleName()) && roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
+            throw new BusinessException(ExceptionCode.ROLE_EXISTS);
+        }
 
         if ("HEADER".equals(newRole.getName()) ||
                 "LEADER".equals(newRole.getName()) ||

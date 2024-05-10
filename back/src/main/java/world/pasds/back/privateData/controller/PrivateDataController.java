@@ -10,8 +10,6 @@ import world.pasds.back.privateData.service.PrivateDataService;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/app/api/data")
 @RequiredArgsConstructor
@@ -21,7 +19,7 @@ public class PrivateDataController {
 
     @GetMapping("/list/{teamId}/{offset}")
     public ResponseEntity<?> getPrivateDataList(@PathVariable(name = "teamId") Long teamId, @PathVariable(name = "offset") int offset,  @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetPrivateDataListResponseDto> response = privateDataService.getPrivateDataList(teamId, offset, userDetails.getMemberId());
+        GetPrivateDataListResponseDto response = privateDataService.getPrivateDataList(teamId, offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

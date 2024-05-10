@@ -1,17 +1,17 @@
 package world.pasds.back.privateData.entity.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import world.pasds.back.privateData.entity.DataType;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class GetPrivateDataListResponseDto {
-    private Long teamId;
-    private Long privateDataId;
-    private String title;
-    private DataType type;
-    private Long createdBy;
-    private String dataId;
-    private String url;
+    private int totalPages;
+    private List<PrivateDataResponse> privateDataResponse;
 }

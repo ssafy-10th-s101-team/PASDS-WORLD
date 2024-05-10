@@ -310,6 +310,8 @@ public class PrivateDataService {
                     .build());
         }
 
+        List<PrivateDataRole> privateDataRoleList = privateDataRoleRepository.findAllByPrivateData(findPrivateData);
+        privateDataRoleRepository.deleteAll(privateDataRoleList);
         privateDataRoleRepository.saveAll(newPrivateDataRole);
         privateDataRepository.save(findPrivateData);
     }

@@ -141,6 +141,7 @@ const fetchAuthority = async () => {
     console.error('Unexpected error:', error)
   }
 }
+
 const fetchRoleDetail = async () => {
   try {
     const response = await getRoleDetail(props.roleId)
@@ -164,11 +165,12 @@ const postRole = async (event) => {
       authorities: selectedAuthorities.value
     }
     await updateRole(body)
+
     emit('role-updated')
     toggleHidden('teamRoleUpdateModal')
     // 닫기
   } catch (error) {
-    console.error('Unexpected error:', error)
+    window.alert(error.response.data.message)
   }
 }
 
@@ -185,7 +187,7 @@ const removeRole = async (event) => {
     emit('role-updated')
     toggleHidden('teamRoleUpdateModal')
   } catch (error) {
-    console.error(error)
+    window.alert(error.response.data.message)
   }
 }
 </script>

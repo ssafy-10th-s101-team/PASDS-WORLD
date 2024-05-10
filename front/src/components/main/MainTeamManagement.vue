@@ -223,6 +223,13 @@
             </div>
           </div>
         </div>
+        <div class="flex justify-center">
+          <BasePagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @change-page="changePage"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -249,10 +256,10 @@ import TeamRoleCreationModal from '../common/TeamRoleCreationModal.vue'
 import ChangeTeamNameModal from '../common/TeamChangeNameModal.vue'
 import ChangeTeamLeaderModal from '../common/TeamChangeLeaderModal.vue'
 import BaseButton from '../common/BaseButton.vue'
+import BasePagination from '../common/BasePagination.vue'
 import { useCommonStore } from '@/stores/common'
-import { getAuthority, getRole } from '@/api/role'
+import { getRole } from '@/api/role'
 import { getLeader, getTeamMembers } from '@/api/team'
-import OrganizationSidebar from '../common/OrganizationSidebar.vue'
 import router from '@/router'
 const commonStore = useCommonStore()
 const route = useRoute()
@@ -264,6 +271,8 @@ const { toggleHidden } = commonStore
 const selectedRoleId = ref(null)
 const selectedRoleName = ref('')
 const selectedMemberId = ref(null)
+const currentPage = ref(1)
+const totalPages = ref(10)
 
 const currentTab = ref('role')
 const roles = ref([])

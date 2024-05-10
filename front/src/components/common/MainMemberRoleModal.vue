@@ -46,6 +46,7 @@
                   aria-labelledby="`role-option-${role.roleId}`"
                   aria-describedby="`role-option-${role.roleId}`"
                   v-model="selectedRoleId"
+                  checked=""
                 />
                 <label
                   :for="`role-option-${role.roleId}`"
@@ -67,6 +68,7 @@
               확인
             </button>
           </div>
+          <div class="text-red-500 px-6 pb-6" @click="banTeamMember">추방하기</div>
         </div>
       </div>
     </div>
@@ -77,6 +79,7 @@
 import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { assignRole } from '@/api/role'
+import { removeTeam } from '@/api/team'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 
@@ -92,7 +95,7 @@ const props = defineProps({
     required: true
   },
   teamId: {
-    type: String,
+    type: Number,
     required: true
   }
 })
@@ -100,9 +103,8 @@ const props = defineProps({
 const updateMemberRole = async (event) => {
   event.preventDefault()
   const body = {
-    assignedMemberId: props.memberId,
-    roleId: selectedRoleId.value,
-    teamId: props.teamId
+    teamId: props.teamId,
+    memberId: props
   }
   try {
     await assignRole(body)
@@ -110,6 +112,23 @@ const updateMemberRole = async (event) => {
     toggleHidden('memberRole')
   } catch (error) {
     return
+  }
+}
+
+const banTeamMember = async (event) => {
+  event.preventDefault()
+  console.log('teamId:', props.teamId)
+  console.log('memberId:', props.memberId)
+  try {
+    const body = {
+      teamId: props.teamId,
+      memberId: props.memberId
+    }
+    await removeTeam(body)
+    emit('memberRole-updated')
+    toggleHidden('teamRoleUpdateModal')
+  } catch (error) {
+    window.alert(error.response.data.message)
   }
 }
 </script>

@@ -36,7 +36,7 @@
                     class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
                   >
                     <tr
-                      v-for="teamMember in members"
+                      v-for="teamMember in teamMembers"
                       :key="teamMember.id"
                       class="hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
@@ -85,7 +85,7 @@ import BaseModal from './BaseModal.vue'
 import { inviteTeam } from '@/api/team'
 
 const selectedMemberId = ref('')
-const members = ref([])
+
 const props = defineProps({
   teamId: {
     type: Number,
@@ -95,10 +95,6 @@ const props = defineProps({
     type: Array,
     required: true
   }
-})
-onMounted(async () => {
-  members.value = props.teamMembers
-  console.log('멤버들은?', members.value)
 })
 
 const updateLeader = async (event) => {

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import world.pasds.back.privateData.entity.DataType;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class GetPrivateDataResponseDto {
     private String memo;
     private String privateDataId;
     private String url;
+    private List<Long> roles;
 }

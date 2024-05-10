@@ -50,56 +50,6 @@ public class PrivateDataService {
     private final KeyService keyService;
 
     @Transactional
-    public GetPrivateDataRolesResponseDto getPrivateDataRoles(Long teamId, Long privateDataId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-
-        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
-        if (findMemberRole == null) {
-            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
-        }
-
-        PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
-        List<PrivateDataRole> privateDataRoleList = privateDataRoleRepository.findAllByPrivateData(privateData);
-
-        List<Role> teamRoleList = roleRepository.findAllByTeam(team);
-        Map<Long, String> roleMap = new HashMap<>();
-        for (Role role : teamRoleList) {
-            roleMap.put(role.getId(), role.getName());
-        }
-        return GetPrivateDataRolesResponseDto
-                .builder()
-                .roles(roleMap)
-                .hasAuthorities(privateDataRoleList.stream().map(pd -> pd.getRole().getId()).toList())
-                .build();
-    }
-
-    @Transactional
-    public List<GetPrivateDataAuthoritiesResponseDto> getPrivateDataAuthorities(Long teamId, Long privateDataId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
-
-        MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
-        if (findMemberRole == null) {
-            throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
-        }
-        Role role = findMemberRole.getRole();
-
-        PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
-        if (!privateDataRoleRepository.existsByPrivateDataAndRole(privateData, role)) {
-            throw new BusinessException(ExceptionCode.PRIVATE_DATA_UNAUTHORIZED);
-        }
-
-        return roleAuthorityRepository.findAllByRole(role)
-                .stream()
-                .map(ra -> GetPrivateDataAuthoritiesResponseDto
-                        .builder()
-                        .name(ra.getAuthority().getName())
-                        .build())
-                .toList();
-    }
-
-    @Transactional
     public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {
         Pageable pageable = PageRequest.of(offset - 1, 10);
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -157,7 +107,7 @@ public class PrivateDataService {
         PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
         //팀 및 조직의 팀 조회수 증가
-        
+
 
         // 요청한 멤버가 해당 팀에서 어떤 역할을 가지는지 확인
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
@@ -197,6 +147,10 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getDataKey()),
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
+        List<Long> roles = privateDataRoleRepository.findAllByPrivateData(privateData).stream()
+                .map(pd -> pd.getRole().getId())
+                .toList();
+
         return GetPrivateDataResponseDto.builder()
                 .type(privateData.getType())
                 .title(privateData.getTitle())
@@ -204,6 +158,7 @@ public class PrivateDataService {
                 .memo(privateData.getMemo())
                 .privateDataId(privateData.getPrivateDataId())
                 .url(privateData.getUrl())
+                .roles(roles)
                 .build();
     }
 

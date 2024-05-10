@@ -16,6 +16,8 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.privateData.entity.PrivateDataRole;
+import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.entity.dto.request.CreateRoleRequestDto;
@@ -43,6 +45,7 @@ public class RoleService {
     private final MemberRoleRepository memberRoleRepository;
     private final MemberTeamRepository memberTeamRepository;
     private final AuthorityRepository authorityRepository;
+    private final PrivateDataRoleRepository privateDataRoleRepository;
 
     @Transactional
     public List<GetRoleResponseDto> getRole(Long teamId, Long memberId) {
@@ -216,6 +219,9 @@ public class RoleService {
         if (memberRoleRepository.existsByRole(deleteRole)) {
             throw new BusinessException(ExceptionCode.ROLE_MEMBER_EXISTS);
         }
+
+        List<PrivateDataRole> pridvateDataRoleList = privateDataRoleRepository.findAllByRole(deleteRole);
+        privateDataRoleRepository.deleteAll(pridvateDataRoleList);
 
         List<RoleAuthority> deleteRoleAuthorityList = roleAuthorityRepository.findAllByRole(deleteRole);
         roleAuthorityRepository.deleteAll(deleteRoleAuthorityList);

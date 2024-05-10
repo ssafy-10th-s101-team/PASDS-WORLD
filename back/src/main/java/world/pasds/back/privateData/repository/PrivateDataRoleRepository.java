@@ -14,4 +14,6 @@ public interface PrivateDataRoleRepository extends JpaRepository<PrivateDataRole
     List<PrivateDataRole> findAllByPrivateData(PrivateData privateData);
 
     boolean existsByPrivateDataAndRole(PrivateData privateData, Role role);
+
+    List<PrivateDataRole> findAllByRole(Role role);
 }

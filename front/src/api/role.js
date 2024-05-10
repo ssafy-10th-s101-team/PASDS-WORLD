@@ -26,6 +26,14 @@ async function getRole(teamId) {
     .catch(fail)
 }
 
+//역할 상세조회
+async function getRoleDetail(roleId) {
+  return localAxios
+    .get(prefix + `/detail/${roleId}`)
+    .then(success)
+    .catch(fail)
+}
+
 //역할 생성
 async function createRole(body) {
   return localAxios
@@ -58,4 +66,4 @@ async function assignRole(body) {
     .catch(fail)
 }
 
-export { getAuthority, getRole, createRole, updateRole, deleteRole, assignRole }
+export { getAuthority, getRole, getRoleDetail, createRole, updateRole, deleteRole, assignRole }

@@ -226,12 +226,7 @@
       </div>
     </div>
   </div>
-  <MainAuthorizationModal
-    :teamId="teamId"
-    :roleId="selectedRoleId"
-    :roleName="selectedRoleName"
-    @role-updated="refreshRoles"
-  />
+  <MainAuthorizationModal :teamId="teamId" :roleId="selectedRoleId" @role-updated="refreshRoles" />
   <MainMemberRoleModal
     :teamId="teamId"
     :roles="roles"

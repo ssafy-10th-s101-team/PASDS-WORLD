@@ -208,6 +208,10 @@ const jwtTest = async () => {
 
 //알림 관련 함수
 const toggleNotifications = () => {
+  if (notifications.value.length <= 0) {
+    showNotifications.value = false
+    return
+  }
   showNotifications.value = !showNotifications.value
 }
 

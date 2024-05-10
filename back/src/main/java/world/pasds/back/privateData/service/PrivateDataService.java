@@ -275,11 +275,18 @@ public class PrivateDataService {
 
         PrivateData findPrivateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
-        /**
-         * KMS에게 암호화 키 달라고 한 뒤
-         * 비밀 암호화하여 저장
-         */
-        byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
+        byte[] encryptedDataKey = team.getEncryptedDataKey();
+        byte[] encryptedIv = team.getEncryptedIv();
+
+        KmsKeyDto dto = KmsKeyDto.builder()
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
+        KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
+
+        byte[] encryptedPrivateData = keyService.encryptSecret(requestDto.getContent().getBytes(StandardCharsets.UTF_8),
+                Base64.getDecoder().decode(decryptKeys.getDataKey()),
+                Base64.getDecoder().decode(decryptKeys.getIv()));
 
         // 비밀, 제목, 메모, 아이디, url 변경 가능
         if (findPrivateData.getType() == DataType.LOGIN) {
@@ -298,7 +305,7 @@ public class PrivateDataService {
         Role leader = roleRepository.findByTeamAndName(team, "LEADER");
 
         List<Long> roleId = requestDto.getRoleId();
-        List<Role> findRoleList = roleRepository.findAllById(roleId);
+        List<Role> findRoleList = new ArrayList<>(roleRepository.findAllById(roleId));
         findRoleList.add(header);
         findRoleList.add(leader);
 

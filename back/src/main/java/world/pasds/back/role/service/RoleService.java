@@ -16,11 +16,14 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.privateData.entity.PrivateDataRole;
+import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.entity.dto.request.CreateRoleRequestDto;
 import world.pasds.back.role.entity.dto.request.DeleteRoleRequestDto;
 import world.pasds.back.role.entity.dto.request.UpdateRoleRequestDto;
+import world.pasds.back.role.entity.dto.response.GetRoleDetailResponseDto;
 import world.pasds.back.role.entity.dto.response.GetRoleResponseDto;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
 import world.pasds.back.role.repository.RoleRepository;
@@ -42,6 +45,7 @@ public class RoleService {
     private final MemberRoleRepository memberRoleRepository;
     private final MemberTeamRepository memberTeamRepository;
     private final AuthorityRepository authorityRepository;
+    private final PrivateDataRoleRepository privateDataRoleRepository;
 
     @Transactional
     public List<GetRoleResponseDto> getRole(Long teamId, Long memberId) {
@@ -75,6 +79,23 @@ public class RoleService {
     }
 
     @Transactional
+    public GetRoleDetailResponseDto getRoleDetail(Long roleId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        List<AuthorityDto> authorityDtoList = new ArrayList<>();
+        for (RoleAuthority roleAuthority : roleAuthorityList) {
+            Authority authority = roleAuthority.getAuthority();
+            authorityDtoList.add(AuthorityDto.builder().id(authority.getId()).name(authority.getName()).build());
+        }
+
+        return GetRoleDetailResponseDto.builder()
+                .name(role.getName())
+                .authorities(authorityDtoList)
+                .build();
+    }
+
+    @Transactional
     public void createRole(CreateRoleRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
@@ -97,7 +118,7 @@ public class RoleService {
 
         if ("HEADER".equals(createRole.getName()) ||
                 "LEADER".equals(createRole.getName()) ||
-                "MEMBER".equals(createRole.getName())) {
+                "GUEST".equals(createRole.getName())) {
             throw new BusinessException(ExceptionCode.AUTHORITY_NAME_CONFLICT);
         }
         Role savedRole = roleRepository.save(createRole);
@@ -134,13 +155,23 @@ public class RoleService {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 
+        // 역할명 변경
+        Role newRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+
         // 이미 존재하는 역할명으로 수정 불가
-        if (!role.getName().equals(requestDto.getNewRoleName()) && roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
+        if (!newRole.getName().equals(requestDto.getNewRoleName()) && roleRepository.existsByTeamAndName(team, requestDto.getNewRoleName())) {
             throw new BusinessException(ExceptionCode.ROLE_EXISTS);
         }
 
-        // 역할명 변경
-        Role newRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+        if ("HEADER".equals(newRole.getName()) ||
+                "LEADER".equals(newRole.getName()) ||
+                "GUEST".equals(newRole.getName()) ||
+                "HEADER".equals(requestDto.getNewRoleName()) ||
+                "LEADER".equals(requestDto.getNewRoleName()) ||
+                "GUEST".equals(requestDto.getNewRoleName())) {
+            throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
+        }
+
         newRole.setName(requestDto.getNewRoleName());
         roleRepository.save(newRole);
 
@@ -178,9 +209,19 @@ public class RoleService {
 
         Role deleteRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
 
-        if (memberRoleRepository.existsByRole(deleteRole)) {
-            throw new BusinessException(ExceptionCode.ROLE_EXISTS);
+        if ("HEADER".equals(deleteRole.getName()) ||
+                "LEADER".equals(deleteRole.getName()) ||
+                "GUEST".equals(deleteRole.getName())) {
+            throw new BusinessException(ExceptionCode.ROLE_UNAUTHORIZED);
         }
+
+        // 역할을 가진 팀원이 존재할 경우 삭제 불가능
+        if (memberRoleRepository.existsByRole(deleteRole)) {
+            throw new BusinessException(ExceptionCode.ROLE_MEMBER_EXISTS);
+        }
+
+        List<PrivateDataRole> pridvateDataRoleList = privateDataRoleRepository.findAllByRole(deleteRole);
+        privateDataRoleRepository.deleteAll(pridvateDataRoleList);
 
         List<RoleAuthority> deleteRoleAuthorityList = roleAuthorityRepository.findAllByRole(deleteRole);
         roleAuthorityRepository.deleteAll(deleteRoleAuthorityList);
@@ -197,7 +238,7 @@ public class RoleService {
         Organization organization = team.getOrganization();
 
         // 팀장과 조직장만이 팀내 역할 수정 가능
-        if (!(team.getLeader() != null &&(team.getLeader().getId().equals(member.getId())) || organization.getHeader().getId().equals(member.getId()))) {
+        if (!(team.getLeader() != null && (team.getLeader().getId().equals(member.getId())) || organization.getHeader().getId().equals(member.getId()))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

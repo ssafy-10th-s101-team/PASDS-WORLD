@@ -115,11 +115,12 @@ public class TotpService {
 
         byte[] totpKey = getDecryptedTotpKey(memberId);
         String totpCode = generateTotpCode(totpKey, LocalDateTime.now());
+        String prevTotpCode = generateTotpCode(totpKey, LocalDateTime.now().minusSeconds(30));
 
 //        System.out.println("2차 로그인과정 해독한 totpKey = " + Base64.getEncoder().encodeToString(totpKey));
 //        System.out.println("2차 로그인 서버에서 생성한 totpCode = " + totpCode);
 
-        return inputTotpCode.equals(totpCode);
+        return inputTotpCode.equals(totpCode) || inputTotpCode.equals(prevTotpCode);
     }
 
     private byte[] getDecryptedTotpKey(Long memberId) {
@@ -257,6 +258,7 @@ public class TotpService {
 
                     //만료시간이 지났으면 갱신로직 시작
                     changeTotpDataKey(member);
+
                 }
                 startId = endId;
                 endId += 1000L;

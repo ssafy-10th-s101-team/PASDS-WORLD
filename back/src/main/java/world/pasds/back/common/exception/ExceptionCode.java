@@ -55,6 +55,7 @@ public enum ExceptionCode {
 
     ROLE_NOT_FOUND(404, "역할을 찾을 수 없습니다."),
     ROLE_EXISTS(409, "역할이 이미 존재합니다."),
+    ROLE_UNAUTHORIZED(401, "해당 역할은 변경이 불가능합니다."),
     ROLE_MEMBER_EXISTS(403, "해당 역할을 가진 팀원이 존재합니다.\n" +
             "해당 역할을 가진 팀원이 존재하지 않는 경우만 역할 삭제가 가능합니다."),
 
@@ -95,7 +96,10 @@ public enum ExceptionCode {
     REFRESH_COOKIE_NOT_FOUND(401,"재발급 쿠키를 찾을 수 없습니다."),
     MY_ORGANIZATION_INVITATION(400, "MY_ORGANIZATION에는 조직원을 초대할 수 없습니다."),
     NO_HEADER(400, "조직장 역할은 위임 외에 설정할 수 없습니다."),
-    ALREADY_ORGANIZATION_MEMBER(400, "이미 우리 조직입니다.");
+    ALREADY_ORGANIZATION_MEMBER(400, "이미 우리 조직입니다."),
+
+    TEAM_DASHBOARD_NOT_FOUNT(401, "팀 대시보드를 찾을 수 없습니다."),
+    ORGANIZATION_DASHBOARD_NOT_FOUNT(401, "조직 대시보드를 찾을 수 없습니다.");
 
     @Getter
     private int status;

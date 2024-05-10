@@ -49,7 +49,7 @@ public class InvitationService {
     private final RoleRepository roleRepository;
     private final NotificationService notificationService;
 
-    private final String DOMAIN = "https://k10s101.p.ssafy.io";
+    private final String DOMAIN = "https://pasds.world";
 
     @Transactional
     public List<GetInvitationsResponseDto> getInvitations(int offset, Long memberId) {
@@ -82,8 +82,8 @@ public class InvitationService {
                 .build();
         invitationRepository.save(invitation);
         emailService.sendMessage(receiverEmail,
-                "Invite to " + organization.getName(),
-                "From " + sender.getNickname() + "(" + sender.getEmail() + ")" + " invite to " + organization.getName() + "\n" + DOMAIN);
+                "Invitation to " + organization.getName(),
+                sender.getNickname() + "(" + sender.getEmail() + ")" + " invite you to join " + organization.getName() + "\n" + DOMAIN);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

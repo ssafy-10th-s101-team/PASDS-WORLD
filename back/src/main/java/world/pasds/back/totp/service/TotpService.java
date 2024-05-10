@@ -258,6 +258,7 @@ public class TotpService {
 
                     //만료시간이 지났으면 갱신로직 시작
                     changeTotpDataKey(member);
+
                 }
                 startId = endId;
                 endId += 1000L;

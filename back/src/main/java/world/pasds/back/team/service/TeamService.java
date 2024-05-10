@@ -16,6 +16,8 @@ import world.pasds.back.common.dto.KmsReGenerationKeysResponseDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.KeyService;
+import world.pasds.back.dashboard.service.OrganizationDashboardService;
+import world.pasds.back.dashboard.service.TeamDashboardService;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.*;
 import world.pasds.back.member.repository.MemberOrganizationRepository;
@@ -61,8 +63,9 @@ public class TeamService {
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final AuthorityRepository authorityRepository;
-
     private final PrivateDataRepository privateDataRepository;
+    private final OrganizationDashboardService organizationDashboardService;
+    private final TeamDashboardService teamDashboardService;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(Long organizationId, Long memberId) {
@@ -522,6 +525,15 @@ public class TeamService {
 
                     //만료시간이 지났으면 갱신로직 시작
                     changeTeamDataKey(team);
+
+                    //조직 및 팀 키회전 증가
+                    Long teamId = team.getId();
+                    teamDashboardService.checkTeamDashboardDay(teamId);
+                    teamDashboardService.upTeamDashBoard(teamId, 'r');
+                    Long organizationId = getOrganizationId(teamId);
+                    organizationDashboardService.checkOrganizationDashboardDay(organizationId);
+                    organizationDashboardService.upOrganizationDashBoard(organizationId, 'r');
+
                 }
                 startId = endId;
                 endId += 1000L;
@@ -588,6 +600,17 @@ public class TeamService {
 
     private boolean isMyTeam(String teamName) {
         return "MY TEAM".equals(teamName);
+    }
+
+    public Long getOrganizationId(Long teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+
+        if (team.getOrganization() == null) {
+            throw new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND);
+        }
+
+        return team.getOrganization().getId();
     }
 
 }

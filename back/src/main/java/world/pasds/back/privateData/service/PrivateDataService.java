@@ -12,6 +12,8 @@ import world.pasds.back.common.dto.KmsKeyDto;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.KeyService;
+import world.pasds.back.dashboard.service.OrganizationDashboardService;
+import world.pasds.back.dashboard.service.TeamDashboardService;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.member.entity.MemberRole;
 import world.pasds.back.member.entity.MemberTeam;
@@ -19,8 +21,9 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.privateData.entity.DataType;
+import world.pasds.back.privateData.entity.dto.PrivateDataRoleDto;
 import world.pasds.back.privateData.entity.dto.request.*;
-import world.pasds.back.privateData.entity.dto.response.PrivateDataResponse;
+import world.pasds.back.privateData.entity.dto.response.*;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -28,16 +31,13 @@ import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.team.entity.Team;
-import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
-import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
 import world.pasds.back.privateData.repository.PrivateDataRepository;
 import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
 import world.pasds.back.team.repository.TeamRepository;
+import world.pasds.back.team.service.TeamService;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +52,9 @@ public class PrivateDataService {
     private final RoleRepository roleRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
     private final KeyService keyService;
+    private final OrganizationDashboardService organizationDashboardService;
+    private final TeamDashboardService teamDashboardService;
+    private final TeamService teamService;
 
     @Transactional
     public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {
@@ -110,6 +113,13 @@ public class PrivateDataService {
 
         PrivateData privateData = privateDataRepository.findById(privateDataId).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
+        //팀 및 조직의 팀 조회수 증가
+        teamDashboardService.checkTeamDashboardDay(teamId);
+        teamDashboardService.upTeamDashBoard(teamId, 'v');
+        Long organizationId = teamService.getOrganizationId(teamId);
+        organizationDashboardService.checkOrganizationDashboardDay(organizationId);
+        organizationDashboardService.upOrganizationDashBoard(organizationId, 'v');
+
         // 요청한 멤버가 해당 팀에서 어떤 역할을 가지는지 확인
         MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = memberRole.getRole();
@@ -148,6 +158,13 @@ public class PrivateDataService {
                 Base64.getDecoder().decode(decryptKeys.getDataKey()),
                 Base64.getDecoder().decode(decryptKeys.getIv()));
 
+        List<PrivateDataRoleDto> roles = privateDataRoleRepository.findAllByPrivateData(privateData).stream()
+                .map(pd -> PrivateDataRoleDto.builder()
+                        .roleId(pd.getRole().getId())
+                        .name(pd.getRole().getName())
+                        .build())
+                .toList();
+
         return GetPrivateDataResponseDto.builder()
                 .type(privateData.getType())
                 .title(privateData.getTitle())
@@ -155,6 +172,7 @@ public class PrivateDataService {
                 .memo(privateData.getMemo())
                 .privateDataId(privateData.getPrivateDataId())
                 .url(privateData.getUrl())
+                .roles(roles)
                 .build();
     }
 
@@ -231,6 +249,15 @@ public class PrivateDataService {
                             .build());
         }
         privateDataRoleRepository.saveAll(privateDataRoleList);
+
+        //조직 및 팀 비밀 개수 증가
+        Long teamId = team.getId();
+        teamDashboardService.checkTeamDashboardDay(teamId);
+        teamDashboardService.upTeamDashBoard(teamId, 'c');
+        Long organizationId = teamService.getOrganizationId(teamId);
+        organizationDashboardService.checkOrganizationDashboardDay(organizationId);
+        organizationDashboardService.upOrganizationDashBoard(organizationId, 'c');
+
     }
 
     @Transactional
@@ -266,6 +293,24 @@ public class PrivateDataService {
             findPrivateData.setContent(encryptedPrivateData);
             findPrivateData.setMemo(requestDto.getMemo());
         }
+
+        Role header = roleRepository.findByTeamAndName(team, "HEADER");
+        Role leader = roleRepository.findByTeamAndName(team, "LEADER");
+
+        List<Long> roleId = requestDto.getRoleId();
+        List<Role> findRoleList = roleRepository.findAllById(roleId);
+        findRoleList.add(header);
+        findRoleList.add(leader);
+
+        List<PrivateDataRole> newPrivateDataRole = new ArrayList<>();
+        for (Role r : findRoleList) {
+            newPrivateDataRole.add(PrivateDataRole.builder()
+                    .privateData(findPrivateData)
+                    .role(r)
+                    .build());
+        }
+
+        privateDataRoleRepository.saveAll(newPrivateDataRole);
         privateDataRepository.save(findPrivateData);
     }
 
@@ -324,5 +369,14 @@ public class PrivateDataService {
 
         PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
         privateDataRepository.delete(privateData);
+
+        // 조직 및 팀 비밀 개수 감소
+        Long teamId = team.getId();
+        teamDashboardService.checkTeamDashboardDay(teamId);
+        teamDashboardService.upTeamDashBoard(teamId, 'm');
+        Long organizationId = teamService.getOrganizationId(teamId);
+        organizationDashboardService.checkOrganizationDashboardDay(organizationId);
+        organizationDashboardService.upOrganizationDashBoard(organizationId, 'm');
+
     }
 }

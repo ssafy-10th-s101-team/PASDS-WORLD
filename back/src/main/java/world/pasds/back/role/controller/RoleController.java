@@ -8,6 +8,7 @@ import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.role.entity.dto.request.CreateRoleRequestDto;
 import world.pasds.back.role.entity.dto.request.DeleteRoleRequestDto;
 import world.pasds.back.role.entity.dto.request.UpdateRoleRequestDto;
+import world.pasds.back.role.entity.dto.response.GetRoleDetailResponseDto;
 import world.pasds.back.role.entity.dto.response.GetRoleResponseDto;
 import world.pasds.back.role.service.RoleService;
 import world.pasds.back.team.entity.dto.request.AssignRoleRequestDto;
@@ -24,6 +25,12 @@ public class RoleController {
     @GetMapping("/{teamId}")
     public ResponseEntity<?> getRole(@PathVariable Long teamId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetRoleResponseDto> response = roleService.getRole(teamId, userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/detail/{roleId}")
+    public ResponseEntity<?> getRoleDetail(@PathVariable Long roleId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        GetRoleDetailResponseDto response = roleService.getRoleDetail(roleId, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

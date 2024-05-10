@@ -104,6 +104,7 @@
         </div>
       </form>
     </div>
+    <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
 </template>
 
@@ -111,12 +112,26 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
+import BaseAlert from '@/components/common/BaseAlert.vue'
 
 const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
+
+// alert toggle
+const ErrorAlert = ref(false)
+
+// ErrorMsg
+const ErrorMsg = ref('')
+const showErrorAlert = (message) => {
+  ErrorMsg.value = message
+  ErrorAlert.value = true
+  setTimeout(() => {
+    ErrorAlert.value = false
+  }, 3000)
+}
 
 function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
@@ -130,14 +145,15 @@ async function validateForm() {
     }
     const response = await localAxios.post(`/member/first-login`, body)
     console.log(response)
-
+    // 앱 재연동하기에서 보일 이메일
+    sessionStorage.setItem('tmpEmail', email.value)
     sessionStorage.setItem('tmpNickname', response.data.nickname)
 
     // 다음 페이지로 라우팅
     router.push({ name: 'memberLogin2' })
   } catch (error) {
     console.log(error)
-    alert(error.response.data.message)
+    showErrorAlert(error.response.data.message)
   }
 }
 </script>

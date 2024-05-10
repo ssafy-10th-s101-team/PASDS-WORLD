@@ -181,10 +181,9 @@ const sendOtpCode = async () => {
   loading.value = true
   const body = {
     email: email.value,
-    requestType: 2
   }
   await localAxios
-    .post('/totp/email-verification-requests', body)
+    .post('/email/password-verification-requests', body)
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
@@ -204,7 +203,7 @@ const checkOtpCode = async () => {
     otpCode: otpCode.value
   }
   await localAxios
-    .post('/totp/verification-email-code', body)
+    .post('/email/verification-email-code', body)
     .then(() => {
       emailVerified.value = true
       showOTPSuccessAlert()

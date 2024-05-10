@@ -14,9 +14,9 @@ const fail = (error) => {
 }
 
 //팀 비밀 리스트 조회
-async function getPrivateDatas(teamId) {
+async function getPrivateDatas(teamId, offset) {
   return localAxios
-    .get(prefix + `/${teamId}`)
+    .get(prefix + `/list/${teamId}/${offset}`)
     .then(success)
     .catch(fail)
 }

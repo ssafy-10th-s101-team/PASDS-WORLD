@@ -103,6 +103,7 @@ const totpKey = ref(null)
 
 onMounted(() => {
   tmpEmail.value = sessionStorage.getItem('tmpEmail')
+  sendOtpCode()
 })
 
 const showEmailSuccessAlert = () => {

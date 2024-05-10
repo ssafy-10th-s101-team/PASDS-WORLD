@@ -21,6 +21,7 @@ import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.entity.dto.request.CreateRoleRequestDto;
 import world.pasds.back.role.entity.dto.request.DeleteRoleRequestDto;
 import world.pasds.back.role.entity.dto.request.UpdateRoleRequestDto;
+import world.pasds.back.role.entity.dto.response.GetRoleDetailResponseDto;
 import world.pasds.back.role.entity.dto.response.GetRoleResponseDto;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
 import world.pasds.back.role.repository.RoleRepository;
@@ -72,6 +73,23 @@ public class RoleService {
                     .authorities(authorities)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public GetRoleDetailResponseDto getRoleDetail(Long roleId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        List<AuthorityDto> authorityDtoList = new ArrayList<>();
+        for (RoleAuthority roleAuthority : roleAuthorityList) {
+            Authority authority = roleAuthority.getAuthority();
+            authorityDtoList.add(AuthorityDto.builder().id(authority.getId()).name(authority.getName()).build());
+        }
+
+        return GetRoleDetailResponseDto.builder()
+                .name(role.getName())
+                .authorities(authorityDtoList)
+                .build();
     }
 
     @Transactional
@@ -197,7 +215,7 @@ public class RoleService {
         Organization organization = team.getOrganization();
 
         // 팀장과 조직장만이 팀내 역할 수정 가능
-        if (!(team.getLeader() != null &&(team.getLeader().getId().equals(member.getId())) || organization.getHeader().getId().equals(member.getId()))) {
+        if (!(team.getLeader() != null && (team.getLeader().getId().equals(member.getId())) || organization.getHeader().getId().equals(member.getId()))) {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
 

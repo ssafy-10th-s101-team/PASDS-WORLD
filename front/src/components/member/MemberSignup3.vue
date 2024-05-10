@@ -1,12 +1,11 @@
 <template>
-
   <div class="max-w-2xl mx-auto bg-white p-16">
     <div
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
       <p class="text-gray-900 dark:text-white">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
-        PASDSWORLD 의 패스키를 생성하려는 기기의 앱 카메라로 이 QR 코드를 스캔하세요.
+        PasdsWorld Authentication 어플을 실행하여 패스키 스캔을 하세요
       </p>
       <button
         @click="goToNextStep"

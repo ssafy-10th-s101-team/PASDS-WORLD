@@ -21,10 +21,10 @@
           />
         </div>
         <div class="flex items-end justify-start basis-1/8">
-          <BaseSpinner :loading="loading"/>
+          <BaseSpinner :loading="loading" />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading"/>
+          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -212,13 +212,15 @@ const checkOtpCode = async () => {
 const sendOtpCode = async () => {
   loading.value = true
   const body = {
-    email: email.value,
+    email: email.value
   }
   await localAxios
     .post('/email/signup-verification-requests', body)
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
+      removeHidden('OTP') // OTP 입력 부분을 보이게 합니다.
+      removeHidden('timer') // 타이머를 보이게 하고 재시작합니다.
       startTimer()
     })
     .catch((error) => {

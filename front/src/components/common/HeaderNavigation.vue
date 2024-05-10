@@ -38,16 +38,15 @@
               </router-link>
               <button
                 @click="jwtTest"
-                class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+                class="text-gray-800 dark hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
               >
                 토큰테스트
               </button>
             </div>
 
             <!-- 알림 시작 -->
-            <div class="relative notification">
+            <div v-if="nickname" class="relative notification">
               <svg
-                v-if="nickname"
                 @click="toggleNotifications"
                 class="icon-bell cursor-pointer text-gray-800 dark:text-white hover:text-white hover:bg-samsung-blue p-2 rounded-full"
                 fill="currentColor"
@@ -56,6 +55,9 @@
                 <path
                   d="M12 21c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-3v-5c0-3.11-1.64-5.87-4.5-6.64V5.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.76C7.64 6.13 6 8.89 6 12v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.68-4.5 4-4.5s4 2.02 4 4.5v6z"
                 />
+                <text x="12" y="16" font-size="6" text-anchor="middle" font-weight="bold">
+                  {{ notifications.length > 99 ? '99+' : notifications.length }}
+                </text>
               </svg>
               <div
                 v-show="showNotifications"
@@ -65,6 +67,7 @@
                 <div
                   v-for="notification in notifications"
                   :key="notification.id"
+                  @click="handleNotificationClick(notification)"
                   class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
                 >
                   {{ notification.message }}
@@ -172,7 +175,9 @@
 import { onMounted, ref, onUnmounted } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
-
+import { getNotifications, readNotification } from '@/api/notification.js'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const commonStore = useCommonStore()
 const { toggleDropdown, toggleHidden } = commonStore
 const nickname = ref('')
@@ -201,27 +206,44 @@ const jwtTest = async () => {
   } catch (error) {}
 }
 
+//알림 관련 함수
 const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value
 }
 
+//알림 목록 끄기
 const handleClickOutside = (event) => {
   if (!event.target.closest('.notification') && showNotifications.value) {
     showNotifications.value = false
   }
 }
 
-const fetchNotifications = async () => {
+//알림 클릭시 이동
+const handleNotificationClick = async (notification) => {
   try {
-    const { data } = await localAxios.get('/notifications')
-    notifications.value = data
+    // 알림 읽음 처리 API 호출
+    await readNotification(notification.id)
+    // 알림토글 끄기
+    showNotifications.value = !showNotifications.value
+    // 알림 하나 제거
+    const index = notifications.value.findIndex((n) => n.id === notification.id)
+    if (index !== -1) {
+      notifications.value.splice(index, 1)
+    }
+    // myPage로 라우팅
+    router.push({ name: 'myPage' })
   } catch (error) {
-    console.error('Error fetching notifications:', error)
+    console.error('Notification read error:', error)
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   nickname.value = sessionStorage.getItem('nickname')
+  try {
+    notifications.value = await getNotifications(0)
+  } catch (error) {
+    console.log('에러 발생. ', error.respnse.data.message)
+  }
   document.addEventListener('mousedown', handleClickOutside)
   // fetchUnreadNotifications()
 })
@@ -241,5 +263,10 @@ onUnmounted(() => {
   user-select: none; /* Standard syntax */
   position: relative;
   z-index: 1000; /* 높은 값으로 설정하여 다른 요소들 위에 위치하도록 함 */
+}
+
+.icon-bell {
+  width: 70px;
+  height: 70px;
 }
 </style>

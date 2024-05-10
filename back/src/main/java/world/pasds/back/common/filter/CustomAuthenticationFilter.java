@@ -75,6 +75,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 handleFirstLogin(request, response, filterChain);
                 break;
             case "/app/api/member/second-login":
+            case "/app/api/email/totp-key-verification-requests":
+            case "/app/api/totp/verification-email-code":
             case "/app/api/totp/re-share-key":
                 handleAuthenticationWithTemporaryToken(request, response, filterChain);
                 break;

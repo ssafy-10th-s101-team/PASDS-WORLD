@@ -29,7 +29,7 @@ public class PrivateDataCustomRepositoryImpl implements PrivateDataCustomReposit
 
         // 역할에 따른 접근 권한을 확인하는 쿼리 부분
         List<PrivateData> results = queryFactory
-                .select(qPrivateData)
+                .selectDistinct(qPrivateData)
                 .from(qPrivateData)
                 .join(qPrivateDataRole).on(qPrivateDataRole.privateData.eq(qPrivateData))
                 .join(qRole).on(qPrivateDataRole.role.eq(qRole))
@@ -39,6 +39,7 @@ public class PrivateDataCustomRepositoryImpl implements PrivateDataCustomReposit
                         qPrivateDataRole.role.eq(userRole),
                         qPrivateData.team.id.eq(teamId)
                 )
+                .orderBy(qPrivateData.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

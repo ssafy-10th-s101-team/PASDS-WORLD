@@ -187,22 +187,14 @@ public class TotpService {
 
         String redisAuthCode = redisService.getAuthCode(email);
 
-        // 인증을 이미 했거나 시간이 만료된 것임!
+        // 시간 만료된 사람
         if (redisAuthCode == null) {
-            // 시간 만료 된 사람
-            if (redisService.getEmailJti(email) == null) {
-                throw new BusinessException(ExceptionCode.EMAIL_CODE_EXPIRED);
-            }
-            // 이미 인증한 사람
-            else {
-                throw new BusinessException(ExceptionCode.EMAIL_AUTHENTICATION_ALREADY);
-            }
+            throw new BusinessException(ExceptionCode.EMAIL_CODE_EXPIRED);
         }
 
         if (authCode.equals("101") || redisAuthCode.equals(authCode)) {
             redisTemplate.delete(AUTH_CODE_PREFIX + email);
-//            String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
-//            cookieProvider.addCookie(request, response, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+            // etk 발급할 필요 없음
             return;
         }
 

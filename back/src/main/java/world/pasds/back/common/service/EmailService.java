@@ -137,7 +137,7 @@ public class EmailService {
 
         // 이메일 인증 요청 시 인증 번호 Redis 에 저장 ( key = "AuthCode " + Email / value = AuthCode )
         saveAuthCode(toEmail, authCode);
-        redisService.deleteEmailJti(toEmail);
+//        redisService.deleteEmailJti(toEmail);
     }
 
     private String createCode() {

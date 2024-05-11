@@ -36,12 +36,12 @@ public class TotpController {
 			.body(totpService.generateSecretKeyQR(userDetails.getMemberId()));
 	}
 
-	@PostMapping("/verification-email-code")
-	public ResponseEntity<?> verificationEmailCode(HttpServletRequest request, HttpServletResponse response,
-		@RequestBody EmailCodeKeyVerificationRequestDto requestDto,
-		@AuthenticationPrincipal CustomUserDetails userDetails) {
-		totpService.verificationEmailCode(request, response, userDetails, requestDto.getOtpCode());
-		return ResponseEntity.ok().build();
-	}
+//	@PostMapping("/verification-email-code")
+//	public ResponseEntity<?> verificationEmailCode(HttpServletRequest request, HttpServletResponse response,
+//		@RequestBody EmailCodeKeyVerificationRequestDto requestDto,
+//		@AuthenticationPrincipal CustomUserDetails userDetails) {
+//		totpService.verificationEmailCode(request, response, userDetails, requestDto.getOtpCode());
+//		return ResponseEntity.ok().build();
+//	}
 
 }

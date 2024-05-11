@@ -27,4 +27,14 @@ public class RedisService {
         String redisKey = "AuthCode "+email;
         return redisTemplate.opsForValue().get(redisKey);
     }
+
+    public Long getAccessTokenExpirationTimeLeft(Long memberId){
+        String redisKey = memberId+"_ACCESS";
+        return redisTemplate.getExpire(redisKey);
+    }
+
+    public Long getRefreshTokenExpirationTimeLeft(Long memberId){
+        String redisKey = memberId+"_REFRESH";
+        return redisTemplate.getExpire(redisKey);
+    }
 }

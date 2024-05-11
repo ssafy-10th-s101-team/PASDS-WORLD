@@ -81,12 +81,12 @@ const sendTotpCode = async () => {
   await localAxios
     .post(`/member/second-login`, body)
     .then(() => {
-      sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
-      sessionStorage.removeItem('tmpNickname')
-      sessionStorage.removeItem('tmpEmail')
-      // cookieHelper.generate('nickname', cookieHelper.get('tmpNickname'))
-      // cookieHelper.delete('tmpNickname')
-      // cookieHelper.delete('tmpEmail')
+      // sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
+      // sessionStorage.removeItem('tmpNickname')
+      // sessionStorage.removeItem('tmpEmail')
+      cookieHelper.generate('nickname', cookieHelper.get('tmpNickname'))
+      cookieHelper.delete('tmpNickname')
+      cookieHelper.delete('tmpEmail')
 
       showTOTPSuccessAlert()
 

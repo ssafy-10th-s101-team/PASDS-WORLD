@@ -110,8 +110,8 @@ const showEmailDiv = ref(true)
 const showOTPDiv = ref(true)
 
 onMounted(() => {
-  tmpEmail.value = sessionStorage.getItem('tmpEmail')
-  // tmpEmail.value = cookieHelper.get('tmpEmail')
+  // tmpEmail.value = sessionStorage.getItem('tmpEmail')
+  tmpEmail.value = cookieHelper.get('tmpEmail')
   sendOtpCode()
 })
 

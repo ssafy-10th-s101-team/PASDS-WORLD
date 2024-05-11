@@ -5,7 +5,7 @@
         <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           <router-link :to="{ name: 'home' }" class="flex items-center mt-6">
             <span class="self-center text-xl font-samsungone700c whitespace-nowrap dark:text-white"
-            >PASDSWORLD</span
+              >PASDSWORLD</span
             >
           </router-link>
           <div class="flex items-center lg:order-2">
@@ -13,16 +13,15 @@
               <router-link
                 :to="{ name: 'main' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-              >메인
+                >메인
               </router-link>
             </div>
             <div class="mt-6">
               <router-link
                 :to="{ name: 'organization' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-              >조직관리
-              </router-link
-              >
+                >조직관리
+              </router-link>
             </div>
             <div v-if="nickname" class="mt-6">
               <button
@@ -34,7 +33,7 @@
               <router-link :to="{ name: 'myPage' }">
                 <span
                   class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                >{{ nickname }}</span
+                  >{{ nickname }}</span
                 >
               </router-link>
               <button
@@ -45,20 +44,29 @@
               </button>
             </div>
 
-
             <!-- 알림 시작 -->
             <div v-if="nickname" class="relative notification">
-              <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-                   class="cursor-pointer hover:bg-samsung-blue text-gray-800 dark:text-white hover:text-white p-2 rounded-full"
-                   @click="toggleNotifications"
-                   fill="currentColor"
-                   xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="60px" height="72px"
-                   viewBox="-11 -6 67 67" xml:space="preserve">
-                <image id="image0"
-                       width="50"
-                       height="50"
-                       x="0" y="0"
-                       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAQAAABecRxxAAAAIGNIUk0AAHomAACAhAAA+gAAAIDo
+              <svg
+                id="Layer_1"
+                xmlns="http://www.w3.org/2000/svg"
+                class="cursor-pointer hover:bg-samsung-blue text-gray-800 dark:text-white hover:text-white p-2 rounded-full"
+                @click="toggleNotifications"
+                fill="currentColor"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                x="0px"
+                y="0px"
+                width="60px"
+                height="72px"
+                viewBox="-11 -6 67 67"
+                xml:space="preserve"
+              >
+                <image
+                  id="image0"
+                  width="50"
+                  height="50"
+                  x="0"
+                  y="0"
+                  xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAQAAABecRxxAAAAIGNIUk0AAHomAACAhAAA+gAAAIDo
 AAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAAOwwAADsMBx2+oZAAA
 AAd0SU1FB+gFCwwGHGJjOZMAAC4uSURBVHja7d13nBXV+QbwZxtlWZpLE1FZVESRIiiCgJ2moCaK
 GhWiJmCsJDGRGE2CpqhBo5gmxiS/oMYaeyNYgtJBEVBBRFiKLG1hgRW2z++PFWlb7r3nPfOeM/N8
@@ -270,7 +278,8 @@ vx10ZaAPBmMA+gotv70WM/Ae3kS+djDyAycAN2SiO05BD3RDNzRN+tPrsASL8RFmYq12EPILJwDX
 pKEDOiIPeeiAVmiFXLREQwAtkIYyfAVgJ7ZhCzZjM1YjH6uwEkXalSZf/T/fj9f2h9/jhAAAACV0
 RVh0ZGF0ZTpjcmVhdGUAMjAyNC0wNS0xMVQxMjowNjoyOCswMDowMMb+T/oAAAAldEVYdGRhdGU6
 bW9kaWZ5ADIwMjQtMDUtMTFUMTI6MDY6MjgrMDA6MDC3o/dGAAAAKHRFWHRkYXRlOnRpbWVzdGFt
-cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg==" />
+cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg=="
+                />
                 <text x="37" y="18" font-size="12" text-anchor="middle" font-weight="bold">
                   {{ notifications.length > 99 ? '99+' : notifications.length }}
                 </text>
@@ -295,9 +304,8 @@ cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg==" />
               <router-link
                 :to="{ name: 'memberLogin' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-              >로그인
-              </router-link
-              >
+                >로그인
+              </router-link>
             </div>
 
             <!-- <a
@@ -404,25 +412,20 @@ const notifications = ref([
   }
 ])
 
-
 const logout = async () => {
   try {
     await localAxios.get(`/member/logout`)
-    sessionStorage.removeItem('nickname')
+    sessionStorage.clear()
     nickname.value = ''
-  } catch (error) {
-    sessionStorage.removeItem('nickname')
-    nickname.value = ''
-  }
+    router.push({ name: 'home' })
+  } catch (error) {}
 }
 
 const jwtTest = async () => {
   try {
     const response = await localAxios.post(`/member/jwt-test`, null)
-    console.log(response)
-  } catch (error) {
-    console.error(error)
-  }
+    console.log(response.data)
+  } catch (error) {}
 }
 
 //알림 관련 함수
@@ -458,13 +461,16 @@ const handleNotificationClick = async (notification) => {
 
 onMounted(async () => {
   nickname.value = sessionStorage.getItem('nickname')
-  try {
-    notifications.value = await getNotifications(0)
-  } catch (error) {
-    console.log('에러 발생. ', error.respnse.data.message)
+  // 잠시 버그만 안나게 추가 했습니다
+  if (nickname.value) {
+    try {
+      notifications.value = await getNotifications(0)
+    } catch (error) {
+      console.log('에러 발생. ', error.respnse.data.message)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    // fetchUnreadNotifications()
   }
-  document.addEventListener('mousedown', handleClickOutside)
-  // fetchUnreadNotifications()
 })
 
 onUnmounted(() => {

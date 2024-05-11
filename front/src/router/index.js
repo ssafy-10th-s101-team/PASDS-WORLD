@@ -116,13 +116,13 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'organizationDashboard',
-          component: () => import('@/components/organization/OrganizationDashboard.vue'),
+          component: () => import('@/components/organization/OrganizationDashboard.vue')
         },
         {
           path: 'costGraph',
           name: 'costGraph',
           component: () => import('@/components/dashboard/DashboardCostGraph.vue')
-        },
+        }
       ]
     }
   ]

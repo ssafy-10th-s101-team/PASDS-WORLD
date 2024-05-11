@@ -291,7 +291,7 @@ cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg==" />
               </div>
             </div>
             <!-- 알림 끝-->
-            <div v-if="!nickname">
+            <div v-if="!nickname" class="mt-6">
               <router-link
                 :to="{ name: 'memberLogin' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"

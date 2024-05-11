@@ -5,7 +5,7 @@
     >
       <p class="text-gray-900 dark:text-white">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
-        PasdsWorld Authentication 앱을 실행하여 패스키를 스캔을 하세요
+        PasdsWorld Authentication 앱을 실행하여 패스키 스캔을 하세요
       </p>
       <button
         @click="goToNextStep"

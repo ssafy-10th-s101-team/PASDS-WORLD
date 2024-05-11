@@ -5,7 +5,7 @@
     >
       <p class="text-gray-900 dark:text-white">
         <img src="@/assets/images/pasdsworld_v3_qr.png" alt="QR Code" class="mx-auto" />
-        1. 스마트폰으로 QR 코드를 스캔하세요
+        1. 스마트폰 기본 카메라로 QR 코드를 스캔하세요
         <br />2. PasdsWorld Authentication 앱을 다운로드하세요
       </p>
       <button

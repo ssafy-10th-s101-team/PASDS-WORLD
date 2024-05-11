@@ -3,7 +3,7 @@
     <form
       class="space-y-6 bg-white shadow-md border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
-      <h3 class="text-xl text-gray-900 dark:text-white">패스키 재발급 하기</h3>
+      <h3 class="text-xl text-gray-900 dark:text-white">패스키 재발급</h3>
       <div v-show="showEmailDiv" class="gap-6 mb-6 flex flex-row">
         <!-- 이메일 입력 필드 -->
         <div class="basis-2/3">
@@ -39,7 +39,7 @@
               id="otpCode"
               v-model="otpCode"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="이메일로 받은 코드를 입력하세요"
+              placeholder="이메일로 받은 인증코드를 입력하세요"
               required
             />
           </div>
@@ -55,14 +55,14 @@
       <div id="TOTP" class="hidden">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-300 mt-4">
-          PasdsWorld Authentication 앱을 실행하여 <br />패스키를 스캔을 하세요
+          PasdsWorld Authentication 앱을 실행하여 <br />패스키 스캔을 하세요
         </h2>
         <button
           @click="goToLogin"
           type="button"
           class="mt-6 bg-samsung-blue hover:bg-blue-800 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors"
         >
-          로그인
+          2단계 인증 페이지로 이동
         </button>
       </div>
     </form>
@@ -78,9 +78,12 @@ import BaseButton from '../common/BaseButton.vue'
 import { onMounted, ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
-import router from '@/router/index.js'
+// import router from '@/router/index.js'
+// import router from ''
+import { useRouter } from 'vue-router'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import BaseSpinner from '@/components/common/BaseSpinner.vue'
+const router = useRouter()
 
 const commonStore = useCommonStore()
 const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore

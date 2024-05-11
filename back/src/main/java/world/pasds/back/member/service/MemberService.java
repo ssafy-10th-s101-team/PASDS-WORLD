@@ -118,17 +118,16 @@ public class MemberService {
 
 		Long memberId = customUserDetails.getMemberId();
 
+		String inputTotpCode = secondLoginRequestDto.getTotpCode();
+
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
 		member.setSecondLoginCnt(member.getSecondLoginCnt() + 1);
 		memberRepository.save(member);
-		if (member.getSecondLoginCnt() >= 5) {      // 2차 로그인 5회 초과 시도 시 계정 잠김
+		if (member.getSecondLoginCnt() >= 5 && !totpService.verificationTotpCode(memberId, inputTotpCode)) {      // 2차 로그인 5회 초과 시도 시 계정 잠김
 			throw new BusinessException(ExceptionCode.MEMBER_LOCKED_2);
 		}
-
-
-		String inputTotpCode = secondLoginRequestDto.getTotpCode();
 
 		if (!inputTotpCode.equals("101")) {
 			if (!totpService.verificationTotpCode(memberId, inputTotpCode)) {

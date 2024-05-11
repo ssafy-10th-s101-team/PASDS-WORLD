@@ -401,6 +401,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { localAxios } from '@/utils/http-commons.js'
 import { getNotifications, readNotification } from '@/api/notification.js'
 import { useRouter } from 'vue-router'
+import cookieHelper from '@/utils/cookie'
 
 const router = useRouter()
 
@@ -415,7 +416,8 @@ const notifications = ref([
 const logout = async () => {
   try {
     await localAxios.get(`/member/logout`)
-    sessionStorage.clear()
+    // sessionStorage.clear()
+    cookieHelper.deleteAll()
     nickname.value = ''
     router.push({ name: 'home' })
   } catch (error) {}
@@ -460,7 +462,8 @@ const handleNotificationClick = async (notification) => {
 }
 
 onMounted(async () => {
-  nickname.value = sessionStorage.getItem('nickname')
+  // nickname.value = sessionStorage.getItem('nickname')
+  nickname.value = cookieHelper.get('nickname')
   // 잠시 버그만 안나게 추가 했습니다
   if (nickname.value) {
     try {

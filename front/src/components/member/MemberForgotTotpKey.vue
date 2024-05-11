@@ -83,6 +83,7 @@ import { localAxios } from '@/utils/http-commons.js'
 import { useRouter } from 'vue-router'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import BaseSpinner from '@/components/common/BaseSpinner.vue'
+import cookieHelper from '@/utils/cookie.js'
 const router = useRouter()
 
 const commonStore = useCommonStore()
@@ -109,7 +110,8 @@ const showEmailDiv = ref(true)
 const showOTPDiv = ref(true)
 
 onMounted(() => {
-  tmpEmail.value = sessionStorage.getItem('tmpEmail')
+  // tmpEmail.value = sessionStorage.getItem('tmpEmail')
+  tmpEmail.value = cookieHelper.get('tmpEmail')
   sendOtpCode()
 })
 

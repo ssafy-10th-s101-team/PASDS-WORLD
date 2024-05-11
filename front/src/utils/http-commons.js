@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { nextTick } from 'vue'
 import router from '@/router'
+import cookieHelper from './cookie'
 
 const baseURL = 'https://pasds.world/app/api'
 // const baseURL = 'http://localhost:8080/app/api'
@@ -48,7 +49,8 @@ localAxios.interceptors.response.use(
       const exceptionCode = error.response.data.exceptionCode
       if (errorCodes.includes(exceptionCode)) {
         alert('세션이 만료되었습니다.\n로그인 해주세요.')
-        sessionStorage.clear()
+        // sessionStorage.clear()
+        cookieHelper.deleteAll()
         router.push({ name: 'memberLogin' }).then(() => {
           nextTick(() => {
             window.location.reload()

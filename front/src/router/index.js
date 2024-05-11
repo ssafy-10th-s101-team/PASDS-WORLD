@@ -3,6 +3,7 @@ import MainView from '@/views/MainView.vue'
 import MemberView from '@/views/MemberView.vue'
 import HomeView from '@/views/HomeView.vue'
 import OrganizationView from '@/views/OrganizationView.vue'
+import cookieHelper from '@/utils/cookie'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -143,7 +144,8 @@ const authRelatedRoutes = [
 const publicRoutes = ['home', ...authRelatedRoutes]
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = sessionStorage.getItem('nickname')
+  // const isAuthenticated = sessionStorage.getItem('nickname')
+  const isAuthenticated = cookieHelper.get('nickname')
 
   if (isAuthenticated) {
     // 로그인한 사용자는 인증 관련 페이지 접근 시 홈으로 리다이렉트

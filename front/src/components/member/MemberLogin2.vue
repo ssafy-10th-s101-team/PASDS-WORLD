@@ -46,6 +46,7 @@ import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
+import cookieHelper from '@/utils/cookie.js'
 
 const router = useRouter()
 
@@ -80,9 +81,13 @@ const sendTotpCode = async () => {
   await localAxios
     .post(`/member/second-login`, body)
     .then(() => {
-      sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
-      sessionStorage.removeItem('tmpNickname')
-      sessionStorage.removeItem('tmpEmail')
+      // sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
+      // sessionStorage.removeItem('tmpNickname')
+      // sessionStorage.removeItem('tmpEmail')
+      cookieHelper.generate('nickname', cookieHelper.get('tmpNickname'))
+      cookieHelper.delete('tmpNickname')
+      cookieHelper.delete('tmpEmail')
+
       showTOTPSuccessAlert()
 
       router.push({ name: 'home' }).then(() => {

@@ -140,6 +140,7 @@ import { useCommonStore } from '@/stores/common.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import BaseSpinner from '@/components/common/BaseSpinner.vue'
+import cookieHelper from '@/utils/cookie'
 
 const router = useRouter()
 
@@ -263,7 +264,8 @@ const submitForm = async () => {
         new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
       )
 
-      sessionStorage.setItem('totpKey', base64String)
+      // sessionStorage.setItem('totpKey', base64String)
+      cookieHelper.generate('totpKey', base64String)
       router.push({ name: 'memberSignup2' })
     })
     .catch((error) => {

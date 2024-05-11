@@ -113,6 +113,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
+import cookieHelper from '@/utils/cookie.js'
 
 const router = useRouter()
 
@@ -146,8 +147,10 @@ async function validateForm() {
     const response = await localAxios.post(`/member/first-login`, body)
     console.log(response)
     // 앱 재연동하기에서 보일 이메일
-    sessionStorage.setItem('tmpEmail', email.value)
-    sessionStorage.setItem('tmpNickname', response.data.nickname)
+    // sessionStorage.setItem('tmpEmail', email.value)
+    // sessionStorage.setItem('tmpNickname', response.data.nickname)
+    cookieHelper.generate('tmpEmail', email.value)
+    cookieHelper.generate('tmpNickname', response.data.nickname)
 
     // 다음 페이지로 라우팅
     router.push({ name: 'memberLogin2' })

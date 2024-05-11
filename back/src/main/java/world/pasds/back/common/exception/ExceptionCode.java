@@ -7,12 +7,14 @@ public enum ExceptionCode {
     MEMBER_NOT_FOUND(404, "회원을 찾을 수 없습니다."),
     MEMBER_EXISTS(409, "이미 존재하는 회원입니다."),
     MEMBER_UNAUTHORIZED(401, "권한이 없는 회원입니다."),
+    MEMBER_LOCKED_2(403, "5회 시도로 계정이 잠겼습니다. 패스키 재발급을 통해 계정 잠금 해제가 가능합니다."),
+    MEMBER_LOCKED_1(403, "로그인 5회 시도로 계정이 잠겼습니다. 비밀번호 재설정을 통해 계정 잠금 해제가 가능합니다."),
 
     EMAIL_EXISTS(409, "존재하는 이메일입니다"),
     EMAIL_NOT_FOUND(404, "이메일을 찾을수 없습니다."),
     EMAIL_INVALID_FORMAT(400, "잘못된 이메일 양식입니다."),
     EMAIL_IS_NOT_SAME(401,"인증받은 이메일과 다릅니다."),
-    EMAIL_SENDER_ERROR(500,"이메일 센더 에러입니다. 개발자에게 연락해주세요"),
+    EMAIL_SENDER_ERROR(500,"이메일 센더 에러입니다. 관리자에게 연락해주세요."),
 
     EMAIL_CODE_NOT_SAME(409, "이메일 인증코드가 다릅니다."),
     EMAIL_CODE_GENERATION_ERROR(500, "이메일 인증코드 발급에 문제가 발생했습니다."),

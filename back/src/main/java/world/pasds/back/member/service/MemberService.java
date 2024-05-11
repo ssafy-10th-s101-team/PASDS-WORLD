@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.RedisService;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.invitaion.service.InvitationService;
@@ -42,12 +43,13 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieProvider cookieProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RedisService redisService;
 
     @Value("${security.pepper}")
     private String pepper;
 
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
-
+    private static final String LOGIN_BLOCK_PREFIX = "Login Try ";
     @Transactional
     public byte[] signup(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                          SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -97,10 +99,21 @@ public class MemberService {
     public FirstLoginResponseDto firstLogin(HttpServletRequest httpServletRequest,
                                             HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
 
+        Member member = memberRepository.findById(customUserDetails.getMemberId()).orElseThrow(
+            () -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND)
+        );
+
+        // 1차 로그인 5회 초과 시도 시 비밀번호 재설정 강제
+        if (member.getFirstLoginCnt() > 5) {
+            throw new BusinessException(ExceptionCode.MEMBER_LOCKED_1);
+        }
+
+
         String temporaryJwtToken = jwtTokenProvider.generateToken(customUserDetails.getMemberId(),
                 JwtTokenProvider.TokenType.TEMPORARY, true);
         cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name(),
                 temporaryJwtToken);
+
 
         return FirstLoginResponseDto
                 .builder()
@@ -113,6 +126,17 @@ public class MemberService {
             , SecondLoginRequestDto secondLoginRequestDto) {
 
         Long memberId = customUserDetails.getMemberId();
+
+        // 2차 로그인 시도 횟수 check -> 브루트포스 공격 방어
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        if (member.getSecondLoginCnt() > 5) {      // 2차 로그인 5회 초과 시도 시 계정 잠김
+            throw new BusinessException(ExceptionCode.MEMBER_LOCKED_2);
+        }
+        
+        member.setSecondLoginCnt(member.getSecondLoginCnt()+1);
+        memberRepository.save(member);
+
         String inputTotpCode = secondLoginRequestDto.getTotpCode();
 
         if (!inputTotpCode.equals("101")) {
@@ -120,6 +144,7 @@ public class MemberService {
                 throw new BusinessException(TOTP_CODE_NOT_SAME);
             }
         }
+
 
         // 성공
         // ttk 삭제
@@ -164,6 +189,10 @@ public class MemberService {
         // 성공
         Member foundMember = memberRepository.findByEmail(customUserDetails.getEmail());
         saveEncryptedPassword(resetPasswordRequestDto.getPassword(), foundMember);
+
+        // 1차 로그인 시도 횟수 초기화
+        foundMember.setFirstLoginCnt(0);
+        memberRepository.save(foundMember);
 
         redisTemplate.delete(customUserDetails.getEmail() + "_" + "EMAIL");
         cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());

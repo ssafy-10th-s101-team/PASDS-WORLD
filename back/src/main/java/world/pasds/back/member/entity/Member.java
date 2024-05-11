@@ -41,4 +41,10 @@ public class Member extends BaseEntity {
 
     @Setter
     private LocalDateTime expiredAt;
+
+    @Setter
+    private int firstLoginCnt;
+
+    @Setter
+    private int secondLoginCnt;
 }

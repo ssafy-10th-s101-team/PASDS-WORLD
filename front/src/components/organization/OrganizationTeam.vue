@@ -90,26 +90,7 @@ const props = defineProps({
   selectedOrganizationId: Number
 })
 
-const teams = ref([
-  {
-    teamId: 1,
-    teamName: '기업',
-    teamRole: '팀장',
-    secretCount: 10
-  },
-  {
-    teamId: 2,
-    teamName: '영업',
-    teamRole: '대리',
-    secretCount: 11
-  },
-  {
-    teamId: 3,
-    teamName: '마케팅',
-    teamRole: '팀원',
-    secretCount: 12
-  }
-])
+const teams = ref([])
 
 watch(
   () => props.selectedOrganizationId,

@@ -416,8 +416,8 @@ const notifications = ref([
 const logout = async () => {
   try {
     await localAxios.get(`/member/logout`)
-    // sessionStorage.clear()
-    cookieHelper.deleteAll()
+    sessionStorage.clear()
+    // cookieHelper.deleteAll()
     nickname.value = ''
     router.push({ name: 'home' })
   } catch (error) {}
@@ -462,8 +462,8 @@ const handleNotificationClick = async (notification) => {
 }
 
 onMounted(async () => {
-  // nickname.value = sessionStorage.getItem('nickname')
-  nickname.value = cookieHelper.get('nickname')
+  nickname.value = sessionStorage.getItem('nickname')
+  // nickname.value = cookieHelper.get('nickname')
   // 잠시 버그만 안나게 추가 했습니다
   if (nickname.value) {
     try {

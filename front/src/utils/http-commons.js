@@ -49,8 +49,8 @@ localAxios.interceptors.response.use(
       const exceptionCode = error.response.data.exceptionCode
       if (errorCodes.includes(exceptionCode)) {
         alert('세션이 만료되었습니다.\n로그인 해주세요.')
-        // sessionStorage.clear()
-        cookieHelper.deleteAll()
+        sessionStorage.clear()
+        // cookieHelper.deleteAll()
         router.push({ name: 'memberLogin' }).then(() => {
           nextTick(() => {
             window.location.reload()

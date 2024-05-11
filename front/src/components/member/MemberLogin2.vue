@@ -81,12 +81,12 @@ const sendTotpCode = async () => {
   await localAxios
     .post(`/member/second-login`, body)
     .then(() => {
-      // sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
-      // sessionStorage.removeItem('tmpNickname')
-      // sessionStorage.removeItem('tmpEmail')
-      cookieHelper.generate('nickname', cookieHelper.get('tmpNickname'))
-      cookieHelper.delete('tmpNickname')
-      cookieHelper.delete('tmpEmail')
+      sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
+      sessionStorage.removeItem('tmpNickname')
+      sessionStorage.removeItem('tmpEmail')
+      // cookieHelper.generate('nickname', cookieHelper.get('tmpNickname'))
+      // cookieHelper.delete('tmpNickname')
+      // cookieHelper.delete('tmpEmail')
 
       showTOTPSuccessAlert()
 
@@ -99,12 +99,6 @@ const sendTotpCode = async () => {
     .catch((error) => {
       console.log(error)
       showSignUpErrorAlert(error.response.data.message)
-
-      // todo TEMPORARY TOKEN이 만료되었을 때 에러 처리 어떻게 할 거야
-      // if (error.response.data.exceptionCode === 'TEMPORARY_TOKEN_EXPIRED') {
-      //   sessionStorage.removeItem('tmpNickname')
-      //   router.push({ name: 'memberLogin' })
-      // }
     })
 }
 </script>

@@ -159,8 +159,8 @@ import cookieHelper from '@/utils/cookie'
 
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
-// const nickname = ref(sessionStorage.getItem("nickname"))
-const nickname = ref(cookieHelper.get('nickname'))
+const nickname = ref(sessionStorage.getItem('nickname'))
+// const nickname = ref(cookieHelper.get('nickname'))
 const isNicknameValid = ref(true)
 
 const organizations = ref([

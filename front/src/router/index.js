@@ -144,8 +144,8 @@ const authRelatedRoutes = [
 const publicRoutes = ['home', ...authRelatedRoutes]
 
 router.beforeEach((to, from, next) => {
-  // const isAuthenticated = sessionStorage.getItem('nickname')
-  const isAuthenticated = cookieHelper.get('nickname')
+  const isAuthenticated = sessionStorage.getItem('nickname')
+  // const isAuthenticated = cookieHelper.get('nickname')
 
   if (isAuthenticated) {
     // 로그인한 사용자는 인증 관련 페이지 접근 시 홈으로 리다이렉트

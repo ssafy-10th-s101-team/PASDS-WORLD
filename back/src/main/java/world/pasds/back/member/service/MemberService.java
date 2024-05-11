@@ -100,17 +100,6 @@ public class MemberService {
 	public FirstLoginResponseDto firstLogin(HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
 
-		Member member = memberRepository.findById(customUserDetails.getMemberId()).orElseThrow(
-			() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND)
-		);
-
-
-		member.setFirstLoginCnt(member.getFirstLoginCnt() + 1);
-		memberRepository.save(member);
-		if (member.getFirstLoginCnt() >= 5) {			// 1차 로그인 5회 초과 시도 시 계정 잠김
-			throw new BusinessException(ExceptionCode.MEMBER_LOCKED_1);
-		}
-
 
 		String temporaryJwtToken = jwtTokenProvider.generateToken(customUserDetails.getMemberId(),
 			JwtTokenProvider.TokenType.TEMPORARY, true);
@@ -128,7 +117,6 @@ public class MemberService {
 		, SecondLoginRequestDto secondLoginRequestDto) {
 
 		Long memberId = customUserDetails.getMemberId();
-
 
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -164,6 +152,11 @@ public class MemberService {
 		String refreshToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.REFRESH, true);
 		cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name(),
 			refreshToken);
+
+		// 2차 로그인 성공 시 시도 횟수 초기화
+		member.setSecondLoginCnt(0);
+		memberRepository.save(member);
+
 	}
 
 	public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,

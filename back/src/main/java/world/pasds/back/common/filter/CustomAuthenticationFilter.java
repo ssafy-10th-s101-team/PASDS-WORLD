@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final CookieProvider cookieProvider;
     private final String passwordPepper;
     private final KeyService keyService;
+    private final RedisTemplate redisTemplate;
 
     public CustomAuthenticationFilter(
             AuthenticationManager authenticationManager,
@@ -39,7 +42,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             JwtTokenProvider jwtTokenProvider,
             CookieProvider cookieProvider,
             String passwordPepper,
-            KeyService keyService
+            KeyService keyService,
+            RedisTemplate redisTemplate
     ) {
         this.authenticationManager = authenticationManager;
         this.requestMatchers = requestMatchers;
@@ -47,6 +51,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         this.cookieProvider = cookieProvider;
         this.passwordPepper = passwordPepper;
         this.keyService = keyService;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -105,6 +110,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             authentication = authenticationManager.authenticate(authRequest);
+
             // 성공
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);

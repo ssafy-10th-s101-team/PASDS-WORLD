@@ -6,13 +6,12 @@
         @loaded="handleLoaded"
       />
     </div>
-    {{ isLoaded }}
     <div v-if="isLoaded" class="flex-1">
       <RouterView :selectedOrganizationId="selectedOrganizationId" />
     </div>
-    <div v-else class="flex-1 flex items-center justify-center text-center">
-      <b>관리권한을 가진 조직이 없습니다.</b>
-    </div>
+<!--    <div v-else class="flex-1 flex items-center justify-center text-center">-->
+<!--      <b>관리권한을 가진 조직이 없습니다.</b>-->
+<!--    </div>-->
   </div>
 </template>
 

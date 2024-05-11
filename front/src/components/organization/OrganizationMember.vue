@@ -74,7 +74,7 @@
 
                   <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <div
-                      v-if="member.organizationRole != 'HEADER'"
+                      v-if="member.organizationRole !== 'HEADER'"
                       class="text-samsung-blue dark:text-blue-500 hover:underline"
                       @click="toggleHidden('organizationRole')"
                     >
@@ -114,47 +114,7 @@ const props = defineProps({
   selectedOrganizationId: Number
 })
 // const members = ref([])
-const members = ref([
-  {
-    memberId: 1,
-    name: '제비랑',
-    email: '1996joon@naver.com',
-    teams: [
-      {
-        teamId: 1,
-        teamName: '영업'
-      }
-    ]
-  },
-  {
-    memberId: 2,
-    name: '덕끼끼',
-    email: 'deokki@naver.com',
-    teams: [
-      {
-        teamId: 1,
-        teamName: '마케팅'
-      },
-      {
-        teamId: 2,
-        teamName: '전체'
-      }
-    ]
-  },
-  {
-    memberId: 3,
-    name: '진뚱이용',
-    email: 'wlsdyd4@naver.com',
-    teams: [
-      {
-        teamName: '개발'
-      },
-      {
-        teamName: '전체'
-      }
-    ]
-  }
-])
+const members = ref([])
 function changeOrganizationRole(data) {
   const { memberId, role } = data
   const member = members.value.find((m) => m.memberId === memberId)
@@ -165,7 +125,7 @@ function changeOrganizationRole(data) {
 watch(
   () => props.selectedOrganizationId,
   async (newVal, oldVal) => {
-    if (newVal != oldVal) {
+    if (newVal !== oldVal) {
       members.value = await getOrganizationMembers(newVal, 0)
     }
   }

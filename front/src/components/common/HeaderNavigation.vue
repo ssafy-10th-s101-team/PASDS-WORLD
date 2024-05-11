@@ -191,18 +191,16 @@ const notifications = ref([
 const logout = async () => {
   try {
     await localAxios.get(`/member/logout`)
-    sessionStorage.removeItem('nickname')
+    sessionStorage.clear()
     nickname.value = ''
-  } catch (error) {
-    sessionStorage.removeItem('nickname')
-    nickname.value = ''
-  }
+    router.push({ name: 'home' })
+  } catch (error) {}
 }
 
 const jwtTest = async () => {
   try {
     const response = await localAxios.post(`/member/jwt-test`, null)
-    console.log(response)
+    console.log(response.data)
   } catch (error) {}
 }
 
@@ -239,13 +237,16 @@ const handleNotificationClick = async (notification) => {
 
 onMounted(async () => {
   nickname.value = sessionStorage.getItem('nickname')
-  try {
-    notifications.value = await getNotifications(0)
-  } catch (error) {
-    console.log('에러 발생. ', error.respnse.data.message)
+  // 잠시 버그만 안나게 추가 했습니다
+  if (nickname.value) {
+    try {
+      notifications.value = await getNotifications(0)
+    } catch (error) {
+      console.log('에러 발생. ', error.respnse.data.message)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    // fetchUnreadNotifications()
   }
-  document.addEventListener('mousedown', handleClickOutside)
-  // fetchUnreadNotifications()
 })
 
 onUnmounted(() => {

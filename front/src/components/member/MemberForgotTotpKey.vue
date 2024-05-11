@@ -55,7 +55,7 @@
       <div id="TOTP" class="hidden">
         <img :src="totpKey" alt="QR Code" class="mx-auto" />
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-300 mt-4">
-          PasdsWorld Authentication 앱을 실행하여 <br />패스키 스캔을 하세요
+          PasdsWorld Authentication 앱을 실행하여 <br />패스키를 스캔하세요
         </h2>
         <button
           @click="goToLogin"

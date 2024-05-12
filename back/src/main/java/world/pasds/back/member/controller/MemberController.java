@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.common.service.RedisService;
+import world.pasds.back.member.dto.request.ChangeNicknameRequestDto;
 import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
 import world.pasds.back.member.dto.request.ResetPasswordRequestDto;
 import world.pasds.back.member.dto.request.SecondLoginRequestDto;
@@ -81,6 +82,14 @@ public class MemberController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
         memberService.changePassword(userDetails, changePasswordRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @PostMapping("/change-nickname")
+    public ResponseEntity<?> changeNickname(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @RequestBody ChangeNicknameRequestDto changeNickRequestDto) {
+        memberService.changeNickname(userDetails, changeNickRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

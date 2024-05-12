@@ -17,6 +17,7 @@ import world.pasds.back.common.service.RedisService;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.invitaion.service.InvitationService;
+import world.pasds.back.member.dto.request.ChangeNicknameRequestDto;
 import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
 import world.pasds.back.member.dto.request.ResetPasswordRequestDto;
 import world.pasds.back.member.dto.request.SecondLoginRequestDto;
@@ -236,5 +237,15 @@ public class MemberService {
 		foundMember.setPassword(encryptedPassword);
 
 		memberRepository.save(foundMember);
+	}
+
+	public void changeNickname(CustomUserDetails userDetails, ChangeNicknameRequestDto changeNicknameRequestDto) {
+		// 멤버 찾기
+		Member foundMember = memberRepository.findById(userDetails.getMemberId())
+			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+		foundMember.setNickname(changeNicknameRequestDto.getNickname());
+		memberRepository.save(foundMember);
+
+
 	}
 }

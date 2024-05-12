@@ -22,6 +22,7 @@ public class Member extends BaseEntity {
 
     private String email;
 
+    @Setter
     private String nickname;
 
     @Setter

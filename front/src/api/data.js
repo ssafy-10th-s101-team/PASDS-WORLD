@@ -53,4 +53,19 @@ async function deletePrivateData(body) {
     .catch(fail)
 }
 
-export { getPrivateDatas, getPrivateData, createPrivateData, updatePrivateData, deletePrivateData }
+// 비밀 검색
+async function searchPrivateData(organizationId, text) {
+  return localAxios
+    .get(prefix + `/search/${organizationId}?title=${text}`)
+    .then(success)
+    .catch(fail)
+}
+
+export {
+  getPrivateDatas,
+  getPrivateData,
+  createPrivateData,
+  updatePrivateData,
+  deletePrivateData,
+  searchPrivateData
+}

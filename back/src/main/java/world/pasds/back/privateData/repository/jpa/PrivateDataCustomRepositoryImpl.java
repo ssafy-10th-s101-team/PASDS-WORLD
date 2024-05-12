@@ -1,4 +1,4 @@
-package world.pasds.back.privateData.repository;
+package world.pasds.back.privateData.repository.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

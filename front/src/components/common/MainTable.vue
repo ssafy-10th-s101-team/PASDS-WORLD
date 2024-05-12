@@ -80,7 +80,7 @@
                     <a
                       href="#"
                       @click="showDetail(data.privateDataId)"
-                      class="text-blue-600 dark:text-blue-500 hover:underline"
+                      class="text-blue-600 dark:text-blue-500 hover:underline cursor-pointer"
                       >. . .</a
                     >
                   </td>

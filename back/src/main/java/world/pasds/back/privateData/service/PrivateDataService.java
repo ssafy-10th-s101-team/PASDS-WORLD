@@ -31,8 +31,8 @@ import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.team.entity.Team;
-import world.pasds.back.privateData.repository.PrivateDataRepository;
-import world.pasds.back.privateData.repository.PrivateDataRoleRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRoleRepository;
 import world.pasds.back.team.repository.TeamRepository;
 import world.pasds.back.team.service.TeamService;
 
@@ -55,6 +55,7 @@ public class PrivateDataService {
     private final OrganizationDashboardService organizationDashboardService;
     private final TeamDashboardService teamDashboardService;
     private final TeamService teamService;
+    private final PrivateDataSearchService privateDataSearchService;
 
     @Transactional
     public GetPrivateDataListResponseDto getPrivateDataList(Long teamId, int offset, Long memberId) {
@@ -165,6 +166,19 @@ public class PrivateDataService {
                         .build())
                 .toList();
 
+        // 멤버가 수정, 삭제 권한이 있는지 확인
+        boolean canUpdate = false;
+        boolean canDelete = false;
+        List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+        for (RoleAuthority roleAuthority : roleAuthorityList) {
+            if (AuthorityName.PRIVATE_DATA_UPDATE == roleAuthority.getAuthority().getName()) {
+                canUpdate = true;
+            }
+            if (AuthorityName.PRIVATE_DATA_DELETE == roleAuthority.getAuthority().getName()) {
+                canDelete = true;
+            }
+        }
+
         return GetPrivateDataResponseDto.builder()
                 .type(privateData.getType())
                 .title(privateData.getTitle())
@@ -173,6 +187,8 @@ public class PrivateDataService {
                 .privateDataId(privateData.getPrivateDataId())
                 .url(privateData.getUrl())
                 .roles(roles)
+                .canUpdate(canUpdate)
+                .canDelete(canDelete)
                 .build();
     }
 
@@ -228,7 +244,8 @@ public class PrivateDataService {
                     .count(0)
                     .build();
         }
-        privateDataRepository.save(privateData);
+        PrivateData save = privateDataRepository.save(privateData);
+        privateDataSearchService.savePrivateData(save, team.getOrganization().getId(), team.getId());
 
         // 설정하고자 하는 역할 조회
         List<Role> setRoleList = roleRepository.findAllById(requestDto.getRoleId());
@@ -275,11 +292,18 @@ public class PrivateDataService {
 
         PrivateData findPrivateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
 
-        /**
-         * KMS에게 암호화 키 달라고 한 뒤
-         * 비밀 암호화하여 저장
-         */
-        byte[] encryptedPrivateData = requestDto.getContent().getBytes(StandardCharsets.UTF_8);
+        byte[] encryptedDataKey = team.getEncryptedDataKey();
+        byte[] encryptedIv = team.getEncryptedIv();
+
+        KmsKeyDto dto = KmsKeyDto.builder()
+                .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
+                .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .build();
+        KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
+
+        byte[] encryptedPrivateData = keyService.encryptSecret(requestDto.getContent().getBytes(StandardCharsets.UTF_8),
+                Base64.getDecoder().decode(decryptKeys.getDataKey()),
+                Base64.getDecoder().decode(decryptKeys.getIv()));
 
         // 비밀, 제목, 메모, 아이디, url 변경 가능
         if (findPrivateData.getType() == DataType.LOGIN) {
@@ -298,7 +322,7 @@ public class PrivateDataService {
         Role leader = roleRepository.findByTeamAndName(team, "LEADER");
 
         List<Long> roleId = requestDto.getRoleId();
-        List<Role> findRoleList = roleRepository.findAllById(roleId);
+        List<Role> findRoleList = new ArrayList<>(roleRepository.findAllById(roleId));
         findRoleList.add(header);
         findRoleList.add(leader);
 
@@ -310,8 +334,11 @@ public class PrivateDataService {
                     .build());
         }
 
+        List<PrivateDataRole> privateDataRoleList = privateDataRoleRepository.findAllByPrivateData(findPrivateData);
+        privateDataRoleRepository.deleteAll(privateDataRoleList);
         privateDataRoleRepository.saveAll(newPrivateDataRole);
         privateDataRepository.save(findPrivateData);
+        privateDataSearchService.updatePrivateData(findPrivateData);
     }
 
     @Transactional
@@ -359,7 +386,7 @@ public class PrivateDataService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 
-        // 비밀 생성 가능한지 권한 확인
+        // 비밀 삭제 가능한지 권한 확인
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
         Role role = findMemberRole.getRole();
 
@@ -368,7 +395,9 @@ public class PrivateDataService {
         }
 
         PrivateData privateData = privateDataRepository.findById(requestDto.getPrivateDataId()).orElseThrow(() -> new BusinessException(ExceptionCode.PRIVATE_DATA_NOT_FOUND));
+        privateDataRoleRepository.deleteAll(privateDataRoleRepository.findAllByPrivateData(privateData));
         privateDataRepository.delete(privateData);
+        privateDataSearchService.deletePrivateData(privateData);
 
         // 조직 및 팀 비밀 개수 감소
         Long teamId = team.getId();

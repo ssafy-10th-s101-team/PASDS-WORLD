@@ -28,7 +28,7 @@ import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.privateData.entity.PrivateData;
-import world.pasds.back.privateData.repository.PrivateDataRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -325,10 +325,7 @@ public class TeamService {
     @Transactional
     public void removeMemberFromTeam(RemoveMemberFromTeamRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Member removeMember = memberRepository.findByEmail(requestDto.getRemoveMemberEmail());
-        if (removeMember == null) {
-            throw new BusinessException(ExceptionCode.MEMBER_NOT_FOUND);
-        }
+        Member removeMember = memberRepository.findById(requestDto.getMemberId()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
 

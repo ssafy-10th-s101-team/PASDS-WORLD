@@ -13,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.common.service.RedisService;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.invitaion.service.InvitationService;
+import world.pasds.back.member.dto.request.ChangeNicknameRequestDto;
 import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
 import world.pasds.back.member.dto.request.ResetPasswordRequestDto;
 import world.pasds.back.member.dto.request.SecondLoginRequestDto;
@@ -42,27 +44,17 @@ public class MemberService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CookieProvider cookieProvider;
 	private final RedisTemplate<String, String> redisTemplate;
+	private final RedisService redisService;
 
 	@Value("${security.pepper}")
 	private String pepper;
 
 	private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=])[A-Za-z\\d!@#$%^&*()_+{}\\[\\]:;<>,.?/~`\\-|\\\\=]{10,}$";
+	private static final String LOGIN_BLOCK_PREFIX = "Login Try ";
 
 	@Transactional
 	public byte[] signup(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
 		SignupRequestDto signupRequestDto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-
-		//        // 이메일 형식
-		//        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
-		//        Pattern pattern = Pattern.compile(emailRegex);
-		//        if (!pattern.matcher(signupRequestDto.getEmail()).matches()) {
-		//            throw new BusinessException(ExceptionCode.EMAIL_INVALID_FORMAT);
-		//        }
-		//
-		//        // DB에 없는 이메일
-		//        if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
-		//            throw new BusinessException(ExceptionCode.EMAIL_EXISTS);
-		//        }
 
 		// 들고온 이메일과 인증했던 이메일이 같아야 한다
 		if (!signupRequestDto.getEmail().equals(customUserDetails.getEmail())) {
@@ -74,7 +66,6 @@ public class MemberService {
 
 		// 비밀번호와 비밀번호 확인이 일치
 		checkPasswordSame(signupRequestDto.getPassword(), signupRequestDto.getConfirmPassword());
-
 
 		// 닉네임이 2자리 이상 20자리 이하
 		if (signupRequestDto.getNickname().length() < 2 || signupRequestDto.getNickname().length() > 20) {
@@ -110,6 +101,7 @@ public class MemberService {
 	public FirstLoginResponseDto firstLogin(HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse, CustomUserDetails customUserDetails) {
 
+
 		String temporaryJwtToken = jwtTokenProvider.generateToken(customUserDetails.getMemberId(),
 			JwtTokenProvider.TokenType.TEMPORARY, true);
 		cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.TEMPORARY.name(),
@@ -125,8 +117,22 @@ public class MemberService {
 		CustomUserDetails customUserDetails
 		, SecondLoginRequestDto secondLoginRequestDto) {
 
-		Long memberId = customUserDetails.getMemberId();
 		String inputTotpCode = secondLoginRequestDto.getTotpCode();
+
+		Long memberId = customUserDetails.getMemberId();
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+
+		member.setSecondLoginCnt(member.getSecondLoginCnt() + 1);
+		memberRepository.save(member);
+
+		if (member.getSecondLoginCnt() > 5) {      // 2차 로그인 5회 초과 시도 시 계정 잠김
+			throw new BusinessException(ExceptionCode.MEMBER_LOCKED_2);
+		}
+		if (member.getSecondLoginCnt() == 5 && !totpService.verificationTotpCode(memberId, inputTotpCode)){
+			throw new BusinessException(ExceptionCode.MEMBER_LOCKED_2);
+		}
+
 
 		if (!inputTotpCode.equals("101")) {
 			if (!totpService.verificationTotpCode(memberId, inputTotpCode)) {
@@ -135,18 +141,26 @@ public class MemberService {
 		}
 
 		// 성공
+		// ttk 삭제
 		String redisKey = memberId + "_" + JwtTokenProvider.TokenType.TEMPORARY.name();
 		redisTemplate.delete(redisKey);
 		cookieProvider.removeCookie(httpServletRequest, httpServletResponse,
 			JwtTokenProvider.TokenType.TEMPORARY.name());
 
+		// atk 발급
 		String accessToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.ACCESS, true);
 		cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.ACCESS.name(),
 			accessToken);
 
+		// rtk 발급
 		String refreshToken = jwtTokenProvider.generateToken(memberId, JwtTokenProvider.TokenType.REFRESH, true);
 		cookieProvider.addCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.REFRESH.name(),
 			refreshToken);
+
+		// 2차 로그인 성공 시 시도 횟수 초기화
+		member.setSecondLoginCnt(0);
+		memberRepository.save(member);
+
 	}
 
 	public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
@@ -175,6 +189,9 @@ public class MemberService {
 		Member foundMember = memberRepository.findByEmail(customUserDetails.getEmail());
 		saveEncryptedPassword(resetPasswordRequestDto.getPassword(), foundMember);
 
+		// 계정 잠금 해제
+		redisTemplate.delete("LOCKED_" + customUserDetails.getEmail());
+
 		redisTemplate.delete(customUserDetails.getEmail() + "_" + "EMAIL");
 		cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());
 
@@ -193,7 +210,8 @@ public class MemberService {
 			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
 		// 현재 비밀번호가 일치하는 지 확인
-		if (!bCryptPasswordEncoder.matches(changePasswordRequestDto.getPrevPassword() + pepper, foundMember.getPassword())) {
+		if (!bCryptPasswordEncoder.matches(changePasswordRequestDto.getPrevPassword() + pepper,
+			foundMember.getPassword())) {
 			throw new BusinessException(ExceptionCode.PASSWORD_MISMATCH);
 		}
 
@@ -219,5 +237,15 @@ public class MemberService {
 		foundMember.setPassword(encryptedPassword);
 
 		memberRepository.save(foundMember);
+	}
+
+	public void changeNickname(CustomUserDetails userDetails, ChangeNicknameRequestDto changeNicknameRequestDto) {
+		// 멤버 찾기
+		Member foundMember = memberRepository.findById(userDetails.getMemberId())
+			.orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+		foundMember.setNickname(changeNicknameRequestDto.getNickname());
+		memberRepository.save(foundMember);
+
+
 	}
 }

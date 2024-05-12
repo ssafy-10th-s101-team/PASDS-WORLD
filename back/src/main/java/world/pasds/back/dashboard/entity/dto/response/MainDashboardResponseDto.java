@@ -14,9 +14,9 @@ import java.util.List;
 @Setter
 public class MainDashboardResponseDto {
 
-    private List<int[]> organizationViewList;
-    private List<int[]> organizationRotateList;
-    private List<int[]> organizationCountList;
+    private List<int[]> organizationViewList = new ArrayList<>();
+    private List<int[]> organizationRotateList = new ArrayList<>();
+    private List<int[]> organizationCountList = new ArrayList<>();
 
 
 }

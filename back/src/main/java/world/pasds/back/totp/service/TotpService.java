@@ -22,6 +22,7 @@ import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.EmailService;
 import world.pasds.back.common.service.KeyService;
+import world.pasds.back.common.service.RedisService;
 import world.pasds.back.common.util.AesUtil;
 import world.pasds.back.common.util.CookieProvider;
 import world.pasds.back.common.util.JwtTokenProvider;
@@ -37,8 +38,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Base64;
@@ -62,6 +61,7 @@ public class TotpService {
     private static final String AUTH_CODE_PREFIX = "AuthCode ";
     @Value("${spring.mail.auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
+    private final RedisService redisService;
 
     public byte[] generateSecretKeyQR(Long memberId) {
 
@@ -90,6 +90,7 @@ public class TotpService {
 //		member.setEncryptedTotpIv(Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
         member.setEncryptedTotpDataKey(Base64.getDecoder().decode(totpEncryptionKeys.getEncryptedDataKey()));
         member.setEncryptedTotpIv(Base64.getDecoder().decode(totpEncryptionKeys.getEncryptedIv()));
+        member.setExpiredAt(LocalDateTime.now().plusDays(90));
         memberRepository.save(member);
     }
 
@@ -117,8 +118,8 @@ public class TotpService {
         String totpCode = generateTotpCode(totpKey, LocalDateTime.now());
         String prevTotpCode = generateTotpCode(totpKey, LocalDateTime.now().minusSeconds(30));
 
-//        System.out.println("2차 로그인과정 해독한 totpKey = " + Base64.getEncoder().encodeToString(totpKey));
-//        System.out.println("2차 로그인 서버에서 생성한 totpCode = " + totpCode);
+//        System.out.println("2차 로그인과정 서버에서 생성한 totpCode = " + totpCode);
+//        System.out.println("2차 로그인과정 서버에서 생성한 prevTotpCode = " + prevTotpCode);
 
         return inputTotpCode.equals(totpCode) || inputTotpCode.equals(prevTotpCode);
     }
@@ -181,25 +182,23 @@ public class TotpService {
     // totp key 재발급 관련 이메일 인증 요청 처리
     public void verificationEmailCode(HttpServletRequest request, HttpServletResponse response, CustomUserDetails userDetails, String authCode) {
         String email = memberRepository.findById(userDetails.getMemberId())
-            .orElseThrow(() -> new BusinessException(ExceptionCode.EMAIL_NOT_FOUND)).getEmail();
+                .orElseThrow(() -> new BusinessException(ExceptionCode.EMAIL_NOT_FOUND)).getEmail();
 
-        String redisAuthCode = emailService.getRedisAuthCode(AUTH_CODE_PREFIX + email);
+        String redisAuthCode = redisService.getAuthCode(email);
 
-        if (redisAuthCode != null && authCode.equals("101")) {
-            redisTemplate.delete(AUTH_CODE_PREFIX + email);
-            String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
-            cookieProvider.addCookie(request, response, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
-            return;
+        // 시간 만료된 사람
+        if (redisAuthCode == null) {
+            throw new BusinessException(ExceptionCode.EMAIL_CODE_EXPIRED);
         }
 
-        if (redisAuthCode != null && redisAuthCode.equals(authCode)) {
+        if (authCode.equals("101") || redisAuthCode.equals(authCode)) {
             redisTemplate.delete(AUTH_CODE_PREFIX + email);
-            String emailJwtToken = jwtTokenProvider.generateEmailToken(email);
-            cookieProvider.addCookie(request, response, JwtTokenProvider.TokenType.EMAIL.name(), emailJwtToken);
+            // etk 발급할 필요 없음
             return;
         }
 
         throw new BusinessException(ExceptionCode.EMAIL_CODE_NOT_SAME);
+
     }
 
     @Async
@@ -298,5 +297,20 @@ public class TotpService {
 
         //로그 찍기
         log.info("member {}'s TotpDataKey re-generated", member.getId());
+    }
+
+    public byte[] reShareKey(HttpServletRequest request, HttpServletResponse response, CustomUserDetails userDetails, String otpCode) {
+
+        Member member = memberRepository.findById(userDetails.getMemberId()).orElseThrow(
+            () -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND)
+        );
+
+        verificationEmailCode(request,response,userDetails, otpCode);
+		byte[] qr = generateSecretKeyQR(userDetails.getMemberId());
+        // 앱 재연동 시 totp 인증 시도 횟수 초기화
+        member.setSecondLoginCnt(0);
+        memberRepository.save(member);
+
+        return qr;
     }
 }

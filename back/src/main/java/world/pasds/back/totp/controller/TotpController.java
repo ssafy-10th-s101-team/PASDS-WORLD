@@ -30,18 +30,17 @@ public class TotpController {
 	public ResponseEntity<?> reGenerateSecretKey(
 			HttpServletRequest request, HttpServletResponse response,
 			@RequestBody EmailCodeKeyVerificationRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-		totpService.verificationEmailCode(request,response,userDetails, requestDto.getOtpCode());
 		return ResponseEntity.ok()
 			.contentType(MediaType.IMAGE_PNG)
-			.body(totpService.generateSecretKeyQR(userDetails.getMemberId()));
+			.body(totpService.reShareKey(request,response,userDetails, requestDto.getOtpCode()));
 	}
 
-	@PostMapping("/verification-email-code")
-	public ResponseEntity<?> verificationEmailCode(HttpServletRequest request, HttpServletResponse response,
-		@RequestBody EmailCodeKeyVerificationRequestDto requestDto,
-		@AuthenticationPrincipal CustomUserDetails userDetails) {
-		totpService.verificationEmailCode(request, response, userDetails, requestDto.getOtpCode());
-		return ResponseEntity.ok().build();
-	}
+//	@PostMapping("/verification-email-code")
+//	public ResponseEntity<?> verificationEmailCode(HttpServletRequest request, HttpServletResponse response,
+//		@RequestBody EmailCodeKeyVerificationRequestDto requestDto,
+//		@AuthenticationPrincipal CustomUserDetails userDetails) {
+//		totpService.verificationEmailCode(request, response, userDetails, requestDto.getOtpCode());
+//		return ResponseEntity.ok().build();
+//	}
 
 }

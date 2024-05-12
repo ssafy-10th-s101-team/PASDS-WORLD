@@ -5,10 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
+import world.pasds.back.privateData.entity.PrivateDataDocument;
 import world.pasds.back.privateData.entity.dto.request.*;
+import world.pasds.back.privateData.service.PrivateDataSearchService;
 import world.pasds.back.privateData.service.PrivateDataService;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataListResponseDto;
 import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDto;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/app/api/data")
@@ -16,6 +20,13 @@ import world.pasds.back.privateData.entity.dto.response.GetPrivateDataResponseDt
 public class PrivateDataController {
 
     private final PrivateDataService privateDataService;
+    private final PrivateDataSearchService privateDataSearchService;
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchData(@RequestParam String title, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<PrivateDataDocument> response = privateDataSearchService.search(title, userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
+    }
 
     @GetMapping("/list/{teamId}/{offset}")
     public ResponseEntity<?> getPrivateDataList(@PathVariable(name = "teamId") Long teamId, @PathVariable(name = "offset") int offset,  @AuthenticationPrincipal CustomUserDetails userDetails) {

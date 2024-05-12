@@ -22,6 +22,7 @@ public class Member extends BaseEntity {
 
     private String email;
 
+    @Setter
     private String nickname;
 
     @Setter
@@ -41,4 +42,7 @@ public class Member extends BaseEntity {
 
     @Setter
     private LocalDateTime expiredAt;
+
+    @Setter
+    private int secondLoginCnt;
 }

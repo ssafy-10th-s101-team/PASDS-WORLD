@@ -21,4 +21,6 @@ public class GetPrivateDataResponseDto {
     private String privateDataId;
     private String url;
     private List<PrivateDataRoleDto> roles;
+    private boolean canUpdate;
+    private boolean canDelete;
 }

@@ -77,10 +77,6 @@
                     </div>
                   </td>
                   <td class="py-4 px-6 text-sm font-medium text-center whitespace-nowrap">
-                    <MainPrivateDataDetail
-                      :privateDataId="selectedDataId"
-                      :teamId="props.selectedTeamId"
-                    />
                     <a
                       href="#"
                       @click="showDetail(data.privateDataId)"
@@ -91,6 +87,7 @@
                 </tr>
               </tbody>
             </table>
+            <MainPrivateDataDetail :privateDataId="selectedDataId" :teamId="props.selectedTeamId" />
           </div>
         </div>
       </div>

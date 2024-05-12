@@ -10,7 +10,7 @@
           <input
             type="text"
             id="roleName"
-            v-model="localRoleName"
+            v-model="newRoleName"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-samsung-blue focus:border-samsung-blue block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder=""
             required
@@ -32,6 +32,7 @@
                 class="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-blue-300 h-4 w-4 rounded"
                 v-model="selectedAuthorities"
                 :value="authority.id"
+                :checked="selectedAuthorities.includes(authority.id)"
               />
               <label
                 :for="'checkbox-' + authority.id"
@@ -63,20 +64,18 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import BaseModal from './BaseModal.vue'
-import { getAuthority, updateRole, deleteRole } from '@/api/role'
+import { getAuthority, updateRole, deleteRole, getRoleDetail } from '@/api/role'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const authorities = ref([])
 const selectedAuthorities = ref([])
-const localRoleName = ref('')
-onMounted(async () => {
-  const auth = await fetchAuthority()
-  authorities.value = auth
-  localRoleName.value = props.roleName
-})
+const newRoleName = ref('')
+
+const roleAuths = ref([])
+
 const props = defineProps({
   teamId: {
     type: Number,
@@ -85,25 +84,74 @@ const props = defineProps({
   roleId: {
     type: Number,
     required: true
-  },
-  roleName: {
-    type: String,
-    required: true
   }
 })
+onMounted(async () => {
+  const auth = await fetchAuthority()
+  authorities.value = auth
+  if (props.roleId) {
+    fetchRoleDetail() // Make sure role details are fetched when the component mounts if roleId is already set
+  }
+})
+
+watch(
+  () => props.roleId,
+  async (newVal, oldVal) => {
+    if (newVal !== oldVal && newVal) {
+      fetchRoleDetail()
+    }
+  }
+)
+watch(
+  roleAuths,
+  (newRoleAuths) => {
+    selectedAuthorities.value = newRoleAuths.map((auth) => auth.id)
+  },
+  { immediate: true }
+)
 const emit = defineEmits(['role-updated'])
 // 권한 목록 가져오기
 const fetchAuthority = async () => {
   try {
     const response = await getAuthority()
-    const authorities = response.map((authority) => ({
-      ...authority,
-      id: Number(authority.id) // id를 숫자로 변환
-    }))
+    const authorityMap = {
+      1: '팀 비밀 생성',
+      2: '팀 비밀 읽기',
+      3: '팀 비밀 수정',
+      4: '팀 비밀 삭제',
+      5: '역할 생성',
+      7: '역할 수정',
+      8: '역할 삭제',
+      9: '팀 수정',
+      10: '팀 삭제',
+      11: '팀 초대',
+      12: '팀 추방',
+      13: '비밀 접근 가능 역할 수정'
+    }
+    const authorities = response
+      .filter((authority) => authority.id !== 10)
+      .map((authority) => ({
+        ...authority,
+        id: Number(authority.id), // id를 숫자로 변환
+        name: authorityMap[authority.id] || '알 수 없는 권한' // 권한 ID를 한글로 변환, 매핑되지 않은 항목은 '알 수 없는 권한'으로 표시
+      }))
     console.log('Converted authorities:', authorities)
     return authorities
   } catch (error) {
     console.error('Unexpected error:', error)
+  }
+}
+
+const fetchRoleDetail = async () => {
+  try {
+    const response = await getRoleDetail(props.roleId)
+
+    newRoleName.value = response.name
+    roleAuths.value = response.authorities
+
+    console.log('이 역할의 권한들: ', roleAuths.value)
+  } catch (error) {
+    return
   }
 }
 
@@ -113,15 +161,16 @@ const postRole = async (event) => {
     const body = {
       teamId: props.teamId,
       roleId: props.roleId,
-      newRoleName: localRoleName.value,
+      newRoleName: newRoleName.value,
       authorities: selectedAuthorities.value
     }
     await updateRole(body)
+
     emit('role-updated')
     toggleHidden('teamRoleUpdateModal')
     // 닫기
   } catch (error) {
-    console.error('Unexpected error:', error)
+    window.alert(error.response.data.message)
   }
 }
 
@@ -138,7 +187,7 @@ const removeRole = async (event) => {
     emit('role-updated')
     toggleHidden('teamRoleUpdateModal')
   } catch (error) {
-    console.error(error)
+    window.alert(error.response.data.message)
   }
 }
 </script>

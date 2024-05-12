@@ -84,11 +84,28 @@ const emit = defineEmits(['role-created'])
 const fetchAuthority = async () => {
   try {
     const response = await getAuthority()
-    const authorities = response.map((authority) => ({
-      ...authority,
-      id: Number(authority.id) // id를 숫자로 변환
-    }))
-
+    const authorityMap = {
+      1: '팀 비밀 생성',
+      2: '팀 비밀 읽기',
+      3: '팀 비밀 수정',
+      4: '팀 비밀 삭제',
+      5: '역할 생성',
+      7: '역할 수정',
+      8: '역할 삭제',
+      9: '팀 수정',
+      10: '팀 삭제',
+      11: '팀 초대',
+      12: '팀 추방',
+      13: '비밀 접근 가능 역할 수정'
+    }
+    const authorities = response
+      .filter((authority) => authority.id !== 10)
+      .map((authority) => ({
+        ...authority,
+        id: Number(authority.id), // id를 숫자로 변환
+        name: authorityMap[authority.id] || '알 수 없는 권한' // 권한 ID를 한글로 변환, 매핑되지 않은 항목은 '알 수 없는 권한'으로 표시
+      }))
+    console.log('Converted authorities:', authorities)
     return authorities
   } catch (error) {
     console.error('Unexpected error:', error)

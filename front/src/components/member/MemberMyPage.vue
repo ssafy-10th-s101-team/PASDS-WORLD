@@ -24,7 +24,7 @@
           <div v-else class="text-green-500 text-sm">닉네임이 유효합니다</div>
         </div>
         <div class="flex justify-center">
-          <BaseButton buttonText="변경" />
+          <BaseButton @click="changeNickname" buttonText="변경" />
         </div>
       </div>
       <!-- 초대 받은 조직 목록 -->
@@ -157,10 +157,13 @@ import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import MemberChangePasswordModal from '../common/MemberChangePasswordModal.vue'
 import BaseButton from '../common/BaseButton.vue'
+import cookieHelper from '@/utils/cookie'
+import { localAxios } from '@/utils/http-commons.js'
 
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
-const nickname = ref(sessionStorage.getItem('nickname'))
+// const nickname = ref(sessionStorage.getItem('nickname'))
+const nickname = ref(cookieHelper.get('nickname'))
 const isNicknameValid = ref(true)
 
 const invitations = ref([
@@ -186,6 +189,24 @@ const handleInvitationReject = async () => {
 const validateNickname = () => {
   const regex = /^.{2,20}$/
   isNicknameValid.value = regex.test(nickname.value)
+}
+
+const changeNickname = async () => {
+  const body = {
+    nickname: nickname.value
+  }
+  await localAxios
+    .post('/member/change-nickname', body)
+    .then(() => {
+      console.log('닉네임 변경 성공')
+      alert('닉네임이 변경되었습니다.')
+      cookieHelper.delete('nickname')
+      cookieHelper.generate('nickname', nickname.value)
+    })
+    .catch((error) => {
+      console.error(error)
+      nickname.value = cookieHelper.get('nickname')
+    })
 }
 </script>
 

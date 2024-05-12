@@ -24,7 +24,7 @@
           <BaseSpinner :loading="loading" />
         </div>
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendOtpCode" buttonText="인증번호 받기" :loading="loading" />
+          <BaseButton @click="sendOtpCode" buttonText="인증코드 받기" :loading="loading" />
         </div>
       </div>
       <div id="OTP" class="hidden gap-6 mb-6">
@@ -32,20 +32,20 @@
           <!-- otp 입력 필드 -->
           <div class="basis-2/3">
             <label for="otpCode" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >OTP 인증</label
+              >이메일 인증코드</label
             >
             <input
               type="text"
               id="otpCode"
               v-model="otpCode"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="이메일로 받은 코드를 입력하세요"
+              placeholder="이메일로 받은 인증코드를 입력하세요"
               required
             />
           </div>
           <div class="flex items-end justify-start basis-1/8"></div>
           <div class="flex items-end justify-start basis-1/3">
-            <BaseButton buttonText="인증완료" @click="checkOtpCode" />
+            <BaseButton buttonText="인증하기" @click="checkOtpCode" />
           </div>
         </div>
         <div id="timer">
@@ -106,7 +106,7 @@
             v-model="nickname"
             @input="validateNickname"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="홍길동"
+            placeholder="진뚱이용"
             required
           />
           <div v-if="!isNicknameValid" class="text-red-500 text-sm">
@@ -132,7 +132,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseButton from '@/components/common/BaseButton.vue'
@@ -140,6 +140,7 @@ import { useCommonStore } from '@/stores/common.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import BaseSpinner from '@/components/common/BaseSpinner.vue'
+import cookieHelper from '@/utils/cookie'
 
 const router = useRouter()
 
@@ -154,6 +155,7 @@ const isPasswordSame = ref(false)
 const isNicknameValid = ref(false)
 const commonStore = useCommonStore()
 const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
+const { emailRequest, inputTime } = toRefs(commonStore)
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -170,14 +172,14 @@ const showEmailSuccessAlert = () => {
   EmailSuccessAlert.value = true
   setTimeout(() => {
     EmailSuccessAlert.value = false
-  }, 3000)
+  }, 5000)
   removeHidden('OTP')
 }
 const showOTPSuccessAlert = () => {
   OTPSuccessAlert.value = true
   setTimeout(() => {
     OTPSuccessAlert.value = false
-  }, 3000)
+  }, 5000)
   removeHidden('PW')
 }
 
@@ -186,7 +188,7 @@ const showSignUpErrorAlert = (message) => {
   SignUpErrorAlert.value = true
   setTimeout(() => {
     SignUpErrorAlert.value = false
-  }, 3000)
+  }, 5000)
 }
 // otp 코드 검증
 const checkOtpCode = async () => {
@@ -219,6 +221,7 @@ const sendOtpCode = async () => {
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
+      inputTime.value = 180     // 3분
       removeHidden('OTP') // OTP 입력 부분을 보이게 합니다.
       removeHidden('timer') // 타이머를 보이게 하고 재시작합니다.
       startTimer()
@@ -263,7 +266,8 @@ const submitForm = async () => {
         new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
       )
 
-      sessionStorage.setItem('totpKey', base64String)
+      // sessionStorage.setItem('totpKey', base64String)
+      cookieHelper.generate('totpKey', base64String)
       router.push({ name: 'memberSignup2' })
     })
     .catch((error) => {

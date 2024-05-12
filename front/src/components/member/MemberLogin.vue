@@ -80,11 +80,15 @@
             </button>
           </div>
         </div>
+        <div id="timer" class="hidden">
+          <BaseTimer />
+        </div>
 
         <!-- 로그인 버튼 -->
         <button
           type="submit"
           class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          :disabled="loginBlock"
         >
           로그인
         </button>
@@ -109,12 +113,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseTimer from '@/components/common/BaseTimer.vue'
+import { useCommonStore } from '@/stores/common.js'
+import cookieHelper from '@/utils/cookie.js'
 
 const router = useRouter()
+const commonStore = useCommonStore()
+const { removeHidden, startTimer, stopTimer } = commonStore
+const { inputTime, loginBlock } = toRefs(commonStore)
 
 const email = ref('')
 const password = ref('')
@@ -137,24 +147,34 @@ function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
 }
 
-async function validateForm() {
-  try {
-    const body = {
-      email: email.value,
-      password: password.value
-    }
-    const response = await localAxios.post(`/member/first-login`, body)
-    console.log(response)
-    // 앱 재연동하기에서 보일 이메일
-    sessionStorage.setItem('tmpEmail', email.value)
-    sessionStorage.setItem('tmpNickname', response.data.nickname)
-
-    // 다음 페이지로 라우팅
-    router.push({ name: 'memberLogin2' })
-  } catch (error) {
-    console.log(error)
-    showErrorAlert(error.response.data.message)
+const validateForm = async () => {
+  const body = {
+    email: email.value,
+    password: password.value
   }
+  await localAxios.post(`/member/first-login`, body)
+    .then((response) => {
+      console.log(response)
+      // 앱 재연동하기에서 보일 이메일
+      // sessionStorage.setItem('tmpEmail', email.value)
+      // sessionStorage.setItem('tmpNickname', response.data.nickname)
+      cookieHelper.generate('tmpEmail', email.value)
+      cookieHelper.generate('tmpNickname', response.data.nickname)
+
+      stopTimer()
+      // 다음 페이지로 라우팅
+      router.push({ name: 'memberLogin2' })
+    })
+    .catch((error) => {
+      console.error(error)
+      showErrorAlert(error.response.data.message)
+      if (error.response.data.message === "로그인 5회 시도로 로그인이 불가합니다. 5분 후 시도해주세요.") {
+        inputTime.value = 300     // 5분
+        removeHidden("timer")
+        startTimer()
+      }
+    })
+
 }
 </script>
 

@@ -21,7 +21,7 @@
                   mb-3
                 "
               >
-                PASDSWRORLD 에서 <br />
+                PASDSWORLD 에서 <br />
                 비밀번호를 쉽고 안전하게 <br />
                 관리하세요.
               </h1>
@@ -156,12 +156,12 @@
       </div>
     </div>
     </div>
-    <div
-      class="sticky top-0 h-screen flex flex-col items-center justify-center bg-white text-white"
-    >
-      <img id="download-section" src="../assets/images/pasdsworld_v2_qr.png" alt="QR" />
-      <h2 class="font-samsungone700c text-black text-lg">어플리케이션 다운로드</h2>
-    </div>
+<!--    <div-->
+<!--      class="sticky top-0 h-screen flex flex-col items-center justify-center bg-white text-white"-->
+<!--    >-->
+<!--      <img id="download-section" src="../assets/images/pasdsworld_v2_qr.png" alt="QR" />-->
+<!--      <h2 class="font-samsungone700c text-black text-lg">어플리케이션 다운로드</h2>-->
+<!--    </div>-->
   </div>
 </template>
 

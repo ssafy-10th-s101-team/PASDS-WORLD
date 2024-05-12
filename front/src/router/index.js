@@ -3,6 +3,7 @@ import MainView from '@/views/MainView.vue'
 import MemberView from '@/views/MemberView.vue'
 import HomeView from '@/views/HomeView.vue'
 import OrganizationView from '@/views/OrganizationView.vue'
+import cookieHelper from '@/utils/cookie'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -116,16 +117,51 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'organizationDashboard',
-          component: () => import('@/components/organization/OrganizationDashboard.vue'),
+          component: () => import('@/components/organization/OrganizationDashboard.vue')
         },
         {
           path: 'costGraph',
           name: 'costGraph',
           component: () => import('@/components/dashboard/DashboardCostGraph.vue')
-        },
+        }
       ]
     }
   ]
+})
+
+// 로그인 및 회원가입 페이지 이름들을 배열로 정의
+const authRelatedRoutes = [
+  'memberLogin',
+  'memberSignup',
+  'memberForgotPassword',
+  'memberSignup2',
+  'memberSignup3',
+  'memberSignup4',
+  'memberForgotTotpKey',
+  'memberLogin2'
+]
+
+const publicRoutes = ['home', ...authRelatedRoutes]
+
+router.beforeEach((to, from, next) => {
+  // const isAuthenticated = sessionStorage.getItem('nickname')
+  const isAuthenticated = cookieHelper.get('nickname')
+
+  if (isAuthenticated) {
+    // 로그인한 사용자는 인증 관련 페이지 접근 시 홈으로 리다이렉트
+    if (authRelatedRoutes.includes(to.name)) {
+      next({ name: 'home' })
+    } else {
+      next() // 그 외의 경우는 정상적으로 페이지 접근 허용
+    }
+  } else {
+    // 로그인하지 않은 사용자는 publicRoutes에 정의된 페이지만 접근 허용
+    if (publicRoutes.includes(to.name)) {
+      next()
+    } else {
+      next({ name: 'memberLogin' }) // 그 외의 페이지는 로그인 페이지로 리다이렉트
+    }
+  }
 })
 
 export default router

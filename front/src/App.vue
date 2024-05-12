@@ -4,7 +4,7 @@ import HeaderNavigation from '@/components/common/HeaderNavigation.vue'
 </script>
 
 <template>
-  <div id="app" class="basic-font">
+  <div id="app" class="basic-font dark:bg-gray-800">
     <HeaderNavigation class="header-nav" />
     <RouterView />
   </div>
@@ -21,5 +21,4 @@ import HeaderNavigation from '@/components/common/HeaderNavigation.vue'
   width: 100%;
   z-index: 1000; /* 높은 z-index 값으로 설정 */
 }
-
 </style>

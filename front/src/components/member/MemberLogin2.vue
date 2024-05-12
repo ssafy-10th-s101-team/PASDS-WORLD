@@ -9,20 +9,20 @@
         <!-- TOTP 코드 입력 필드 -->
         <div class="basis-2/3">
           <label for="totp" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >인증 코드</label
+            >패스키 인증코드</label
           >
           <input
             type="text"
             id="totp"
             v-model="totpCode"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-samsung-blue focus:border-samsung-blue block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="앱에서 발급받은 인증 코드를 입력하세요"
+            placeholder="앱으로 받은 인증코드를 입력하세요"
             required
           />
         </div>
         <!-- 확인 버튼 -->
         <div class="flex items-end justify-start basis-1/3">
-          <BaseButton @click="sendTotpCode" buttonText="인증완료" />
+          <BaseButton @click="sendTotpCode" buttonText="인증하기" />
         </div>
       </div>
 
@@ -31,9 +31,8 @@
         <router-link
           :to="{ name: 'memberForgotTotpKey' }"
           class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-        >앱 재연동하기
-        </router-link
-        >
+          >패스키 재발급
+        </router-link>
       </div>
     </div>
     <BaseAlert alertText="인증되었습니다." v-if="TOTPSuccessAlert" />
@@ -47,6 +46,7 @@ import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
+import cookieHelper from '@/utils/cookie.js'
 
 const router = useRouter()
 
@@ -81,27 +81,24 @@ const sendTotpCode = async () => {
   await localAxios
     .post(`/member/second-login`, body)
     .then(() => {
-      sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
-      sessionStorage.removeItem('tmpNickname')
-      sessionStorage.removeItem('tmpEmail')
+      // sessionStorage.setItem('nickname', sessionStorage.getItem('tmpNickname'))
+      // sessionStorage.removeItem('tmpNickname')
+      // sessionStorage.removeItem('tmpEmail')
+      cookieHelper.generate('nickname', cookieHelper.get('tmpNickname'))
+      cookieHelper.delete('tmpNickname')
+      cookieHelper.delete('tmpEmail')
+
       showTOTPSuccessAlert()
 
-      router.push({ name: 'home' })
-        .then(() => {
-          nextTick(() => {
-            window.location.reload()
-          })
+      router.push({ name: 'home' }).then(() => {
+        nextTick(() => {
+          window.location.reload()
         })
+      })
     })
     .catch((error) => {
       console.log(error)
       showSignUpErrorAlert(error.response.data.message)
-
-      // todo TEMPORARY TOKEN이 만료되었을 때 에러 처리 어떻게 할 거야
-      // if (error.response.data.exceptionCode === 'TEMPORARY_TOKEN_EXPIRED') {
-      //   sessionStorage.removeItem('tmpNickname')
-      //   router.push({ name: 'memberLogin' })
-      // }
     })
 }
 </script>

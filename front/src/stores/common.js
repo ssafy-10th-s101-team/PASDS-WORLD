@@ -21,11 +21,16 @@ export const useCommonStore = defineStore('common', () => {
   const sec = computed(() => String(time.value % 60).padStart(2,'0'));
   const intervalId = ref(null);
   const message = ref('');
+  const loginBlock = ref(false);
+
+  const inputTime = ref(180)
+
 
 
   const startTimer = () => {
     message.value = null
-    time.value = 180
+    loginBlock.value = true
+    time.value = inputTime.value
     if (intervalId.value !== null) {
       clearInterval(intervalId.value); // 기존 타이머가 있다면 중지
     }
@@ -35,7 +40,7 @@ export const useCommonStore = defineStore('common', () => {
       } else {
         clearInterval(intervalId.value);
         intervalId.value = null // 타이머 종료
-        message.value = '인증시간이 만료되었습니다. 인증코드를 다시 전송해주세요.'
+        loginBlock.value = false
       }
     }, 1000);
   }
@@ -57,6 +62,8 @@ export const useCommonStore = defineStore('common', () => {
     min,
     sec,
     intervalId,
-    message
+    message,
+    inputTime,
+    loginBlock
   }
 })

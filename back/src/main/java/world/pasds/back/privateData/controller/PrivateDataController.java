@@ -22,9 +22,9 @@ public class PrivateDataController {
     private final PrivateDataService privateDataService;
     private final PrivateDataSearchService privateDataSearchService;
 
-    @GetMapping("/search/{organizationId}")
-    public ResponseEntity<?> searchData(@PathVariable(name = "organizationId") Long organizationId, @RequestParam String title, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<PrivateDataDocument> response = privateDataSearchService.search(organizationId, title, userDetails.getMemberId());
+    @GetMapping("/search")
+    public ResponseEntity<?> searchData(@RequestParam String title, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<PrivateDataDocument> response = privateDataSearchService.search(title, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

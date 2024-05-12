@@ -52,7 +52,7 @@ public class PrivateDataSearchService {
         }
     }
 
-    public List<PrivateDataDocument> search(Long organizationId, String title, Long memberId) {
+    public List<PrivateDataDocument> search(String title, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         SearchResponse<PrivateDataDocument> response;
         try {
@@ -65,12 +65,6 @@ public class PrivateDataSearchService {
                                                             .field("title")
                                                             .value(title)
                                                             .fuzziness("AUTO")
-                                                    )
-                                            ))
-                                            .filter(Query.of(qb -> qb
-                                                    .term(t -> t
-                                                            .field("organizationId")
-                                                            .value(v -> v.longValue(organizationId))
                                                     )
                                             ))
                                     )

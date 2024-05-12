@@ -43,8 +43,5 @@ public class Member extends BaseEntity {
     private LocalDateTime expiredAt;
 
     @Setter
-    private int firstLoginCnt;
-
-    @Setter
     private int secondLoginCnt;
 }

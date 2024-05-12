@@ -54,9 +54,9 @@ async function deletePrivateData(body) {
 }
 
 // 비밀 검색
-async function searchPrivateData(organizationId, text) {
+async function searchPrivateData(text) {
   return localAxios
-    .get(prefix + `/search/${organizationId}?title=${text}`)
+    .get(prefix + `/search?title=${text}`)
     .then(success)
     .catch(fail)
 }

@@ -84,7 +84,7 @@ const lastSearch = ref('')
 const fetchResults = async () => {
   if (searchText.value.length >= 1) {
     try {
-      const response = await searchPrivateData(14, searchText.value)
+      const response = await searchPrivateData(searchText.value)
       searchResults.value = response
       lastSearch.value = searchText.value
     } catch (error) {

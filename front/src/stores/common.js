@@ -22,10 +22,12 @@ export const useCommonStore = defineStore('common', () => {
   const intervalId = ref(null);
   const message = ref('');
 
+  const inputTime = ref(180)
+  const emailRequest = ref(true)
 
   const startTimer = () => {
     message.value = null
-    time.value = 180
+    time.value = inputTime.value
     if (intervalId.value !== null) {
       clearInterval(intervalId.value); // 기존 타이머가 있다면 중지
     }
@@ -57,6 +59,8 @@ export const useCommonStore = defineStore('common', () => {
     min,
     sec,
     intervalId,
-    message
+    message,
+    inputTime,
+    emailRequest
   }
 })

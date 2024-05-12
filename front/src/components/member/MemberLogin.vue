@@ -10,7 +10,7 @@
         <!-- 이메일 입력 필드 -->
         <div>
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >이메일</label
+          >이메일</label
           >
           <input
             type="email"
@@ -25,7 +25,7 @@
         <!-- 비밀번호 입력 필드 -->
         <div class="mb-6">
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-            >비밀번호</label
+          >비밀번호</label
           >
           <div class="relative">
             <input
@@ -80,6 +80,9 @@
             </button>
           </div>
         </div>
+        <div id="timer" class="hidden">
+          <BaseTimer />
+        </div>
 
         <!-- 로그인 버튼 -->
         <button
@@ -94,12 +97,14 @@
           <router-link
             :to="{ name: 'memberSignup' }"
             class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-            >회원가입</router-link
+          >회원가입
+          </router-link
           >
           <router-link
             :to="{ name: 'memberForgotPassword' }"
             class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-            >비밀번호 재설정</router-link
+          >비밀번호 재설정
+          </router-link
           >
         </div>
       </form>
@@ -109,13 +114,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
-import cookieHelper from '@/utils/cookie.js'
+import BaseTimer from '@/components/common/BaseTimer.vue'
+import { useCommonStore } from '@/stores/common.js'
 
 const router = useRouter()
+const commonStore = useCommonStore()
+const { removeHidden, startTimer } = commonStore
+const { emailRequest, inputTime } = toRefs(commonStore)
 
 const email = ref('')
 const password = ref('')
@@ -138,26 +147,34 @@ function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
 }
 
-async function validateForm() {
-  try {
-    const body = {
-      email: email.value,
-      password: password.value
-    }
-    const response = await localAxios.post(`/member/first-login`, body)
-    console.log(response)
-    // 앱 재연동하기에서 보일 이메일
-    sessionStorage.setItem('tmpEmail', email.value)
-    sessionStorage.setItem('tmpNickname', response.data.nickname)
-    // cookieHelper.generate('tmpEmail', email.value)
-    // cookieHelper.generate('tmpNickname', response.data.nickname)
-
-    // 다음 페이지로 라우팅
-    router.push({ name: 'memberLogin2' })
-  } catch (error) {
-    console.log(error)
-    showErrorAlert(error.response.data.message)
+const validateForm = async () => {
+  const body = {
+    email: email.value,
+    password: password.value
   }
+  await localAxios.post(`/member/first-login`, body)
+    .then((response) => {
+      console.log(response)
+      // 앱 재연동하기에서 보일 이메일
+      sessionStorage.setItem('tmpEmail', email.value)
+      sessionStorage.setItem('tmpNickname', response.data.nickname)
+      // cookieHelper.generate('tmpEmail', email.value)
+      // cookieHelper.generate('tmpNickname', response.data.nickname)
+
+      // 다음 페이지로 라우팅
+      router.push({ name: 'memberLogin2' })
+    })
+    .catch((error) => {
+      console.error(error)
+      showErrorAlert(error.response.data.message)
+      if (error.response.data.message === "로그인 5회 시도로 로그인이 불가합니다. 5분 후 시도해주세요.") {
+        inputTime.value = 300     // 5분
+        emailRequest.value = false      // 이메일 인증용 타이머 아님
+        removeHidden("timer")
+        startTimer()
+      }
+    })
+
 }
 </script>
 

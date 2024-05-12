@@ -135,11 +135,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 			redisTemplate.opsForValue().set("FIRST_LOGIN_" + ip + "_" + email, 1, Duration.ofMillis(60000));
 		}
 
-
-
-
-
-
 		Authentication authentication;
 
 		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email,
@@ -166,11 +161,11 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 				throw new BusinessException(ExceptionCode.MEMBER_BLOCKED);
 			}
 			if (cnt != null && Integer.parseInt(cnt) == 10) {
-				// BLOCK 된 IP 저장
+				// LOCK 된 계정 저장
 				redisTemplate.opsForValue()
 					.set("LOCKED_" + email, LocalDateTime.now().toString());   // 계정 잠금
 
-				// BLOCK 된 IP 로그인 시도 횟수 초기화
+				// LOCK 된 IP 로그인 시도 횟수 초기화
 				redisTemplate.delete("FIRST_LOGIN_" + ip + "_" + email);
 
 				throw new BusinessException(ExceptionCode.MEMBER_LOCKED);

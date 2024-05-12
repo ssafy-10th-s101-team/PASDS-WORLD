@@ -21,8 +21,8 @@ public class InvitationController {
 
     private final InvitationService invitationService;
 
-    @GetMapping("{offset}")
-    public ResponseEntity<?> getInvitations(@PathVariable(name = "offset") int offset, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    @GetMapping("")
+    public ResponseEntity<?> getInvitations(@RequestParam(name = "offset") int offset, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetInvitationsResponseDto> response = invitationService.getInvitations(offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }

@@ -45,14 +45,14 @@ public class NotificationController {
     }
 
     @GetMapping("/{notificationId}")
-    public ResponseEntity<?> readNotification(@PathVariable(name = "notificationId") Long notificationId) {
-        NotificationResponseDto response = notificationService.readNotification(notificationId);
+    public ResponseEntity<?> readNotification(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable(name = "notificationId") Long notificationId) {
+        NotificationResponseDto response = notificationService.readNotification(userDetails.getMemberId(), notificationId);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("")
-    public ResponseEntity<?> findAllNotifications(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(name = "offset") int offset) {
-        List<NotificationResponseDto> response = notificationService.findAllNotifications(userDetails.getMemberId(), offset);
+    public ResponseEntity<?> findAllUnreadNotifications(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(name = "offset") int offset) {
+        List<NotificationResponseDto> response = notificationService.findAllUnreadNotifications(userDetails.getMemberId(), offset);
         return ResponseEntity.ok().body(response);
     }
 

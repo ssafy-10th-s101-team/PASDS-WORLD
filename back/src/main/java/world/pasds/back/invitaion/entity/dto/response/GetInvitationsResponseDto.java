@@ -15,8 +15,10 @@ public class GetInvitationsResponseDto {
     private Long invitationId;
     private String invitedBy;
     private LocalDateTime expiredAt;
+    private Long organizationId;
     private String organizationName;
     private String organizationRole;
+    private Long teamId;
     private String teamName;
     private String roleName;
 }

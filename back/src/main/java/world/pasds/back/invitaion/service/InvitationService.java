@@ -63,8 +63,10 @@ public class InvitationService {
                         .invitationId(invitation.getId())
                         .invitedBy(invitation.getInvitedBy().getNickname())
                         .expiredAt(invitation.getExpiredAt())
+                        .organizationId(invitation.getOrganization().getId())
                         .organizationName(invitation.getOrganization().getName())
                         .organizationRole(String.valueOf(invitation.getOrganizationRole()))
+                        .teamId(invitation.getTeam().getId())
                         .teamName(invitation.getTeam().getName())
                         .roleName(invitation.getRole().getName())
                         .build()).toList();

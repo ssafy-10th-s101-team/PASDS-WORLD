@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.member.entity.Member;
+import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.notification.entity.Notification;
 import world.pasds.back.notification.entity.NotificationStatus;
 import world.pasds.back.notification.entity.NotificationType;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationService {
 
+    private final MemberRepository memberRepository;
     private final NotificationEventPublisher notificationEventPublisher;
     private final NotificationRepository notificationRepository;
 
@@ -57,10 +59,10 @@ public class NotificationService {
     }
 
     @Transactional
-    public List<NotificationResponseDto> findAllNotifications(Long memberId, int offset) {
-        Pageable pageable = PageRequest.of(offset, 10);
-        List<Notification> notifications = notificationRepository.findAllNotificationsByToMember(memberId, pageable);
-
+    public List<NotificationResponseDto> findAllUnreadNotifications(Long memberId, int offset) {
+        Pageable pageable = PageRequest.of(offset, 100);
+//        List<Notification> notifications = notificationRepository.findAllNotificationsByToMember(memberId, pageable);
+        List<Notification> notifications =  notificationRepository.findAllNotificationsByToMemberAndStatus(memberId, NotificationStatus.UNREAD, pageable);
         return notifications.stream().map(notification -> NotificationResponseDto.builder()
                 .id(notification.getId())
                 .fromMemberNickName(notification.getFromMemberNickName())
@@ -74,9 +76,17 @@ public class NotificationService {
     }
 
     @Transactional
-    public NotificationResponseDto readNotification(Long notificationId) {
+    public NotificationResponseDto readNotification(Long memberId, Long notificationId) {
+
+        //권한 확인
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new BusinessException(ExceptionCode.NOTIFICATION_NOT_FOUND));
+        if(notification.getToMember() != member.getId())
+            throw new BusinessException(ExceptionCode.MEMBER_UNAUTHORIZED);
+
         notification.setStatus(NotificationStatus.READ);
+
+        notificationRepository.save(notification);
 
         return NotificationResponseDto.builder()
                 .id(notification.getId())

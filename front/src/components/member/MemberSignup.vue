@@ -132,7 +132,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseButton from '@/components/common/BaseButton.vue'
@@ -155,6 +155,7 @@ const isPasswordSame = ref(false)
 const isNicknameValid = ref(false)
 const commonStore = useCommonStore()
 const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
+const { emailRequest, inputTime } = toRefs(commonStore)
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -220,6 +221,7 @@ const sendOtpCode = async () => {
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
+      inputTime.value = 180     // 3분
       removeHidden('OTP') // OTP 입력 부분을 보이게 합니다.
       removeHidden('timer') // 타이머를 보이게 하고 재시작합니다.
       startTimer()

@@ -1,14 +1,12 @@
 <template>
-  <span class="timer text-green-500" v-if="message === null && emailRequest"> {{ min }} : {{ sec }} </span>
-  <span class="msg text-red-500" v-if="message !== null && emailRequest"> {{ message }} </span>
-  <span class="timer text-red-500" v-if="message === null && !emailRequest"> {{ min }} : {{ sec }} 이후 로그인이 가능합니다. </span>
+  <span class="timer text-red-500" v-if="message === null && intervalId !== null"> {{ min }} : {{ sec }} </span>
 </template>
 
 <script setup>
 import { useCommonStore } from '@/stores/common.js'
 import { toRefs } from 'vue'
 const commonStore = useCommonStore();
-const { min, sec, message, emailRequest } = toRefs(commonStore);
+const { min, sec, message, intervalId } = toRefs(commonStore);
 
 
 

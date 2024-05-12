@@ -88,6 +88,7 @@
         <button
           type="submit"
           class="w-full text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          :disabled="loginBlock"
         >
           로그인
         </button>
@@ -122,8 +123,8 @@ import cookieHelper from '@/utils/cookie.js'
 
 const router = useRouter()
 const commonStore = useCommonStore()
-const { removeHidden, startTimer } = commonStore
-const { emailRequest, inputTime } = toRefs(commonStore)
+const { removeHidden, startTimer, stopTimer } = commonStore
+const { inputTime, loginBlock } = toRefs(commonStore)
 
 const email = ref('')
 const password = ref('')
@@ -160,6 +161,7 @@ const validateForm = async () => {
       cookieHelper.generate('tmpEmail', email.value)
       cookieHelper.generate('tmpNickname', response.data.nickname)
 
+      stopTimer()
       // 다음 페이지로 라우팅
       router.push({ name: 'memberLogin2' })
     })
@@ -168,7 +170,6 @@ const validateForm = async () => {
       showErrorAlert(error.response.data.message)
       if (error.response.data.message === "로그인 5회 시도로 로그인이 불가합니다. 5분 후 시도해주세요.") {
         inputTime.value = 300     // 5분
-        emailRequest.value = false      // 이메일 인증용 타이머 아님
         removeHidden("timer")
         startTimer()
       }

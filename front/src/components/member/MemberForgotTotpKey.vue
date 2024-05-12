@@ -75,7 +75,7 @@
 <script setup>
 import BaseAlert from '../common/BaseAlert.vue'
 import BaseButton from '../common/BaseButton.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, toRefs } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { localAxios } from '@/utils/http-commons.js'
 // import router from '@/router/index.js'
@@ -88,6 +88,7 @@ const router = useRouter()
 
 const commonStore = useCommonStore()
 const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
+const { inputTime } = toRefs(commonStore)
 
 // alert toggle
 const EmailSuccessAlert = ref(false)
@@ -143,6 +144,7 @@ const sendOtpCode = async () => {
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
+      inputTime.value = 180     // 3분
       startTimer()
     })
     .catch((error) => {

@@ -119,11 +119,13 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
 		// 5회 시도로 BLOCK 처리 된 IP 인 경우 로그인 불가
 		if (redisTemplate.opsForValue().get("BLOCKED_" + ip + "_" + email) != null) {
-			throw new BusinessException(ExceptionCode.MEMBER_BLOCKED);
+			respondCaseFail(response,MEMBER_BLOCKED);
+			return;
 		}
 
 		if (redisTemplate.opsForValue().get("LOCKED_" + email) != null){
-			throw new BusinessException(MEMBER_LOCKED);
+			respondCaseFail(response, MEMBER_LOCKED);
+			return;
 		}
 
 		if (prevFirstLoginCnt != null && Integer.parseInt(prevFirstLoginCnt) < 10) {
@@ -158,7 +160,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 					.set("BLOCKED_" + ip + "_" + email, LocalDateTime.now().toString(),
 						Duration.ofMillis(300000));   // 5분
 
-				throw new BusinessException(ExceptionCode.MEMBER_BLOCKED);
+				respondCaseFail(response,MEMBER_BLOCKED);
+				return;
 			}
 			if (cnt != null && Integer.parseInt(cnt) == 10) {
 				// LOCK 된 계정 저장
@@ -168,7 +171,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 				// LOCK 된 IP 로그인 시도 횟수 초기화
 				redisTemplate.delete("FIRST_LOGIN_" + ip + "_" + email);
 
-				throw new BusinessException(ExceptionCode.MEMBER_LOCKED);
+				respondCaseFail(response, MEMBER_LOCKED);
+				return;
 			}
 			respondCaseFail(response, FIRST_LOGIN_AUTHENTICATION_FAIL);
 		}

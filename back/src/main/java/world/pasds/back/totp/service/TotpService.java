@@ -90,6 +90,7 @@ public class TotpService {
 //		member.setEncryptedTotpIv(Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
         member.setEncryptedTotpDataKey(Base64.getDecoder().decode(totpEncryptionKeys.getEncryptedDataKey()));
         member.setEncryptedTotpIv(Base64.getDecoder().decode(totpEncryptionKeys.getEncryptedIv()));
+        member.setExpiredAt(LocalDateTime.now().plusDays(90));
         memberRepository.save(member);
     }
 

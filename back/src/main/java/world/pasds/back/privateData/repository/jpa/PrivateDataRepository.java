@@ -1,8 +1,6 @@
-package world.pasds.back.privateData.repository;
+package world.pasds.back.privateData.repository.jpa;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.team.entity.Team;

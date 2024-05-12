@@ -321,16 +321,19 @@
         </div>
         <div class="flex justify-center">
           <button
+            v-if="canUpdate"
             @click="updatePrivate"
             type="submit"
             class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             수정
           </button>
+
           <button
+            v-if="canDelete"
             @click="deletePrivate"
             type="submit"
-            class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-800 dark:focus:ring-red-900"
           >
             삭제
           </button>
@@ -344,7 +347,7 @@
 import { ref, defineProps, watch } from 'vue'
 import BaseModal from './BaseModal.vue'
 import { useCommonStore } from '@/stores/common'
-import { deletePrivateData, getPrivateData, updatePrivateData } from '@/api/data'
+import { getPrivateData, updatePrivateData, deletePrivateData } from '@/api/data'
 import { getRole } from '@/api/role'
 
 const commonStore = useCommonStore()
@@ -359,6 +362,8 @@ const memo = ref('')
 const roles = ref([])
 const selectedRoles = ref([])
 const showDropdown = ref(false)
+const canUpdate = ref(false)
+const canDelete = ref(false)
 
 const props = defineProps({
   teamId: Number,
@@ -387,6 +392,8 @@ const fetchPrivateData = async () => {
       content.value = dataResponse.privateData
       url.value = dataResponse.url
       memo.value = dataResponse.memo
+      canUpdate.value = dataResponse.canUpdate
+      canDelete.value = dataResponse.canDelete
 
       selectedRoles.value = dataResponse.roles
         .filter((role) => role.roleId !== 1 && role.roleId !== 2)
@@ -431,15 +438,19 @@ const updatePrivate = async (event) => {
     const errmsg = error.response ? error.response.data.message : 'Error fetching data'
     alert(errmsg)
   }
-  location.reload()
+  // location.reload()
 }
 
 const deletePrivate = async (event) => {
   event.preventDefault()
+  if (!validateFields()) {
+    alert('모든 항목을 채워주세요.')
+    return
+  }
   try {
     const body = {
       teamId: props.teamId,
-      privateDataId: props.privateDataId,
+      privateDataId: props.privateDataId
     }
     const response = await deletePrivateData(body)
     if (response) {
@@ -452,10 +463,20 @@ const deletePrivate = async (event) => {
   }
   location.reload()
 }
-
 function validateFields() {
   return title.value.trim() && content.value.trim()
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.red-button {
+  background-color: #e3342f; /* 기본 빨간색 */
+  color: white;
+}
+.red-button:hover {
+  background-color: #cc1f1a; /* 마우스 호버 시 더 어두운 빨간색 */
+}
+.red-button:focus {
+  ring-color: #ff7070; /* 포커스 시 외곽선 색깔 */
+}
+</style>

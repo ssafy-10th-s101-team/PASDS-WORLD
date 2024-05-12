@@ -327,6 +327,13 @@
           >
             수정
           </button>
+          <button
+            @click="deletePrivate"
+            type="submit"
+            class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            삭제
+          </button>
         </div>
       </form>
     </div>
@@ -337,7 +344,7 @@
 import { ref, defineProps, watch } from 'vue'
 import BaseModal from './BaseModal.vue'
 import { useCommonStore } from '@/stores/common'
-import { getPrivateData, updatePrivateData } from '@/api/data'
+import { deletePrivateData, getPrivateData, updatePrivateData } from '@/api/data'
 import { getRole } from '@/api/role'
 
 const commonStore = useCommonStore()
@@ -417,7 +424,26 @@ const updatePrivate = async (event) => {
     }
     const response = await updatePrivateData(body)
     if (response) {
-      alert('비밀이 성공적으로 생성되었습니다.')
+      alert('비밀이 성공적으로 수정되었습니다.')
+    }
+    toggleHidden('privateDataDetail')
+  } catch (error) {
+    const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+    alert(errmsg)
+  }
+  location.reload()
+}
+
+const deletePrivate = async (event) => {
+  event.preventDefault()
+  try {
+    const body = {
+      teamId: props.teamId,
+      privateDataId: props.privateDataId,
+    }
+    const response = await deletePrivateData(body)
+    if (response) {
+      alert('비밀이 성공적으로 삭제되었습니다.')
     }
     toggleHidden('privateDataDetail')
   } catch (error) {

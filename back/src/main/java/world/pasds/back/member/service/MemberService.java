@@ -188,9 +188,8 @@ public class MemberService {
 		Member foundMember = memberRepository.findByEmail(customUserDetails.getEmail());
 		saveEncryptedPassword(resetPasswordRequestDto.getPassword(), foundMember);
 
-		// 1차 로그인 시도 횟수 초기화
-		foundMember.setFirstLoginCnt(0);
-		memberRepository.save(foundMember);
+		// 계정 잠금 해제
+		redisTemplate.delete("LOCKED_" + customUserDetails.getEmail());
 
 		redisTemplate.delete(customUserDetails.getEmail() + "_" + "EMAIL");
 		cookieProvider.removeCookie(httpServletRequest, httpServletResponse, JwtTokenProvider.TokenType.EMAIL.name());

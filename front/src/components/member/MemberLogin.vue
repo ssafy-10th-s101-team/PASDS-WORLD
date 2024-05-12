@@ -10,7 +10,7 @@
         <!-- 이메일 입력 필드 -->
         <div>
           <label for="email" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >이메일</label
+            >이메일</label
           >
           <input
             type="email"
@@ -25,7 +25,7 @@
         <!-- 비밀번호 입력 필드 -->
         <div class="mb-6">
           <label for="password" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-          >비밀번호</label
+            >비밀번호</label
           >
           <div class="relative">
             <input
@@ -97,14 +97,12 @@
           <router-link
             :to="{ name: 'memberSignup' }"
             class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-          >회원가입
-          </router-link
+            >회원가입</router-link
           >
           <router-link
             :to="{ name: 'memberForgotPassword' }"
             class="text-sm text-samsung-blue hover:underline dark:text-blue-500"
-          >비밀번호 재설정
-          </router-link
+            >비밀번호 재설정</router-link
           >
         </div>
       </form>
@@ -120,6 +118,7 @@ import { localAxios } from '@/utils/http-commons.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import { useCommonStore } from '@/stores/common.js'
+import cookieHelper from '@/utils/cookie.js'
 
 const router = useRouter()
 const commonStore = useCommonStore()
@@ -156,10 +155,10 @@ const validateForm = async () => {
     .then((response) => {
       console.log(response)
       // 앱 재연동하기에서 보일 이메일
-      sessionStorage.setItem('tmpEmail', email.value)
-      sessionStorage.setItem('tmpNickname', response.data.nickname)
-      // cookieHelper.generate('tmpEmail', email.value)
-      // cookieHelper.generate('tmpNickname', response.data.nickname)
+      // sessionStorage.setItem('tmpEmail', email.value)
+      // sessionStorage.setItem('tmpNickname', response.data.nickname)
+      cookieHelper.generate('tmpEmail', email.value)
+      cookieHelper.generate('tmpNickname', response.data.nickname)
 
       // 다음 페이지로 라우팅
       router.push({ name: 'memberLogin2' })

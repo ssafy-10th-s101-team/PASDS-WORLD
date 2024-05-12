@@ -26,8 +26,8 @@ const router = useRouter()
 const totpKey = ref('')
 
 onMounted(() => {
-  const savedBase64String = sessionStorage.getItem('totpKey')
-  // savedBase64String = cookieHelper.get('totpKey')
+  // const savedBase64String = sessionStorage.getItem('totpKey')
+  savedBase64String = cookieHelper.get('totpKey')
   totpKey.value = `data:image/png;base64,${savedBase64String}`
 })
 

@@ -264,8 +264,8 @@ const submitForm = async () => {
         new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
       )
 
-      sessionStorage.setItem('totpKey', base64String)
-      // cookieHelper.generate('totpKey', base64String)
+      // sessionStorage.setItem('totpKey', base64String)
+      cookieHelper.generate('totpKey', base64String)
       router.push({ name: 'memberSignup2' })
     })
     .catch((error) => {

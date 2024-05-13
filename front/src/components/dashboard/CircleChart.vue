@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-6">
+  <div class="mt-6 h-64">
     <canvas id="myChart" width="1025" height="400" role="img"
             aria-label="line graph to show selling overview in terms of months and numbers"></canvas>
   </div>
@@ -7,10 +7,11 @@
 
 <script setup>
 import { onMounted, ref, watch } from 'vue'
+import Chart from 'chart.js/auto'
 
 // Props 정의
 const props = defineProps({
-  organizationCountList: {
+  topCountTeams: {
     type: Array
   },
   organizationId: {
@@ -32,7 +33,7 @@ onMounted(() => {
 })
 
 watch(
-  [() => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
+  [() => props.organizationId, () => props.topCountTeams, () => isLoaded],
   () => {
     try {
 
@@ -42,13 +43,13 @@ watch(
       }
 
       // 로그를 통해 전달된 props 확인
-      console.log('전달된 organizationCountList:', props.organizationViewList)
+      console.log('전달된 topCountTeams:', props.topCountTeams)
 
       month.value = []
       graphData.value = []
 
       // 월
-      props.organizationViewList.forEach((data) => {
+      props.topCountTeams.forEach((data) => {
         console.log(selectedYear.value)
         console.log(data)
         if (selectedYear.value == data[0] && !month.value.includes(data[1])) {
@@ -59,13 +60,12 @@ watch(
       })
 
 
-      const ctx = document.getElementById('myChart2').getContext('2d')
+      const ctx = document.getElementById('myChart').getContext('2d')
       chartInstance.value = new Chart(ctx, {
         type: graphType.value,
         data: {
           labels: month.value,
           datasets: [{
-            label: '조회수',
             borderColor: '#4A5568',
             data: graphData.value,
             fill: false,

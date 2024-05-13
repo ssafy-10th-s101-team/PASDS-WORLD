@@ -48,6 +48,20 @@
         <h1 class="text-black text-xl">결제수단 정보</h1>
       </div>
       <!-- Lower Section (5/6 height) -->
+      <div class="relative w-full h-1/6 pt-2 pl-2 pr-2">
+        <button type="button"
+                class="w-full text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2 text-center inline-flex items-center dark:focus:ring-gray-800 dark:bg-white dark:border-gray-700 dark:text-gray-900 dark:hover:bg-gray-200 mr-2">
+          <svg class="mr-2 -ml-1 w-10 h-3" viewBox="0 0 660 203" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M233.003 199.762L266.362 4.002H319.72L286.336 199.762H233.003V199.762ZM479.113 8.222C468.544 4.256 451.978 0 431.292 0C378.566 0 341.429 26.551 341.111 64.604C340.814 92.733 367.626 108.426 387.865 117.789C408.636 127.387 415.617 133.505 415.517 142.072C415.384 155.195 398.931 161.187 383.593 161.187C362.238 161.187 350.892 158.22 333.368 150.914L326.49 147.803L319.003 191.625C331.466 197.092 354.511 201.824 378.441 202.07C434.531 202.07 470.943 175.822 471.357 135.185C471.556 112.915 457.341 95.97 426.556 81.997C407.906 72.941 396.484 66.898 396.605 57.728C396.605 49.591 406.273 40.89 427.165 40.89C444.611 40.619 457.253 44.424 467.101 48.39L471.882 50.649L479.113 8.222V8.222ZM616.423 3.99899H575.193C562.421 3.99899 552.861 7.485 547.253 20.233L468.008 199.633H524.039C524.039 199.633 533.198 175.512 535.27 170.215C541.393 170.215 595.825 170.299 603.606 170.299C605.202 177.153 610.098 199.633 610.098 199.633H659.61L616.423 3.993V3.99899ZM551.006 130.409C555.42 119.13 572.266 75.685 572.266 75.685C571.952 76.206 576.647 64.351 579.34 57.001L582.946 73.879C582.946 73.879 593.163 120.608 595.299 130.406H551.006V130.409V130.409ZM187.706 3.99899L135.467 137.499L129.902 110.37C120.176 79.096 89.8774 45.213 56.0044 28.25L103.771 199.45L160.226 199.387L244.23 3.99699L187.706 3.996"
+              fill="#0E4595"></path>
+            <path
+              d="M86.723 3.99219H0.682003L0 8.06519C66.939 24.2692 111.23 63.4282 129.62 110.485L110.911 20.5252C107.682 8.12918 98.314 4.42918 86.725 3.99718"
+              fill="#F2AE14"></path>
+          </svg>
+          Pay with Visa
+        </button>
+      </div>
       <div class="relative w-full h-4/6 p-2">
         <img
           src="https://horizon-tailwind-react-git-tailwind-components-horizon-ui.vercel.app/static/media/Nft3.3b3e6a4b3ada7618de6c.png"
@@ -69,6 +83,7 @@
         :organizationCountList="organizationCountList"
         :organizationId="organizationId"
         :yearList="years"
+        @top-count-loaded="handleTopCountTeams"
 
       />
     </div>
@@ -77,11 +92,12 @@
     >
       <!-- Upper Section (1/6 height) -->
       <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
-        <h1 class="text-black text-xl">2024년 5월 상위 팀</h1>
+        <h1 class="text-black text-xl">저장공간</h1>
       </div>
       <!-- Lower Section (5/6 height) -->
-<!--      <CircleChart :organizationCountList="organizationCountList"-->
-<!--                   :organizationId="organizationId" />-->
+
+      <!--      <CircleChart :organizationCountList="organizationCountList"-->
+      <!--                   :organizationId="organizationId" />-->
     </div>
     <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-70 flex flex-col">
       <OrganizationViewCounts
@@ -96,8 +112,10 @@
       <!-- Upper Section (1/6 height) -->
       <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
         <h1 class="text-black text-xl">2024년 5월 상위 팀</h1>
+
       </div>
       <!-- Lower Section (5/6 height) -->
+      <CircleChart :topCountTeams="topCountTeams" />
     </div>
     <div class="col-span-12 rounded-lg shadow-md p-0 sm:col-span-7 h-70 flex flex-col">
       <OrganizationKeyRotations
@@ -106,15 +124,7 @@
         :yearList="years3"
       />
     </div>
-    <div
-      class="col-span-12 rounded-lg shadow-md bg-white p-0 sm:col-span-3 h-70 flex flex-col overflow-hidden"
-    >
-      <!-- Upper Section (1/6 height) -->
-      <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
-        <h1 class="text-black text-xl">2024년 5월 상위 팀</h1>
-      </div>
-      <!-- Lower Section (5/6 height) -->
-    </div>
+
     <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
 </template>
@@ -138,6 +148,8 @@ const organizationName = ref('')
 const years = ref([])
 const years2 = ref([])
 const years3 = ref([])
+
+const topCountTeams = ref([])
 
 const props = defineProps({
   selectedOrganizationId: {
@@ -269,6 +281,10 @@ watch(
     }
   }
 )
+
+const handleTopCountTeams = (data) => {
+  topCountTeams.value = data
+}
 </script>
 
 <style scoped></style>

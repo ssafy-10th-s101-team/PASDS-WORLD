@@ -56,9 +56,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { defineEmits, onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
 import { useCommonStore } from '@/stores/common.js'
+import { localAxios } from '@/utils/http-commons.js'
 
 
 // Props 정의
@@ -73,6 +74,9 @@ const props = defineProps({
     type: Array
   }
 })
+
+// emit 정의
+const emit = defineEmits(['top-count-loaded'])
 
 const chartInstance = ref(null)
 const graphData = ref([])
@@ -126,8 +130,8 @@ watch(
             data: graphData.value,
             fill: false,
             pointBackgroundColor: '#4A5568',
-            borderWidth: 3,
-            pointBorderWidth: 4,
+            borderWidth: 1,
+            pointBorderWidth: 1,
             pointHoverRadius: 6,
             pointHoverBorderWidth: 8,
             pointHoverBorderColor: 'rgb(74,85,104,0.2)'
@@ -164,8 +168,14 @@ const showBarChart = () => {
   }
 }
 
-const showTopTeams = () => {
-
+const showTopTeams = async () => {
+  await localAxios.get(`/dashboard?organizationId=${props.organizationId}&`)
+    .then((response) => {
+      emit('top-count-loaded',response.data)
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 }
 
 </script>

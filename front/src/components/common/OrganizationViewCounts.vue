@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
 
 // Props 정의
@@ -76,7 +76,6 @@ const chartInstance = ref(null)
 const graphData = ref([])
 const selectedYear = ref(2024)
 const month = ref([])
-const increasing = ref(0)
 const isLoaded = ref(false)
 
 const graphType = ref('line')
@@ -126,8 +125,8 @@ watch(
             data: graphData.value,
             fill: false,
             pointBackgroundColor: '#4A5568',
-            borderWidth: 3,
-            pointBorderWidth: 4,
+            borderWidth: 1,
+            pointBorderWidth: 1,
             pointHoverRadius: 6,
             pointHoverBorderWidth: 8,
             pointHoverBorderColor: 'rgb(74,85,104,0.2)'

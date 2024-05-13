@@ -5,12 +5,12 @@
     <!-- 첫 번째 섹션 -->
     <div class="sticky top-0 h-screen flex flex-col items-center justify-center">
       <div class="relative pt-[0px] lg:pt-[0px] pb-[110px] bg-white">
-      <div class="container">
-        <div class="flex flex-wrap -mx-4">
-          <div class="w-full lg:w-6/12 px-4 flex flex-col justify-center">
-            <div class="hero-content">
-              <h1
-                class="
+        <div class="container">
+          <div class="flex flex-wrap -mx-4">
+            <div class="w-full lg:w-6/12 px-4 flex flex-col justify-center">
+              <div class="hero-content">
+                <h1
+                  class="
                   text-dark
                   font-bold
                   text-4xl
@@ -20,19 +20,19 @@
                   leading-snug
                   mb-3
                 "
-              >
-                PASDSWORLD 에서 <br />
-                비밀번호를 쉽고 안전하게 <br />
-                관리하세요.
-              </h1>
-              <p class="text-base mb-8 text-body-color max-w-[480px]">
-                Manage your passwords easily and safely at PASDSWORLD.
-              </p>
-              <ul class="flex flex-wrap items-center">
-                <li>
-                  <router-link :to="{ name: 'memberLogin' }"
-                    href="javascript:void(0)"
-                    class="
+                >
+                  PASDSWORLD 에서 <br />
+                  비밀번호를 쉽고 안전하게 <br />
+                  관리하세요.
+                </h1>
+                <p class="text-base mb-8 text-body-color max-w-[480px]">
+                  Manage secrets and protect sensitive data with PASDSWORLD.
+                </p>
+                <ul class="flex flex-wrap items-center">
+                  <li>
+                    <router-link :to="{ name: 'memberLogin' }"
+                                 href="javascript:void(0)"
+                                 class="
                       py-4
                       px-6
                       sm:px-10
@@ -48,14 +48,14 @@
                       rounded-lg
                       bg-samsung-blue
                     "
-                  >
-                    Get Started
-                  </router-link>
-                </li>
-                <li>
-                  <a
-                    href="#download-section"
-                    class="
+                    >
+                      Get Started
+                    </router-link>
+                  </li>
+                  <li>
+                    <a
+                      href="#download-section"
+                      class="
                       py-4
                       px-6
                       sm:px-10
@@ -69,7 +69,7 @@
                       text-body-color
                       hover:text-primary
                     "
-                  >
+                    >
                     <span class="mr-2">
                       <svg
                         width="22"
@@ -99,26 +99,26 @@
                         />
                       </svg>
                     </span>
-                    Download App
-                  </a>
-                </li>
-              </ul>
+                      Download App
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-          <div class="hidden lg:block lg:w-1/12 px-4"></div>
-          <div class="w-full lg:w-5/12 px-4">
-            <div class="lg:text-right lg:ml-auto">
-              <div class="relative inline-block z-10 pt-11 lg:pt-0">
-                <img
-                  src="https://cdn.tailgrids.com/1.0/assets/images/hero/hero-image-01.png"
-                  alt="hero"
-                  class="max-w-full lg:ml-auto"
-                />
-                <span class="absolute -left-8 -bottom-8 z-[-1]">
+            <div class="hidden lg:block lg:w-1/12 px-4"></div>
+            <div class="w-full lg:w-5/12 px-4">
+              <div class="lg:text-right lg:ml-auto">
+                <div class="relative inline-block z-10 pt-11 lg:pt-0">
+                  <img
+                    src="https://cdn.tailgrids.com/1.0/assets/images/hero/hero-image-01.png"
+                    alt="hero"
+                    class="max-w-full lg:ml-auto"
+                  />
+                  <span class="absolute -left-8 -bottom-8 z-[-1]">
                   <svg
-                    width="93"
-                    height="93"
-                    viewBox="0 0 93 93"
+                    width="100"
+                    height="100"
+                    viewBox="0 0 100 100"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
@@ -149,23 +149,30 @@
                     <circle cx="90.5" cy="90.5" r="2.5" fill="#3056D3" />
                   </svg>
                 </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div
+      class="sticky top-0 h-screen flex flex-col items-center justify-center bg-white text-white"
+    >
+
+      <h2 class="font-samsungone700c text-black text-lg">How PASDSWORLD works</h2>
+      <h2 class="font-samsungone700c text-black text-lg">보안 키 관리 서비스(KMS)는 애플리케이션의 중요한 데이터를 안전하게 보호하기 위해, <br>
+        암호화 키를 간편하게 생성하고 안전하게 저장/관리하는 서비스입니다.<br>
+        사용자는 암호화 키를 이용하여 데이터를 암/복호화 하며,<br>
+        암호화 키는 계층적으로 암호화된 중앙 집중 암호화 키 방식으로 안정적으로 관리됩니다.<br>
+        민감정보를 안전하게 공유하세요.</h2>
+
     </div>
-<!--    <div-->
-<!--      class="sticky top-0 h-screen flex flex-col items-center justify-center bg-white text-white"-->
-<!--    >-->
-<!--      <img id="download-section" src="../assets/images/pasdsworld_v2_qr.png" alt="QR" />-->
-<!--      <h2 class="font-samsungone700c text-black text-lg">어플리케이션 다운로드</h2>-->
-<!--    </div>-->
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+</script>
 
 <style scoped>
 .sticky {

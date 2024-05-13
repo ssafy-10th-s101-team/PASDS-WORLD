@@ -117,7 +117,7 @@
                           />
                         </svg>
                         <svg
-                          @click="handleInvitationReject"
+                          @click="handleInvitationReject(invitation)"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -160,7 +160,7 @@ import BaseButton from '../common/BaseButton.vue'
 import cookieHelper from '@/utils/cookie'
 import { localAxios } from '@/utils/http-commons.js'
 import { getInvitations } from '@/api/invitation'
-import { acceptOrganizationInvitaion } from '@/api/organization'
+import { acceptOrganizationInvitaion, rejectOrganizationInvitation } from '@/api/organization'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 // const nickname = ref(sessionStorage.getItem('nickname'))
@@ -188,11 +188,24 @@ const handleInvitationAccept = async (invitation) => {
     teamId: invitation.teamId,
     roleId: invitation.roleId
   }
-  await acceptOrganizationInvitaion(body)
+  const response = await acceptOrganizationInvitaion(body)
+  if (response == false) {
+    alert('초대를 정상적으로 수락했습니다.')
+  } else {
+    alert('만료된 초대입니다.')
+  }
   invitations.value = await getInvitations(0)
-  console.log('딸깍초록')
 }
-const handleInvitationReject = async () => {
+const handleInvitationReject = async (invitation) => {
+  const body = {
+    organizationId: invitation.organizationId,
+    teamId: invitation.teamId,
+    roleId: invitation.roleId
+  }
+  await rejectOrganizationInvitation(body)
+  alert('초대를 정상적으로 거절했습니다.')
+  invitations.value = await getInvitations(0)
+
   console.log('딸깍빨강')
 }
 const validateNickname = () => {
@@ -219,7 +232,7 @@ const changeNickname = async () => {
 }
 onMounted(async () => {
   invitations.value = await getInvitations(0)
-  // console.log(invitations.value)
+  console.log(invitations.value)
 })
 </script>
 

@@ -93,12 +93,12 @@ async function renameOrganization(body) {
 
 //조직초대 수락
 async function acceptOrganizationInvitaion(body) {
-  return localAxios.post(`/invitaion/accept`, body).then(success).catch(fail)
+  return localAxios.post(`/invitation/accept`, body).then(success).catch(fail)
 }
 
 //조직초대 거절
 async function rejectOrganizationInvitation(body) {
-  return localAxios.post(`invitaion/reject`, body).then(success).catch(fail)
+  return localAxios.post(`invitation/reject`, body).then(success).catch(fail)
 }
 
 export {

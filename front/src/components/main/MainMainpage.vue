@@ -13,11 +13,7 @@
         :selected-search-organization-id="selectedSearchOrganizationId"
         :selected-search-team-id="selectedSearchTeamId"
       />
-      <MainTable
-        v-if="isLoaded"
-        :selectedTeamId="selectedTeamId"
-        :selectedSearchTeamId="selectedSearchTeamId"
-      />
+      <MainTable v-if="isLoaded" :selectedTeamId="selectedTeamId" />
     </div>
   </div>
 </template>
@@ -26,11 +22,12 @@
 import BaseSearchBar from '@/components/common/BaseSearchBar.vue'
 import MainTable from '@/components/common/MainTable.vue'
 import MainTeamButtonGroup from '@/components/common/MainTeamButtonGroup.vue'
-import { defineProps, ref, defineEmits } from 'vue'
+import { defineProps, ref, defineEmits, watch } from 'vue'
 
 const isLoaded = ref(false)
 const selectedTeamId = ref(null)
-const selectedSearchOrganizationId = ref(null)
+const selectedOrganizationId = ref(null)
+const selectedSearchOrganizationId = ref(false)
 const selectedSearchTeamId = ref(null)
 const selectedSearchPrivateDataId = ref(null)
 
@@ -60,6 +57,14 @@ function handleSearchTeamSelected(id) {
 function handleSearchPrivateDataSelected(id) {
   selectedSearchPrivateDataId.value = id
 }
+
+watch(
+  () => props.selectedOrganizationId,
+  (newVal) => {
+    selectedOrganizationId.value = newVal
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped></style>

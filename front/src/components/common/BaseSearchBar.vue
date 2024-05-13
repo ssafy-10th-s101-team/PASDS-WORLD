@@ -53,15 +53,33 @@
       <!-- 검색 결과 리스트 -->
       <ul
         v-if="searchResults.length > 0"
-        class="search-results absoulute w-full z-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-samsung-blue focus:border-samsung-blue block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        class="search-results absolute w-full z-10 mt-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
       >
         <li
           v-for="result in searchResults"
           :key="result.privateDataId"
           @click="goToResult(result)"
-          class="cursor-pointer hover:bg-gray-100"
+          class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 p-3 flex items-center"
         >
-          {{ result.title }}
+          <!-- SVG Icon -->
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+          <div class="flex flex-grow justify-between pl-3">
+            <span class="font-bold">{{ result.title }}</span>
+            <span class="text-sm">{{ result.organizationName }} - {{ result.teamName }}</span>
+          </div>
         </li>
       </ul>
     </div>
@@ -102,6 +120,9 @@ function goToResult(result) {
   emit('organization-search-selected', result.organizationId)
   emit('team-search-selected', result.teamId)
   emit('privateData-search-selected', result.privateDataId)
+  searchResults.value = []
+  lastSearch.value = []
+  searchText.value = ''
 }
 
 function handleFocus() {
@@ -112,7 +133,7 @@ function handleFocus() {
 }
 
 function handleClickOutside(event) {
-  const searchComponent = document.querySelector('.search-component') // 검색 컴포넌트의 클래스 이름을 지정합니다.
+  const searchComponent = document.querySelector('.search-component')
   if (!searchComponent.contains(event.target)) {
     searchResults.value = []
   }

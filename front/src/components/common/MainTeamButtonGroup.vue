@@ -63,31 +63,21 @@ const selectedTeamId = ref(null)
 const selectedTeamName = ref('')
 const teamButtons = ref([])
 
-const fetchTeams = async (orgId) => {
-  if (orgId && orgId !== -1) {
-    const teams = await getTeams(orgId)
-    teamList.value = teams
-    if (teams.length > 0) {
-      if (props.selectedSearchOrganizationId == null) {
-        selectedTeamId.value = teams[0].teamId
-      } else {
-        selectedTeamId.value = props.selectedSearchTeamId
-      }
-      selectTeam(selectedTeamId.value)
-    } else {
-      selectTeam(-1)
-    }
-  } else {
-    teamList.value = []
-  }
-}
-
 watch(
-  [() => props.selectedOrganizationId, () => props.selectedSearchOrganizationId],
-  async ([newOrgId, newSearchOrgId], [oldOrgId, oldSearchOrgId]) => {
-    const currentOrgId = newOrgId || newSearchOrgId
-    if (currentOrgId && (newOrgId !== oldOrgId || newSearchOrgId !== oldSearchOrgId)) {
-      await fetchTeams(currentOrgId)
+  () => props.selectedOrganizationId,
+  async (newOrgId, oldOrgId) => {
+    if (newOrgId !== oldOrgId && newOrgId) {
+      const teams = await getTeams(newOrgId)
+      teamList.value = teams
+      if (props.selectedSearchOrganizationId && newOrgId === props.selectedSearchOrganizationId) {
+        if (teams.length > 0 && props.selectedSearchTeamId) {
+          selectTeam(props.selectedSearchTeamId)
+        }
+      } else {
+        if (teams.length > 0) {
+          selectTeam(teams[0].teamId)
+        }
+      }
     }
   },
   { immediate: true }
@@ -95,12 +85,11 @@ watch(
 
 watch(
   () => props.selectedSearchTeamId,
-  (newVal) => {
-    if (teamList.value.some((team) => team.teamId === newVal)) {
-      selectTeam(newVal)
+  (newTeamId) => {
+    if (newTeamId && teamList.value.some((team) => team.teamId === newTeamId)) {
+      selectTeam(newTeamId)
     }
-  },
-  { immediate: true }
+  }
 )
 
 function selectTeam(id) {

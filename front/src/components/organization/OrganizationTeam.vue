@@ -97,16 +97,13 @@ watch(
   async (newVal, oldVal) => {
     if (newVal !== oldVal) {
       teams.value = await getAdminTeams(newVal)
-      console.log('Updated teams.value:', teams.value)
     }
   },
   { immediate: true }
 ) // immediate: true로 설정하면 컴포넌트 마운트 시에도 함수가 실행됩니다.
 
 onMounted(async () => {
-  console.log('hi')
   teams.value = await getAdminTeams(props.selectedOrganizationId)
-  console.log('teams.value:', teams.value)
 })
 </script>
 

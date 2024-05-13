@@ -117,7 +117,7 @@
 
         <div class="flex items-center justify-start">
           <button
-            type="submit"
+            type="button"
             class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-samsungone700c rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             회원가입
@@ -221,7 +221,7 @@ const sendOtpCode = async () => {
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
-      inputTime.value = 180     // 3분
+      inputTime.value = 180 // 3분
       removeHidden('OTP') // OTP 입력 부분을 보이게 합니다.
       removeHidden('timer') // 타이머를 보이게 하고 재시작합니다.
       startTimer()

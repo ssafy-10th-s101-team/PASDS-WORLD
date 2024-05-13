@@ -186,7 +186,10 @@ const selectOrganization = (organization) => {
     return
   }
   console.log('이게 실행되나. 실행되면 부모 컨포로 전송까지')
-  emit('organization-selected', organization.organizationId)
+  // emit('organization-selected', organization.organizationId)
+  // emit('organization-name', organization.name)
+
+  emit('organization-selected', [organization.organizationId, organization.name]);
   currentOrganization.value = organization
   toggleHidden('dropdownOrganization') // 드롭다운을 닫거나 열기
 }

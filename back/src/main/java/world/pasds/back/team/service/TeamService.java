@@ -112,13 +112,11 @@ public class TeamService {
         for (Team team : findTeamList) {
             //내가 맡은 역할 찾기
             MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
-            Role role;
-            if (memberRole == null)
-                role = null;
-            else {
-                role = memberRole.getRole();
-            }
-            response.add(new GetAdminTeamsResponseDto(organization.getId(), team.getId(), team.getName(), role.getName(), team.getSecretCount()));
+            String roleName  = null;
+            if (memberRole != null)
+                roleName = memberRole.getRole().getName();
+
+            response.add(new GetAdminTeamsResponseDto(organization.getId(), team.getId(), team.getName(), roleName, team.getSecretCount()));
         }
 
         return response;

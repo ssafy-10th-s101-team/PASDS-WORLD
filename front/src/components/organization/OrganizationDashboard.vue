@@ -35,7 +35,7 @@
       >
         <button
           class="text-center text-gray-700 hover:text-blue-500 hover:underline"
-          >결제내역 상세 보기
+        >결제내역 상세 보기
         </button>
       </div>
     </div>
@@ -49,10 +49,17 @@
       </div>
       <!-- Lower Section (5/6 height) -->
       <div class="relative w-full h-4/6 p-2">
-        <img src="https://horizon-tailwind-react-git-tailwind-components-horizon-ui.vercel.app/static/media/Nft3.3b3e6a4b3ada7618de6c.png" class="mb-3 h-full w-full rounded-xl 3xl:h-full 3xl:w-full" alt="">
-        <button class="absolute top-3 right-3 flex items-center justify-center rounded-full bg-white p-2 text-brand-500 hover:cursor-pointer">
+        <img
+          src="https://horizon-tailwind-react-git-tailwind-components-horizon-ui.vercel.app/static/media/Nft3.3b3e6a4b3ada7618de6c.png"
+          class="mb-3 h-full w-full rounded-xl 3xl:h-full 3xl:w-full" alt="">
+        <button
+          class="absolute top-3 right-3 flex items-center justify-center rounded-full bg-white p-2 text-brand-500 hover:cursor-pointer">
           <div class="flex h-full w-full items-center justify-center rounded-full text-xl hover:bg-gray-50">
-            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z"></path></svg>
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em"
+                 width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
+                    d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z"></path>
+            </svg>
           </div>
         </button>
       </div>
@@ -73,6 +80,8 @@
         <h1 class="text-black text-xl">2024년 5월 상위 팀</h1>
       </div>
       <!-- Lower Section (5/6 height) -->
+<!--      <CircleChart :organizationCountList="organizationCountList"-->
+<!--                   :organizationId="organizationId" />-->
     </div>
     <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-70 flex flex-col">
       <OrganizationViewCounts
@@ -117,6 +126,7 @@ import BaseAlert from '@/components/common/BaseAlert.vue'
 import OrganizationCounts from '@/components/common/OrganizationCounts.vue'
 import OrganizationViewCounts from '@/components/common/OrganizationViewCounts.vue'
 import OrganizationKeyRotations from '@/components/common/OrganizationKeyRotations.vue'
+import CircleChart from '@/components/dashboard/CircleChart.vue'
 
 const organizationViewList = ref([])
 const organizationRotateList = ref([])
@@ -178,7 +188,6 @@ onMounted(async () => {
       })
 
 
-
       // 연도 selectBox
       organizationViewList.value.forEach((data) => {
         if (!years2.value.includes(data[0])) {
@@ -200,7 +209,6 @@ onMounted(async () => {
       console.error(error)
       showErrorAlert(error.response.data.message)
     })
-
 
 
 })
@@ -235,7 +243,6 @@ watch(
           years.value.push(data[0])
         }
       })
-
 
 
       // 연도 selectBox

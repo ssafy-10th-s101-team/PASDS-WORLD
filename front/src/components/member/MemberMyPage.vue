@@ -189,7 +189,7 @@ const handleInvitationAccept = async (invitation) => {
     roleId: invitation.roleId
   }
   const response = await acceptOrganizationInvitaion(body)
-  if (response == false) {
+  if (response.isExpired == false) {
     alert('초대를 정상적으로 수락했습니다.')
   } else {
     alert('만료된 초대입니다.')

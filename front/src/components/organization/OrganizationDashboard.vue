@@ -1,7 +1,7 @@
 <template>
     <div class="mx-auto grid max-w-4xl grid-cols-10 gap-4 p-1">
       
-      <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-64 flex flex-col">
+      <div class="col-span-10 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-64 flex flex-col">
         <!-- Title Section with gray background -->
         <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
           <p class="text-black text-xl">비용 요약</p>
@@ -38,7 +38,7 @@
         </div>
       </div>
   
-      <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-3 h-64 flex flex-col overflow-hidden">
+      <div class="col-span-10 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-3 h-64 flex flex-col overflow-hidden">
         <!-- Upper Section (1/6 height) -->
         <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
           <h1 class="text-black text-xl">기본 결제 카드</h1>
@@ -49,15 +49,47 @@
         </div>
       </div>
   
-      <div class="footer col-span-12 rounded-lg border border-gray-800 bg-gray-700 p-6">
-        <!-- Footer content -->
+      <div class="col-span-10 rounded-lg border border-gray-800 p-6 h-96">
+
+      </div>
+      <div class="col-span-10 rounded-lg border border-gray-800 p-6 h-96">
+        
+      </div>
+      <div class="col-span-10 rounded-lg border border-gray-800 p-6 h-96">
+        
       </div>
     </div>
   </template>
   
   <script setup>
-    defineProps({
-        selectedOrganizationId: Number
+    import { localAxios } from '@/utils/http-commons.js'
+    import { onMounted, ref } from 'vue'
+    import { defineProps } from 'vue'
+
+    const organizationViewList = ref([])
+    const organizationRotateList = ref([])
+    const organizationCountList = ref([])
+
+    onMounted(() => {
+      // localAxios.get(`/dashboard/${props.selectedOrganizationId}`)
+      localAxios.get(`/dashboard/1`)
+        .then((response) => {
+          const data = response.data;
+          organizationViewList.value = data.organizationViewList;
+          organizationRotateList.value = data.organizationRotateList;
+          organizationCountList.value = data.organizationCountList;
+          console.log(organizationCountList.value);
+          console.log(organizationViewList.value);
+          console.log(organizationRotateList.value);
+        })
+        .catch((error) => {
+          console.error(error);
+          showErrorAlert(error.response.data.message);
+        });
+    });
+
+    const props = defineProps({
+      selectedOrganizationId: Number
     })
   </script>
   

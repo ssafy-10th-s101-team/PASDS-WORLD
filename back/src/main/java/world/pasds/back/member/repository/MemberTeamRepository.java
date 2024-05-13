@@ -17,6 +17,8 @@ public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long> {
 
     boolean existsByMemberAndTeam(Member member, Team team);
 
+    List<MemberTeam> findAllByTeam(Team team);
+
     @Query("SELECT mt " +
             "FROM MemberTeam mt " +
             "WHERE mt.member.id = :memberId AND mt.team.id IN (SELECT t.id FROM Team t WHERE t.organization.id = :organizationId)")

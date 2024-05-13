@@ -149,8 +149,15 @@ public class OrganizationService {
         }
 
         // 조직의 모든 팀 삭제
-        List<Team> fidnTeamList = teamRepository.findAllByOrganization(findOrganization);
-        teamRepository.deleteAll(fidnTeamList);
+        List<Team> findTeamList = teamRepository.findAllByOrganization(findOrganization);
+        for (Team team : findTeamList) {
+            List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
+            memberTeamRepository.deleteAll(memberTeamList);
+        }
+        teamRepository.deleteAll(findTeamList);
+
+        List<MemberOrganization> memberOrganizationList = memberOrganizationRepository.findAllByOrganization(findOrganization);
+        memberOrganizationRepository.deleteAll(memberOrganizationList);
         organizationRepository.delete(findOrganization);
     }
 

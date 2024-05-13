@@ -185,36 +185,18 @@ const selectOrganization = (organization) => {
     toggleHidden('dropdownOrganization')
     return
   }
-  console.log('이게 실행되나. 실행되면 부모 컨포로 전송까지')
+
   emit('organization-selected', organization.organizationId)
   currentOrganization.value = organization
   toggleHidden('dropdownOrganization') // 드롭다운을 닫거나 열기
 }
 
 onMounted(async () => {
-  console.log('온마운티드 OrganizationSideBar')
   organizations.value = await getOrganizations()
-  console.log('organizations.value :', organizations.value)
-  console.log('organizations.value.length,', organizations.value.length)
-  // organizations.value = [
-  //   {
-  //     organizationId: '1',
-  //     name: 'TESTORG',
-  //     teamCount: 123
-  //   },
-  //   {
-  //     organizationId: '2',
-  //     name: 'TESTORG2',
-  //     teamCount: 123
-  //   }
-  // ]
-
   if (organizations.value == null || organizations.value.length == 0) {
-    console.log('emit 함1')
     emit('organization-selected', null)
     emit('loaded', false)
   } else {
-    console.log('emit 함2')
     emit('organization-selected', organizations.value[0].organizationId)
     emit('loaded', true)
     currentOrganization.value = organizations.value[0]

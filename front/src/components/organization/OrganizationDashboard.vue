@@ -68,7 +68,11 @@
       <!-- Lower Section (5/6 height) -->
     </div>
     <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-64 flex flex-col">
-      <OrganizationViewCounts />
+      <OrganizationViewCounts
+        :organizationViewList="organizationViewList"
+        :organizationId="organizationId"
+        :yearList="years2"
+      />
     </div>
     <div
       class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-3 h-64 flex flex-col overflow-hidden"
@@ -80,7 +84,11 @@
       <!-- Lower Section (5/6 height) -->
     </div>
     <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-64 flex flex-col">
-      <OrganizationKeyRotations />
+      <OrganizationKeyRotations
+        :organizationRotateList="organizationRotateList"
+        :organizationId="organizationId"
+        :yearList="years3"
+      />
     </div>
     <div
       class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-3 h-64 flex flex-col overflow-hidden"
@@ -107,10 +115,12 @@ const organizationViewList = ref([])
 const organizationRotateList = ref([])
 const organizationCountList = ref([])
 
-const organizationId = ref(-1)
+const organizationId = ref(1)
 const organizationName = ref('')
 
 const years = ref([])
+const years2 = ref([])
+const years3 = ref([])
 
 const props = defineProps({
   selectedOrganizationId: {
@@ -161,6 +171,23 @@ onMounted(async () => {
       })
 
 
+
+      // 연도 selectBox
+      organizationViewList.value.forEach((data) => {
+        if (!years2.value.includes(data[0])) {
+          years2.value.push(data[0])
+        }
+      })
+
+
+      // 연도 selectBox
+      organizationRotateList.value.forEach((data) => {
+        if (!years3.value.includes(data[0])) {
+          years3.value.push(data[0])
+        }
+      })
+
+
     })
     .catch((error) => {
       console.error(error)
@@ -202,9 +229,22 @@ watch(
         }
       })
 
-      console.log('연도오오오오오옥 : ' + years.value)
 
 
+      // 연도 selectBox
+      organizationViewList.value.forEach((data) => {
+        if (!years2.value.includes(data[0])) {
+          years2.value.push(data[0])
+        }
+      })
+
+
+      // 연도 selectBox
+      organizationRotateList.value.forEach((data) => {
+        if (!years3.value.includes(data[0])) {
+          years3.value.push(data[0])
+        }
+      })
 
 
     } catch (error) {

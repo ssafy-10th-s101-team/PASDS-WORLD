@@ -22,7 +22,7 @@
 <script setup>
 import { ref } from 'vue'
 import OrganizationSidebar from '@/components/common/OrganizationSidebar.vue'
-const selectedOrganizationId = ref(-1)
+const selectedOrganizationId = ref(1)
 const selectedOrganizationName = ref('')
 const isLoaded = ref(false)
 function handleOrganizationSelected(data) {

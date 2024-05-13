@@ -1,10 +1,10 @@
 <template>
-  <div class="flex items-center justify-center py-8 px-4">
+  <div class="flex items-center justify-center py-8 px-4 bg-white">
     <div class="w-11/12 lg:w-2/3">
-      <div class="flex flex-col justify-between h-full">
+      <div class="flex flex-col justify-between ">
         <div>
           <div class="lg:flex w-full justify-between">
-            <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 비밀 수</h3>
+            <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 비밀수</h3>
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
               <div class="flex items-center">
                 <button
@@ -18,7 +18,7 @@
                   <select v-model="selectedYear" aria-label="select year"
                           class="text-xs text-gray-600 dark:text-gray-400 bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 rounded">
                     <option class="leading-1">Year</option>
-                    <option v-for="year in years" :key="year" class="leading-1">{{ year }}</option>
+                    <option v-for="year in yearList" :key="year" class="leading-1">{{ year }}</option>
                   </select>
                 </div>
               </div>
@@ -50,121 +50,54 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
 
 // Props 정의
 const props = defineProps({
   organizationCountList: {
-    type: Array,
+    type: Array
   },
   organizationId: {
-    type: Number,
+    type: Number
   },
   yearList: {
-    type: Array,
+    type: Array
   }
 })
 
 const chartInstance = ref(null)
 const graphData = ref([])
 const selectedYear = ref(2024)
-const years = ref([])
 const month = ref([])
 
-
-onMounted(() => {
-  // 로그를 통해 전달된 props 확인
-  console.log('전달된 organizationCountList:', props.organizationCountList)
-  years.value = props.yearList
-  // 연도 selectBox
-  props.organizationCountList.forEach((data) => {
-    if (!years.value.includes(data[0])) {
-      years.value.push(data[0])
-    }
-  })
-
-  console.log('연도오오오오오옥 : ' + years.value)
-
-  // 월
-  props.organizationCountList.forEach((data) => {
-    if (selectedYear.value === data[0] && !month.value.includes(data[1])) {
-      month.value.push(data[1])
-      graphData.value.push(data[2])
-    }
-  })
-
-  // 비밀 수
-  props.organizationCountList.forEach((data) => {
-    if (selectedYear.value === data[0] && month.value.includes(data[1])) {
-      month.value.push(data[1])
-    }
-  })
-  console.log(graphData.value)
-  console.log(month.value)
-
-
-  const ctx = document.getElementById('myChart').getContext('2d')
-  chartInstance.value = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: month.value,
-      datasets: [{
-        label: '비밀 수',
-        borderColor: '#4A5568',
-        data: graphData.value,
-        fill: false,
-        pointBackgroundColor: '#4A5568',
-        borderWidth: 3,
-        pointBorderWidth: 4,
-        pointHoverRadius: 6,
-        pointHoverBorderWidth: 8,
-        pointHoverBorderColor: 'rgb(74,85,104,0.2)'
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      },
-      scales: {
-        y: {
-          display: false
-        }
-      }
-    }
-  })
-})
-
 watch(
-  () => props.organizationId,
+  [() => props.organizationId, () => selectedYear.value],
   () => {
     try {
-      console.log('hello', props.organizationCountList)
+
+      // 기존 차트 인스턴스가 있으면 파괴
+      if (chartInstance.value) {
+        chartInstance.value.destroy()
+      }
 
       // 로그를 통해 전달된 props 확인
       console.log('전달된 organizationCountList:', props.organizationCountList)
 
-      // 연도 selectBox
-      props.organizationCountList.forEach((data) => {
-        if (!years.value.includes(data[0])) {
-          years.value.push(data[0])
-        }
-      })
+      month.value = []
+      graphData.value = []
 
       // 월
       props.organizationCountList.forEach((data) => {
-        if (selectedYear.value === data[0] && !month.value.includes(data[1])) {
+        console.log(selectedYear.value)
+        console.log(data)
+        if (selectedYear.value == data[0] && !month.value.includes(data[1])) {
           month.value.push(data[1])
           graphData.value.push(data[2])
+          console.log(month.value)
         }
       })
 
-      // 비밀 수
-      props.organizationCountList.forEach((data) => {
-        if (selectedYear.value === data[0] && month.value.includes(data[1])) {
-          month.value.push(data[1])
-        }
-      })
 
       const ctx = document.getElementById('myChart').getContext('2d')
       chartInstance.value = new Chart(ctx, {
@@ -195,13 +128,11 @@ watch(
           }
         }
       })
-
-
     } catch (error) {
       console.error(error)
       // showErrorAlert(error.response.data.message)
     }
-  }
+  }, { deep: true }
 )
 
 

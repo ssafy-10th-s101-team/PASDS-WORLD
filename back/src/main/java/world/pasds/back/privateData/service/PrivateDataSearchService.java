@@ -35,8 +35,8 @@ public class PrivateDataSearchService {
     private final TeamRepository teamRepository;
     private final RoleAuthorityRepository roleAuthorityRepository;
 
-    public void savePrivateData(PrivateData privateData, Long organizationId, Long teamId) {
-        privateDataSearchRepository.save(convertToDocument(privateData, organizationId, teamId));
+    public void savePrivateData(PrivateData privateData, Long organizationId, String organizationName, Long teamId, String teamName) {
+        privateDataSearchRepository.save(convertToDocument(privateData, organizationId, organizationName, teamId, teamName));
     }
 
     public void updatePrivateData(PrivateData privateData) {
@@ -89,12 +89,14 @@ public class PrivateDataSearchService {
                 .toList();
     }
 
-    private PrivateDataDocument convertToDocument(PrivateData privateData, Long organizationId, Long teamId) {
+    private PrivateDataDocument convertToDocument(PrivateData privateData, Long organizationId, String organizationName, Long teamId, String teamName) {
         return PrivateDataDocument.builder()
                 .privateDataId(privateData.getId())
                 .title(privateData.getTitle())
                 .organizationId(organizationId)
+                .organizationName(organizationName)
                 .teamId(teamId)
+                .teamName(teamName)
                 .build();
     }
 }

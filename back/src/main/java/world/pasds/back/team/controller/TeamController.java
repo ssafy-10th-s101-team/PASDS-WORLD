@@ -6,10 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.team.entity.dto.request.*;
-import world.pasds.back.team.entity.dto.response.GetAdminTeamsResponseDto;
-import world.pasds.back.team.entity.dto.response.GetTeamLeaderResponseDto;
-import world.pasds.back.team.entity.dto.response.GetTeamMemberResponseDto;
-import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
+import world.pasds.back.team.entity.dto.response.*;
 import world.pasds.back.team.service.TeamService;
 
 import java.util.List;
@@ -43,7 +40,7 @@ public class TeamController {
     public ResponseEntity<?> getTeamMember(@PathVariable(name = "teamId") Long teamId,
                                            @PathVariable(name = "offset") int offset,
                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetTeamMemberResponseDto> response = teamService.getTeamMember(teamId, offset, userDetails.getMemberId());
+        GetTeamMemberResponseDto response = teamService.getTeamMember(teamId, offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

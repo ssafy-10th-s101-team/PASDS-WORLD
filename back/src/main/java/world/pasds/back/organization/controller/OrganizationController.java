@@ -1,7 +1,6 @@
 package world.pasds.back.organization.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +35,7 @@ public class OrganizationController {
     //조직에 해당하는 모든 조직원
     @GetMapping("/{organizationId}/{offset}")
     public ResponseEntity<?> getOrganizationMember(@PathVariable(name = "organizationId") Long organizationId, @PathVariable(name = "offset") int offset, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<GetOrganizationMemberResponseDto> response = organizationService.getOrganizationMember(organizationId, offset, userDetails.getMemberId());
+        GetOrganizationMemberResponseDto response = organizationService.getOrganizationMember(organizationId, offset, userDetails.getMemberId());
         return ResponseEntity.ok().body(response);
     }
 

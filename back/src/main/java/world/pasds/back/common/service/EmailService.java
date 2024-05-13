@@ -1,19 +1,16 @@
 package world.pasds.back.common.service;
 
-import java.security.SecureRandom;
-import java.time.Duration;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.util.CookieProvider;
@@ -21,29 +18,42 @@ import world.pasds.back.common.util.JwtTokenProvider;
 import world.pasds.back.member.entity.CustomUserDetails;
 import world.pasds.back.member.repository.MemberRepository;
 
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class EmailService {
-    private final JavaMailSender mailSender;
+    @Autowired
+    @Qualifier("mailSenderList")
+    private final List<JavaMailSenderImpl> mailSenderList;
     private final RedisTemplate redisTemplate;
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieProvider cookieProvider;
     private final MemberRepository memberRepository;
-    private static final String AUTH_CODE_PREFIX = "AuthCode ";
-    @Value("${spring.mail.auth-code-expiration-millis}")
-    private long authCodeExpirationMillis;
     private final RedisService redisService;
 
+    @Value("${spring.mail.auth-code-expiration-millis}")
+    private long authCodeExpirationMillis;
+    private static final String AUTH_CODE_PREFIX = "AuthCode ";
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
     public void sendMessage(String toEmail, String subject, String text) {
-        try {
-            SimpleMailMessage emailForm = createEmailForm(toEmail, subject, text);
-            mailSender.send(emailForm);
-        } catch (Exception e) {
-            throw new BusinessException(ExceptionCode.EMAIL_SENDER_ERROR);
+
+        SimpleMailMessage emailForm = createEmailForm(toEmail, subject, text);
+
+        for (int i = 0; i < mailSenderList.size(); i++) {
+            try {
+                mailSenderList.get(i).send(emailForm);
+                return;
+            } catch (Exception e) {
+
+            }
         }
+
+        throw new BusinessException(ExceptionCode.EMAIL_SENDER_ERROR);
     }
 
     private SimpleMailMessage createEmailForm(String toEmail, String subject, String text) {

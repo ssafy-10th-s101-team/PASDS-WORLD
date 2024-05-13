@@ -20,6 +20,7 @@ import world.pasds.back.member.entity.MemberTeam;
 import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
+import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.privateData.entity.DataType;
 import world.pasds.back.privateData.entity.dto.PrivateDataRoleDto;
 import world.pasds.back.privateData.entity.dto.request.*;
@@ -196,6 +197,7 @@ public class PrivateDataService {
     public void createPrivateData(CreatePrivateDataRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+        Organization organization = team.getOrganization();
 
         // 비밀 생성 가능한지 권한 확인
         MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
@@ -245,7 +247,7 @@ public class PrivateDataService {
                     .build();
         }
         PrivateData save = privateDataRepository.save(privateData);
-        privateDataSearchService.savePrivateData(save, team.getOrganization().getId(), team.getId());
+        privateDataSearchService.savePrivateData(save, organization.getId(), organization.getName() ,team.getId(), team.getName());
 
         // 설정하고자 하는 역할 조회
         List<Role> setRoleList = roleRepository.findAllById(requestDto.getRoleId());

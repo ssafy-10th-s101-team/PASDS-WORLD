@@ -138,6 +138,8 @@ public class OrganizationService {
         Organization findOrganization = organizationRepository.findById(requestDto.getOrganizationId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
+        System.out.println("member.getId() = " + member.getId());
+        System.out.println("findOrganization.getHeader().getId() = " + findOrganization.getHeader().getId());
         // 조직장만이 조직해체 가능
         if (findOrganization.getHeader().getId().equals(member.getId())) {
             throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);

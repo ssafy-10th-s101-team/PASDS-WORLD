@@ -139,7 +139,7 @@
           </div>
         </div>
         <div class="inline-block align-baseline">
-          <BaseButton buttonText="변경" @click="toggleHidden('changeTeamNameModal')" />
+          <BaseButton buttonText="변경" @click="checkTeamName" />
         </div>
         <div>
           <label for="input_text" class="block mb-2 text-sm text-gray-900 dark:text-gray-300">
@@ -223,7 +223,7 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-center">
+        <div class="flex justify-center pt-6">
           <BasePagination
             :current-page="currentPage"
             :total-pages="totalPages"
@@ -317,6 +317,14 @@ const showAuthorizationModal = (roleId) => {
 const showMemberRoleModal = (memberId) => {
   selectedMemberId.value = memberId
   toggleHidden('memberRole') // 모달 토글 함수, 이름 확인 필요
+}
+
+const checkTeamName = () => {
+  if (teamName.value.toUpperCase() === 'MY TEAM') {
+    alert('MY TEAM은 변경할 수 없습니다.')
+  } else {
+    toggleHidden('changeTeamNameModal')
+  }
 }
 
 // 뒤로가기

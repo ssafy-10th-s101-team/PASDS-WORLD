@@ -173,6 +173,7 @@
 import { ref, onMounted, defineEmits } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { getOrganizations } from '@/api/organization.js'
+import router from '@/router'
 
 const emit = defineEmits(['organization-selected', 'loaded'])
 const commonStore = useCommonStore()
@@ -180,7 +181,7 @@ const { toggleHidden } = commonStore
 const organizations = ref([])
 const currentOrganization = ref('s101')
 
-const selectOrganization = (organization) => {
+const selectOrganization = async (organization) => {
   if (currentOrganization.value == organization) {
     toggleHidden('dropdownOrganization')
     return

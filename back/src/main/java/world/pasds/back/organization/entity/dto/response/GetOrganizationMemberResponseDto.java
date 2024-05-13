@@ -13,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 public class GetOrganizationMemberResponseDto {
     private int totalPages;
-    private List<GetOrganizationMemberDto> privateDataResponse;
+    private List<GetOrganizationMemberDto> organizationMemberResponse;
 }

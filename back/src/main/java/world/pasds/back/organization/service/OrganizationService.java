@@ -114,7 +114,7 @@ public class OrganizationService {
 
         return GetOrganizationMemberResponseDto.builder()
                 .totalPages(memberOrganizations.getTotalPages())
-                .privateDataResponse(response)
+                .organizationMemberResponse(response)
                 .build();
     }
 

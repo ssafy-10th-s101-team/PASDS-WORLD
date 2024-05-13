@@ -52,7 +52,9 @@ import { getTeams } from '@/api/team'
 
 const emit = defineEmits(['team-selected', 'loaded'])
 const props = defineProps({
-  selectedOrganizationId: Number
+  selectedOrganizationId: Number,
+  selectedSearchOrganizationId: Number,
+  selectedSearchTeamId: Number
 })
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
@@ -62,21 +64,40 @@ const selectedTeamName = ref('')
 const teamButtons = ref([])
 
 const fetchTeams = async (orgId) => {
-  return await getTeams(orgId)
+  if (orgId && orgId !== -1) {
+    const teams = await getTeams(orgId)
+    teamList.value = teams
+    if (teams.length > 0) {
+      if (props.selectedSearchOrganizationId == null) {
+        selectedTeamId.value = teams[0].teamId
+      } else {
+        selectedTeamId.value = props.selectedSearchTeamId
+      }
+      selectTeam(selectedTeamId.value)
+    } else {
+      selectTeam(-1)
+    }
+  } else {
+    teamList.value = []
+  }
 }
 
 watch(
-  () => props.selectedOrganizationId,
-  async (newVal) => {
-    if (newVal) {
-      const response = await fetchTeams(newVal)
-      teamList.value = response
-      if (response.length > 0) {
-        selectedTeamId.value = response[0].teamId
-        selectTeam(selectedTeamId.value)
-      } else {
-        selectTeam(-1)
-      }
+  [() => props.selectedOrganizationId, () => props.selectedSearchOrganizationId],
+  async ([newOrgId, newSearchOrgId], [oldOrgId, oldSearchOrgId]) => {
+    const currentOrgId = newOrgId || newSearchOrgId
+    if (currentOrgId && (newOrgId !== oldOrgId || newSearchOrgId !== oldSearchOrgId)) {
+      await fetchTeams(currentOrgId)
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.selectedSearchTeamId,
+  (newVal) => {
+    if (teamList.value.some((team) => team.teamId === newVal)) {
+      selectTeam(newVal)
     }
   },
   { immediate: true }

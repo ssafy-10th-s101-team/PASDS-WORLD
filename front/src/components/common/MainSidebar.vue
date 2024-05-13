@@ -66,7 +66,7 @@
 <script setup>
 import { useCommonStore } from '@/stores/common'
 import OrganizationCreationModal from './OrganizationCreationModal.vue'
-import { onMounted, ref, defineEmits } from 'vue'
+import { onMounted, ref, defineEmits, defineProps, watch } from 'vue'
 import { getOrganizations } from '@/api/organization'
 
 const emit = defineEmits(['organization-selected', 'loaded'])
@@ -74,6 +74,10 @@ const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const organizations = ref([])
 const selectedOrganizationId = ref(null)
+
+const props = defineProps({
+  selectedOrganizationId: Number
+})
 
 onMounted(async () => {
   const orgs = await fetchOrganization()
@@ -83,6 +87,13 @@ onMounted(async () => {
     selectOrganization(selectedOrganizationId.value)
   }
 })
+
+watch(
+  () => props.selectedOrganizationId,
+  (newVal) => {
+    selectedOrganizationId.value = newVal
+  }
+)
 
 const fetchOrganization = async () => {
   return await getOrganizations()

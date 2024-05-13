@@ -75,16 +75,16 @@
                   <tbody
                     class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
                   >
-                    <tr v-for="(organization, index) in organizations" :key="index">
+                    <tr v-for="(invitation, index) in invitations" :key="index">
                       <td
                         class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
-                        {{ organization.organizationName }}
+                        {{ invitation.invitationName }}
                       </td>
                       <td
                         class="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white"
                       >
-                        {{ organization.organizationLeader }}
+                        {{ invitation.invitationLeader }}
                       </td>
                       <td
                         class="invisible py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
@@ -102,6 +102,7 @@
                       <!-- 수락 거절 -->
                       <td class="py-4 pr-4 flex justify-between">
                         <svg
+                          @click="handleInvitationAccept"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -116,6 +117,7 @@
                           />
                         </svg>
                         <svg
+                          @click="handleInvitationReject"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -164,21 +166,26 @@ const { toggleHidden } = commonStore
 const nickname = ref(cookieHelper.get('nickname'))
 const isNicknameValid = ref(true)
 
-const organizations = ref([
+const invitations = ref([
   {
-    organizationName: 'S101',
-    organizationLeader: '신우섭'
+    invitationName: 'S101',
+    invitationLeader: '신우섭'
   },
   {
-    organizationName: 'S102',
-    organizationLeader: '김현수'
+    invitationName: 'S102',
+    invitationLeader: '김현수'
   },
   {
-    organizationName: 'S103',
-    organizationLeader: '이지은'
+    invitationName: 'S103',
+    invitationLeader: '이지은'
   }
 ])
-
+const handleInvitationAccept = async () => {
+  console.log('딸깍초록')
+}
+const handleInvitationReject = async () => {
+  console.log('딸깍빨강')
+}
 const validateNickname = () => {
   const regex = /^.{2,20}$/
   isNicknameValid.value = regex.test(nickname.value)
@@ -188,7 +195,8 @@ const changeNickname = async () => {
   const body = {
     nickname: nickname.value
   }
-  await localAxios.post('/member/change-nickname', body)
+  await localAxios
+    .post('/member/change-nickname', body)
     .then(() => {
       console.log('닉네임 변경 성공')
       alert('닉네임이 변경되었습니다.')

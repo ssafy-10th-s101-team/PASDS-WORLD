@@ -117,6 +117,7 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'organizationDashboard',
+          props: true,
           component: () => import('@/components/organization/OrganizationDashboard.vue')
         },
         {

@@ -54,6 +54,8 @@
       <OrganizationCounts
         :organizationCountList="organizationCountList"
         :organizationId="organizationId"
+        :yearList="years"
+
       />
     </div>
     <div
@@ -108,6 +110,8 @@ const organizationCountList = ref([])
 const organizationId = ref(-1)
 const organizationName = ref('')
 
+const years = ref([])
+
 const props = defineProps({
   selectedOrganizationId: {
     type: Number,
@@ -148,21 +152,39 @@ onMounted(async () => {
       console.log(organizationCountList.value) // 비밀수
       console.log(organizationViewList.value) // 조회수
       console.log(organizationRotateList.value) // 키회전수
+
+      // 연도 selectBox
+      organizationCountList.value.forEach((data) => {
+        if (!years.value.includes(data[0])) {
+          years.value.push(data[0])
+        }
+      })
+
+
     })
     .catch((error) => {
       console.error(error)
       showErrorAlert(error.response.data.message)
     })
+
+
+
 })
 
 watch(
   () => props.selectedOrganizationId,
   async (newOrganizationId) => {
     console.log('hello', newOrganizationId)
+
+    organizationId.value = props.selectedOrganizationId
+    organizationName.value = props.selectedOrganizationName
+
+
     if (!newOrganizationId) return // Optionally, skip when ID is null/undefined
 
     try {
-      const response = await localAxios.get(`/dashboard/${newOrganizationId}`)
+      // const response = await localAxios.get(`/dashboard/${newOrganizationId}`)
+      const response = await localAxios.get(`/dashboard/1`)
       const data = response.data
       organizationViewList.value = data.organizationViewList
       organizationRotateList.value = data.organizationRotateList
@@ -171,10 +193,24 @@ watch(
       console.log(organizationCountList.value) // 비밀수
       console.log(organizationViewList.value) // 조회수
       console.log(organizationRotateList.value) // 키회전수
+
+
+      // 연도 selectBox
+      organizationCountList.value.forEach((data) => {
+        if (!years.value.includes(data[0])) {
+          years.value.push(data[0])
+        }
+      })
+
+      console.log('연도오오오오오옥 : ' + years.value)
+
+
+
+
     } catch (error) {
       console.error(error)
       if (error.response && error.response.data) {
-        showErrorAlert(error.response.data.message)
+        // showErrorAlert(error.response.data.message)
       }
     }
   }

@@ -24,4 +24,8 @@ public class PrivateDataDocument {
     private Long organizationId;
 
     private Long teamId;
+
+    private String organizationName;
+
+    private String teamName;
 }

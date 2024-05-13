@@ -67,7 +67,7 @@
       </div>
       <!-- Lower Section (5/6 height) -->
     </div>
-    <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-64 flex flex-col">
+    <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-80 flex flex-col">
       <OrganizationViewCounts
         :organizationViewList="organizationViewList"
         :organizationId="organizationId"
@@ -83,7 +83,7 @@
       </div>
       <!-- Lower Section (5/6 height) -->
     </div>
-    <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-64 flex flex-col">
+    <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-80 flex flex-col">
       <OrganizationKeyRotations
         :organizationRotateList="organizationRotateList"
         :organizationId="organizationId"

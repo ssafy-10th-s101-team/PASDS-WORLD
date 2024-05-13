@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center py-8 px-4 bg-white">
     <div class="w-11/12 lg:w-2/3">
-      <div class="flex flex-col justify-between ">
+      <div class="flex flex-col justify-between h-full ">
         <div>
           <div class="lg:flex w-full justify-between">
             <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 비밀수</h3>
@@ -9,7 +9,7 @@
               <div class="flex items-center">
                 <button
                   class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  Tickets
+                  팀별 사용량
                 </button>
               </div>
               <div class="lg:ml-14">
@@ -25,9 +25,9 @@
             </div>
           </div>
           <div class="flex items-end mt-6">
-            <h3 class="text-indigo-500 leading-5 text-lg md:text-2xl">65,875</h3>
+            <h3 class="text-indigo-500 leading-5 text-lg md:text-2xl">{{ graphData[graphData.length-1] }}개</h3>
             <div class="flex items-center md:ml-4 ml-1 text-green-700">
-              <p class="text-green-700 text-xs md:text-base">전월 대비 17% 증가</p>
+              <p class="text-green-700 text-xs md:text-base">전월 대비 {{ increasing }}% 증가</p>
               <svg role="img" class="text-green-700" aria-label="increase. upward arrow icon"
                    xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M6 2.5V9.5" stroke="currentColor" stroke-width="0.75" stroke-linecap="round"
@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
 
 // Props 정의
@@ -70,9 +70,15 @@ const chartInstance = ref(null)
 const graphData = ref([])
 const selectedYear = ref(2024)
 const month = ref([])
+const increasing = ref(0)
+const isLoaded = ref(false)
+
+onMounted(() => {
+  isLoaded.value = true
+})
 
 watch(
-  [() => props.organizationId, () => selectedYear.value],
+  [() => props.organizationId, () => selectedYear.value, () => isLoaded],
   () => {
     try {
 
@@ -97,7 +103,6 @@ watch(
           console.log(month.value)
         }
       })
-
 
       const ctx = document.getElementById('myChart').getContext('2d')
       chartInstance.value = new Chart(ctx, {

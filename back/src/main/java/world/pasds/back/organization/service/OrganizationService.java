@@ -91,7 +91,7 @@ public class OrganizationService {
         Page<MemberOrganization> memberOrganizations = memberOrganizationRepository.findAllByOrganization(organization, pageable);
 
         for(MemberOrganization memberOrganization  : memberOrganizations.getContent()){
-            List<MemberTeam> memberTeams = memberTeamRepository.findByMemberIdAndOrganizationId(memberId, organizationId);
+            List<MemberTeam> memberTeams = memberTeamRepository.findByMemberIdAndOrganizationId(memberOrganization.getMember().getId(), organizationId);
             List<GetTeamsResponseDto> getTeamsResponseDtos = memberTeams
                     .stream()
                     .map(mt -> GetTeamsResponseDto

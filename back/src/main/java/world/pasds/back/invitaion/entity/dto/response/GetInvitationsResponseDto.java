@@ -21,4 +21,21 @@ public class GetInvitationsResponseDto {
     private Long teamId;
     private String teamName;
     private String roleName;
+    private Long roleId;
+
+    @Override
+    public String toString() {
+        return "GetInvitationsResponseDto{" +
+                "invitationId=" + invitationId +
+                ", invitedBy='" + invitedBy + '\'' +
+                ", expiredAt=" + expiredAt +
+                ", organizationId=" + organizationId +
+                ", organizationName='" + organizationName + '\'' +
+                ", organizationRole='" + organizationRole + '\'' +
+                ", teamId=" + teamId +
+                ", teamName='" + teamName + '\'' +
+                ", roleName='" + roleName + '\'' +
+                ", roleId=" + roleId +
+                '}';
+    }
 }

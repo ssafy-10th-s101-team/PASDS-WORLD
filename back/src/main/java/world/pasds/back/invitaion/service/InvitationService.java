@@ -12,6 +12,7 @@ import world.pasds.back.common.service.EmailService;
 import world.pasds.back.invitaion.entity.Invitation;
 import world.pasds.back.invitaion.entity.dto.request.AcceptOrganizationInviteRequestDto;
 import world.pasds.back.invitaion.entity.dto.request.AcceptTeamInviteRequestDto;
+import world.pasds.back.invitaion.entity.dto.response.AcceptResponseDto;
 import world.pasds.back.invitaion.entity.dto.response.GetInvitationsResponseDto;
 import world.pasds.back.invitaion.entity.dto.response.RejectOrganizationInviteRequestDto;
 import world.pasds.back.invitaion.entity.dto.response.RejectTeamInviteRequestDto;
@@ -33,6 +34,7 @@ import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,20 +59,20 @@ public class InvitationService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
          return invitationRepository.findAllByInvitedMemberEmail(member.getEmail(), pageable)
-                .stream()
-                .filter(invitation -> invitation.getExpiredAt().isAfter(LocalDateTime.now()))
-                .map(invitation -> GetInvitationsResponseDto.builder()
-                        .invitationId(invitation.getId())
-                        .invitedBy(invitation.getInvitedBy().getNickname())
-                        .expiredAt(invitation.getExpiredAt())
-                        .organizationId(invitation.getOrganization().getId())
-                        .organizationName(invitation.getOrganization().getName())
-                        .organizationRole(String.valueOf(invitation.getOrganizationRole()))
-                        .teamId(invitation.getTeam().getId())
-                        .teamName(invitation.getTeam().getName())
-                        .roleName(invitation.getRole().getName())
-                        .build()).toList();
-
+                 .stream()
+                 .filter(invitation -> invitation.getExpiredAt().isAfter(LocalDateTime.now()))
+                 .map(invitation -> GetInvitationsResponseDto.builder()
+                         .invitationId(invitation.getId())
+                         .invitedBy(invitation.getInvitedBy().getNickname())
+                         .expiredAt(invitation.getExpiredAt())
+                         .organizationId(Optional.ofNullable(invitation.getOrganization()).map(Organization::getId).orElse(null))
+                         .organizationName(Optional.ofNullable(invitation.getOrganization()).map(Organization::getName).orElse(null))
+                         .organizationRole(Optional.ofNullable(invitation.getOrganizationRole()).map(Enum::toString).orElse(null))
+                         .teamId(Optional.ofNullable(invitation.getTeam()).map(Team::getId).orElse(null))
+                         .teamName(Optional.ofNullable(invitation.getTeam()).map(Team::getName).orElse(null))
+                         .roleId(Optional.ofNullable(invitation.getRole()).map(Role::getId).orElse(null))
+                         .roleName(Optional.ofNullable(invitation.getRole()).map(Role::getName).orElse(null))
+                         .build()).toList();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -106,35 +108,38 @@ public class InvitationService {
     }
 
     @Transactional
-    public void acceptOrganizationInvite(AcceptOrganizationInviteRequestDto requestDto, Long memberId) {
+    public AcceptResponseDto acceptOrganizationInvite(AcceptOrganizationInviteRequestDto requestDto, Long memberId) {
+        boolean isExpired = false;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         List<Invitation> invitationList = invitationRepository.findAllOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAtDesc(member.getEmail(), organization);
         Invitation invitation = invitationList.get(0);
-
+        System.out.println(invitation);
         // 조직 초대가 유효한 경우
-        if (invitation != null && invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
+        if (invitation != null && !invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
             MemberOrganization memberOrganization = MemberOrganization.builder()
                     .member(member)
                     .organization(organization)
                     .organizationRole(invitation.getOrganizationRole())
                     .build();
             memberOrganizationRepository.save(memberOrganization);
-
             /**
              * Todo: 알림 Url 설정
              */
-            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 수락", "조직 초대 수락했습니다~", NotificationType.USER, null);
+            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 수락", memberOrganization.getOrganization().getName() + " 조직의 초대를 수락했습니다", NotificationType.USER, null);
         } else {
             /**
              * Todo: 알림 Url 설정
              */
+
             if (invitation != null && invitation.getInvitedBy() != null) {
                 notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", "조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
             }
+            isExpired = true;
         }
         invitationRepository.deleteAll(invitationList);
+        return AcceptResponseDto.builder().isExpired(isExpired).build();
     }
 
     @Transactional

@@ -45,4 +45,17 @@ public class Invitation extends BaseEntity {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Override
+    public String toString() {
+        return "Invitation{" +
+                "id=" + id +
+                ", invitedBy=" + invitedBy +
+                ", invitedMemberEmail='" + invitedMemberEmail + '\'' +
+                ", expiredAt=" + expiredAt +
+                ", organization=" + organization +
+                ", organizationRole=" + organizationRole +
+                ", team=" + team +
+                ", role=" + role +
+                '}';
+    }
 }

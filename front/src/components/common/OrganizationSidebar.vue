@@ -185,8 +185,8 @@ const selectOrganization = (organization) => {
     toggleHidden('dropdownOrganization')
     return
   }
+  emit('organization-selected', [organization.organizationId, organization.name])
 
-  emit('organization-selected', organization.organizationId)
   currentOrganization.value = organization
   toggleHidden('dropdownOrganization') // 드롭다운을 닫거나 열기
 }

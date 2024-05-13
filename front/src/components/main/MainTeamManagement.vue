@@ -102,7 +102,7 @@
                   ></td>
                   <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
                     <div
-                      class="text-samsung-blue dark:text-blue-500 hover:underline"
+                      class="text-samsung-blue dark:text-blue-500 hover:underline cursor-pointer"
                       @click="showAuthorizationModal(role.roleId)"
                     >
                       . . .
@@ -211,7 +211,7 @@
                     ></td>
                     <td class="py-4 px-6 text-sm text-center whitespace-nowrap dark:text-white">
                       <div
-                        class="text-samsung-blue dark:text-blue-500 hover:underline"
+                        class="text-samsung-blue dark:text-blue-500 hover:underline cursor-pointer"
                         @click="showMemberRoleModal(teamMember.id)"
                       >
                         . . .

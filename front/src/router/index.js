@@ -120,11 +120,6 @@ const router = createRouter({
           props: true,
           component: () => import('@/components/organization/OrganizationDashboard.vue')
         },
-        {
-          path: 'costGraph',
-          name: 'costGraph',
-          component: () => import('@/components/dashboard/DashboardCostGraph.vue')
-        }
       ]
     }
   ]

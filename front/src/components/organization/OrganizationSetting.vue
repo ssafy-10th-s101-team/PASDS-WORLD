@@ -9,18 +9,13 @@
       >
       <div class="grid gap-6 mb-6 lg:grid-cols-2">
         <!-- 조직명 입력 필드 -->
-        <div>
-          <input
-            type="text"
-            id="organizationName"
-            v-model="organizationName"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="orgnizationName"
-            required
-          />
+        <div
+          class="text-black text-lg rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          {{ organizationName }}
         </div>
         <div class="flex justify-center">
-          <BaseButton buttonText="변경" />
+          <BaseButton buttonText="변경" @click="toggleHidden('changeOrganizationNameModal')" />
         </div>
       </div>
 
@@ -32,33 +27,118 @@
         <div
           class="text-black text-lg rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         >
-          {{ organizationLeader }}
+          {{ organizationHeader }}
         </div>
         <div class="flex justify-center">
-          <BaseButton buttonText="변경" />
+          <BaseButton buttonText="변경" @click="toggleHidden('changeOrganizationHeaderModal')" />
         </div>
       </div>
 
-      <div class="text-red-700 text-sm">조직삭제</div>
-
-      <div class="flex justify-center">
-        <button
-          type="submit"
-          class="text-white bg-samsung-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          확인
-        </button>
+      <div class="text-red-700 text-sm" @click="toggleHidden('deleteOrganizationModal')">
+        조직삭제
       </div>
     </div>
   </div>
+  <BaseModal modalId="deleteOrganizationModal">
+    <div class="space-y-6 px-6 lg:px-8 sm:pb-6 xl:pb-8">
+      <div class="text-red-500">삭제한 조직은 복구할 수 없습니다.</div>
+      <div class="text-red-500">삭제하시겠습니까?</div>
+    </div>
+    <div class="flex justify-center pb-6">
+      <BaseButton buttonText="삭제" @click="removeOrganization" />
+      <div class="disabled"></div>
+    </div>
+  </BaseModal>
+  <OrganizationChangeHeaderModal
+    :organizationId="props.selectedOrganizationId"
+    :organizationMembers="organizationMembers"
+  />
+  <OrganizationChangeNameModal
+    :organizationId="props.selectedOrganizationId"
+    :oldOrganizationName="organizationName"
+    @organizationName-updated="fetchOrganizationName"
+  />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import BaseButton from '../common/BaseButton.vue'
+import OrganizationChangeNameModal from '../common/OrganizationChangeNameModal.vue'
+import OrganizationChangeHeaderModal from '../common/OrganizationChangeHeaderModal.vue'
+import { deleteOrganization } from '@/api/organization'
+import router from '@/router'
+import BaseModal from '../common/BaseModal.vue'
+import { useCommonStore } from '@/stores/common'
+import { getOrganizations, getOrganizationMembers } from '@/api/organization'
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 
-const organizationName = ref('hi')
-const organizationLeader = ref('신우섭')
+const props = defineProps({
+  selectedOrganizationId: {
+    type: Number,
+    required: true
+  }
+})
+watch(
+  () => props.selectedOrganizationId,
+  async (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      await fetchOrganizationName()
+      fetchOrganizationMembers()
+    }
+  }
+)
+onMounted(async () => {
+  await fetchOrganizationName()
+  fetchOrganizationMembers()
+})
+const organizationName = ref()
+const organizationHeader = ref('')
+const organizationMembers = ref('')
+const removeOrganization = async (event) => {
+  event.preventDefault()
+  console.log('organizationId:', props.selectedOrganizationId)
+
+  try {
+    const body = {
+      organizationId: props.selectedOrganizationId
+    }
+    await deleteOrganization(body)
+    alert('삭제 성공')
+    router.push({ name: 'mainpage' })
+  } catch (error) {
+    window.alert(error.response.data.message)
+  }
+}
+// 조직명을 가져오기 위한 나의 전체 조직 조회
+const fetchOrganizationName = async () => {
+  try {
+    const response = await getOrganizations()
+    const selectedOrganization = response.find(
+      (org) => org.organizationId === props.selectedOrganizationId
+    )
+    if (selectedOrganization) {
+      organizationName.value = selectedOrganization.name
+    }
+  } catch (error) {
+    return
+  }
+}
+// 조직원가져오기 및 조직장 이름
+const fetchOrganizationMembers = async () => {
+  try {
+    const response = await getOrganizationMembers(props.selectedOrganizationId, 1)
+
+    const selectedMember = response.organizationMemberResponse[0]
+    organizationMembers.value = response.organizationMemberResponse
+    console.log('멤버들', organizationMembers.value)
+    if (selectedMember) {
+      organizationHeader.value = selectedMember.name
+    }
+  } catch (error) {
+    return
+  }
+}
 </script>
 
 <style scoped></style>

@@ -1,6 +1,6 @@
 <template>
   <div class="flex">
-    <div>
+    <div v-if="!isTeamManagement">
       <MainSidebar
         @organization-selected="handleOrganizationSelected"
         @loaded="handleLoaded"
@@ -19,10 +19,15 @@
 
 <script setup>
 import MainSidebar from '@/components/common/MainSidebar.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 const isLoaded = ref(false)
 const selectedOrganizationId = ref(null)
 const selectedSearchOrganizationId = ref(null)
+
+const isTeamManagement = computed(() => route.name === 'teamManagement')
 
 function handleLoaded() {
   isLoaded.value = true

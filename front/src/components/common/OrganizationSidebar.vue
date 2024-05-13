@@ -179,7 +179,7 @@ const { toggleHidden } = commonStore
 const organizations = ref([])
 const currentOrganization = ref('s101')
 
-const selectOrganization = (organization) => {
+const selectOrganization = async (organization) => {
   if (currentOrganization.value == organization) {
     toggleHidden('dropdownOrganization')
     return

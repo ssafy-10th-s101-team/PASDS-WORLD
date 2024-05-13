@@ -94,9 +94,9 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <BaseButton buttonText="추가 +" @click="toggleHidden('privateDataCreate')" />
+    <BaseButton buttonText="비밀 추가 +" @click="toggleHidden('privateDataCreate')" />
   </div>
-  <div class="flex justify-center">
+  <div class="flex justify-center pt-6">
     <BasePagination
       :current-page="currentPage"
       :total-pages="totalPages"

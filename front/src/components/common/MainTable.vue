@@ -128,7 +128,6 @@ const props = defineProps({
 
 const fetchPrivateData = async () => {
   if (props.selectedTeamId !== -1) {
-    console.log('데이터 가져옴')
     const response = await getPrivateDatas(props.selectedTeamId, currentPage.value)
     privateDataList.value = response.privateDataResponse
     totalPages.value = response.totalPages

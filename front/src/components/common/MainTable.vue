@@ -80,7 +80,7 @@
                     <a
                       href="#"
                       @click="showDetail(data.privateDataId)"
-                      class="text-blue-600 dark:text-blue-500 hover:underline"
+                      class="text-blue-600 dark:text-blue-500 hover:underline cursor-pointer"
                       >. . .</a
                     >
                   </td>
@@ -128,7 +128,6 @@ const props = defineProps({
 
 const fetchPrivateData = async () => {
   if (props.selectedTeamId !== -1) {
-    console.log('데이터 가져옴')
     const response = await getPrivateDatas(props.selectedTeamId, currentPage.value)
     privateDataList.value = response.privateDataResponse
     totalPages.value = response.totalPages

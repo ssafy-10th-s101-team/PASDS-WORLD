@@ -1,5 +1,6 @@
 package world.pasds.back.member.repository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -18,7 +19,7 @@ public interface MemberOrganizationRepository extends JpaRepository<MemberOrgani
 
     MemberOrganization findByMemberAndOrganization(Member member, Organization organization);
 
-    List<MemberOrganization> findAllByOrganization(Organization organization, Pageable pageable);
+    Page<MemberOrganization> findAllByOrganization(Organization organization, Pageable pageable);
 
     boolean existsByMemberAndOrganization(Member member, Organization organization);
 

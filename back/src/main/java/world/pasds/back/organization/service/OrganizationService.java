@@ -1,6 +1,7 @@
 package world.pasds.back.organization.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import world.pasds.back.notification.service.NotificationService;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.entity.dto.request.*;
+import world.pasds.back.organization.entity.dto.response.GetOrganizationMemberDto;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationMemberResponseDto;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
 import world.pasds.back.organization.repository.OrganizationRepository;
@@ -72,7 +74,7 @@ public class OrganizationService {
     }
 
     @Transactional
-    public List<GetOrganizationMemberResponseDto> getOrganizationMember(Long organizationId, int offset, Long memberId) {
+    public GetOrganizationMemberResponseDto getOrganizationMember(Long organizationId, int offset, Long memberId) {
         Pageable pageable = PageRequest.of(offset, 10);
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -84,11 +86,11 @@ public class OrganizationService {
         }
 
         //팀찾는데, 조직안에있는 팀만 보여주기
-        List<GetOrganizationMemberResponseDto> response = new ArrayList<>();
+        List<GetOrganizationMemberDto> response = new ArrayList<>();
 
-        List<MemberOrganization> memberOrganizations = memberOrganizationRepository.findAllByOrganization(organization, pageable);
+        Page<MemberOrganization> memberOrganizations = memberOrganizationRepository.findAllByOrganization(organization, pageable);
 
-        for(MemberOrganization memberOrganization  : memberOrganizations){
+        for(MemberOrganization memberOrganization  : memberOrganizations.getContent()){
             List<MemberTeam> memberTeams = memberTeamRepository.findByMemberIdAndOrganizationId(memberId, organizationId);
             List<GetTeamsResponseDto> getTeamsResponseDtos = memberTeams
                     .stream()
@@ -100,7 +102,7 @@ public class OrganizationService {
                             .build())
                     .toList();
 
-            response.add(GetOrganizationMemberResponseDto
+            response.add(GetOrganizationMemberDto
                     .builder()
                     .memberId(memberOrganization.getMember().getId())
                     .name(memberOrganization.getMember().getNickname())
@@ -110,16 +112,10 @@ public class OrganizationService {
                     .build());
         }
 
-        return response;
-
-//        return memberOrganizations
-//                .stream().map(mo -> GetOrganizationMemberResponseDto
-//                        .builder()
-//                        .name(mo.getMember().getNickname())
-//                        .organizationRole(mo.getOrganizationRole())
-//                        .email(mo.getMember().getEmail())
-//                        .teams(teams)
-//                        .build()).collect(Collectors.toList());
+        return GetOrganizationMemberResponseDto.builder()
+                .totalPages(memberOrganizations.getTotalPages())
+                .privateDataResponse(response)
+                .build();
     }
 
     @Transactional

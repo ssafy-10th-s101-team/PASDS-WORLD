@@ -347,7 +347,9 @@ public class OrganizationService {
         // 조직장 위임
         MemberOrganization findMemberOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, organization);
         findMemberOrganization.setOrganizationRole(OrganizationRole.MEMBER);
+        findMemberAndOrganization.setOrganizationRole(OrganizationRole.HEADER);
         memberOrganizationRepository.save(findMemberOrganization);
+        memberOrganizationRepository.save(findMemberAndOrganization);
 
         organization.setHeader(newHeader);
         organizationRepository.save(organization);

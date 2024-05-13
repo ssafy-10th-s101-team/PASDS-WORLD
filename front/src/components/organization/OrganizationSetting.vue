@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import BaseButton from '../common/BaseButton.vue'
 import OrganizationChangeNameModal from '../common/OrganizationChangeNameModal.vue'
 import OrganizationChangeHeaderModal from '../common/OrganizationChangeHeaderModal.vue'
@@ -79,7 +79,15 @@ const props = defineProps({
     required: true
   }
 })
-
+watch(
+  () => props.selectedOrganizationId,
+  async (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      await fetchOrganizationName()
+      fetchOrganizationMembers()
+    }
+  }
+)
 onMounted(async () => {
   await fetchOrganizationName()
   fetchOrganizationMembers()

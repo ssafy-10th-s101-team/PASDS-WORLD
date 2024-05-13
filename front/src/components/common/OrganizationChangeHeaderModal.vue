@@ -37,7 +37,7 @@
                   >
                     <tr
                       v-for="organizationMember in organizationMembers"
-                      :key="organizationMember.id"
+                      :key="organizationMember.memberId"
                       class="hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
@@ -53,10 +53,10 @@
                       <!-- 라디오 -->
                       <td class="p-4 w-4 flex items-center">
                         <input
-                          :id="`role-option-${organizationMember.id}`"
+                          :id="`role-option-${organizationMember.memberId}`"
                           type="radio"
                           name="memberId"
-                          :value="organizationMember.id"
+                          :value="organizationMember.memberId"
                           class="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300"
                           aria-labelledby="`role-option-${organizationMember.id}`"
                           aria-describedby="`role-option-${organizationMember.id}`"
@@ -73,7 +73,7 @@
       </div>
     </div>
     <div class="flex justify-center pb-6">
-      <BaseButton buttonText="변경" @click="updateLeader" />
+      <BaseButton buttonText="변경" @click="updateHeader" />
     </div>
   </BaseModal>
 </template>
@@ -82,9 +82,10 @@
 import { ref, onMounted } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
-import { inviteTeam } from '@/api/team'
+import { assignHeader } from '@/api/organization'
 
-const selectedMemberId = ref('')
+const selectedMemberId = ref(0)
+import { watch } from 'vue'
 
 const props = defineProps({
   organizationId: {
@@ -97,14 +98,14 @@ const props = defineProps({
   }
 })
 
-const updateLeader = async (event) => {
+const updateHeader = async (event) => {
   event.preventDefault()
   const body = {
-    teamId: props.teamId,
+    organizationId: props.organizationId,
     newHeaderId: selectedMemberId.value
   }
   try {
-    const response = await inviteTeam(body)
+    const response = await assignHeader(body)
     return response
   } catch (error) {
     return

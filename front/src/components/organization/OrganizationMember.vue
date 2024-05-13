@@ -113,7 +113,8 @@ const commonStore = useCommonStore()
 const totalPages = ref(1)
 const { toggleHidden } = commonStore
 const props = defineProps({
-  selectedOrganizationId: Number
+  selectedOrganizationId: Number,
+  selectedOrganizationName: String
 })
 // const members = ref([])
 const members = ref([])

@@ -173,7 +173,6 @@
 import { ref, onMounted, defineEmits } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { getOrganizations } from '@/api/organization.js'
-
 const emit = defineEmits(['organization-selected', 'loaded'])
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
@@ -197,7 +196,10 @@ onMounted(async () => {
     emit('organization-selected', null)
     emit('loaded', false)
   } else {
-    emit('organization-selected', organizations.value[0].organizationId)
+    emit('organization-selected', [
+      organizations.value[0].organizationId,
+      organizations.value[0].name
+    ])
     emit('loaded', true)
     currentOrganization.value = organizations.value[0]
   }

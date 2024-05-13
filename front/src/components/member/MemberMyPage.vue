@@ -189,6 +189,7 @@ const handleInvitationAccept = async (invitation) => {
     roleId: invitation.roleId
   }
   const response = await acceptOrganizationInvitaion(body)
+  console.log(response)
   if (response.isExpired == false) {
     alert('초대를 정상적으로 수락했습니다.')
   } else {

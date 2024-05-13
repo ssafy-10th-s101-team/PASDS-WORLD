@@ -1,18 +1,22 @@
 <template>
-  <div class="flex items-center justify-center py-8 px-4 bg-white">
-    <div class="w-11/12 lg:w-2/3">
+  <div class="flex items-center justify-center py-4 px-4 bg-white">
+    <div class="w-11/12 lg:w-3/4">
       <div class="flex flex-col justify-between h-full ">
         <div>
           <div class="lg:flex w-full justify-between">
-            <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 비밀수</h3>
+            <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 민감정보수</h3>
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
               <div class="flex items-center">
                 <button
-                  class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
+                  class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
                   팀별 사용량
                 </button>
+                <button
+                  class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
+                  상위 팀
+                </button>
               </div>
-              <div class="lg:ml-14">
+              <div class="lg:ml-10">
                 <div
                   class="bg-gray-100 dark:bg-gray-700 ease-in duration-150 hover:bg-gray-200 pb-2 pt-1 px-3 rounded-sm">
                   <select v-model="selectedYear" aria-label="select year"
@@ -110,7 +114,7 @@ watch(
         data: {
           labels: month.value,
           datasets: [{
-            label: '비밀 수',
+            label: '민감정보수',
             borderColor: '#4A5568',
             data: graphData.value,
             fill: false,
@@ -128,7 +132,7 @@ watch(
           },
           scales: {
             y: {
-              display: false
+              display: true
             }
           }
         }

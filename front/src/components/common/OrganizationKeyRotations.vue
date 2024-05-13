@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-center justify-center py-8 px-4 bg-white">
-    <div class="w-11/12 lg:w-2/3">
+  <div class="flex items-center justify-center py-4 px-4 bg-white">
+    <div class="w-11/12 lg:w-3/4">
       <div class="flex flex-col justify-between h-full ">
         <div>
           <div class="lg:flex w-full justify-between">
@@ -8,11 +8,15 @@
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
               <div class="flex items-center">
                 <button
-                  class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
+                  class="ml-1 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
                   팀별 사용량
                 </button>
+                <button
+                  class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
+                  상위 팀
+                </button>
               </div>
-              <div class="lg:ml-14">
+              <div class="lg:ml-8">
                 <div
                   class="bg-gray-100 dark:bg-gray-700 ease-in duration-150 hover:bg-gray-200 pb-2 pt-1 px-3 rounded-sm">
                   <select v-model="selectedYear" aria-label="select year"
@@ -25,7 +29,7 @@
             </div>
           </div>
           <div class="flex items-end mt-6">
-            <h3 class="text-indigo-500 leading-5 text-lg md:text-2xl">{{ graphData[graphData.length-1] }}개</h3>
+            <h3 class="text-indigo-500 leading-5 text-lg md:text-2xl">{{ graphData[graphData.length-1] }}회</h3>
             <div class="flex items-center md:ml-4 ml-1 text-green-700">
               <p class="text-green-700 text-xs md:text-base">전월 대비 {{ increasing }}% 증가</p>
               <svg role="img" class="text-green-700" aria-label="increase. upward arrow icon"
@@ -111,7 +115,7 @@ watch(
         data: {
           labels: month.value,
           datasets: [{
-            label: '비밀 수',
+            label: '키회전수',
             borderColor: '#4A5568',
             data: graphData.value,
             fill: false,

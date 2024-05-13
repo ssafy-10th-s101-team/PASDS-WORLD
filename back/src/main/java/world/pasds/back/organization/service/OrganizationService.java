@@ -75,7 +75,7 @@ public class OrganizationService {
 
     @Transactional
     public GetOrganizationMemberResponseDto getOrganizationMember(Long organizationId, int offset, Long memberId) {
-        Pageable pageable = PageRequest.of(offset, 10);
+        Pageable pageable = PageRequest.of(offset - 1, 10);
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));

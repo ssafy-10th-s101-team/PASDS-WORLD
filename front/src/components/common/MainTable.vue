@@ -80,7 +80,7 @@
                     <a
                       href="#"
                       @click="showDetail(data.privateDataId)"
-                      class="text-blue-600 dark:text-blue-500 hover:underline"
+                      class="text-blue-600 dark:text-blue-500 hover:underline cursor-pointer"
                       >. . .</a
                     >
                   </td>
@@ -126,11 +126,12 @@ const props = defineProps({
   selectedTeamId: Number
 })
 
-const fetchprivateDatas = async (page) => {
-  currentPage.value = page
-  const response = await getPrivateDatas(props.selectedTeamId, page)
-  privateDataList.value = response.privateDataResponse
-  totalPages.value = response.totalPages
+const fetchPrivateData = async () => {
+  if (props.selectedTeamId !== -1) {
+    const response = await getPrivateDatas(props.selectedTeamId, currentPage.value)
+    privateDataList.value = response.privateDataResponse
+    totalPages.value = response.totalPages
+  }
 }
 
 const showDetail = (privateDataId) => {
@@ -140,17 +141,12 @@ const showDetail = (privateDataId) => {
 
 watch(
   [() => props.selectedTeamId, () => currentPage.value],
-
-  async ([newTeamId, newPage], [oldTeamId, oldPage]) => {
-    if (newTeamId === -1) {
-      privateDataList.value = []
-    } else {
-      if (newTeamId !== oldTeamId || newPage !== oldPage) {
-        await fetchprivateDatas(newPage)
-      }
-    }
+  () => {
+    fetchPrivateData()
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
 
 function changePage(page) {

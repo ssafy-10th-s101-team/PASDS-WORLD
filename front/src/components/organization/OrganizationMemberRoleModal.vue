@@ -21,7 +21,7 @@
           </button>
         </div>
         <div class="px-6 py-4">
-          조직 내 {{ member.name }}'s role : {{ member.organizationRole }}
+          조직 내 {{ selectedMember.name }}'s role : {{ selectedMember.organizationRole }}
         </div>
         <div class="px-6 py-4">
           <fieldset class="mb-4">
@@ -87,33 +87,44 @@
 <script setup>
 import { ref } from 'vue'
 import { useCommonStore } from '@/stores/common'
-import { updateOrganizationRole } from '@/api/organization.js'
-const emit = defineEmits(['organiationRoleChanged'])
+import { updateOrganizationRole, removeOrganization } from '@/api/organization.js'
+const emit = defineEmits(['organizationRoleChanged', 'organizationMemberRemoved'])
 const selectedRole = ref('ADMIN') // 기본 선택 값 설정
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const props = defineProps({
   selectedOrganizedId: Number,
-  member: Object
+  selectedMember: Object
 })
 
 async function clickChange() {
-  console.log('변경누름')
   try {
     await updateOrganizationRole({
-      organizationMember: props.member.memberId,
+      organizationMemberId: props.selectedMember.memberId,
       organizationId: props.selectedOrganizedId,
       newOrganizationRole: selectedRole.value
     })
-    emit('organizationRoleChanged', { memberId: props.member.memberId, role: selectedRole.value })
+    emit('organizationRoleChanged', {
+      memberId: props.selectedMember.memberId,
+      role: selectedRole.value
+    })
   } catch (error) {
     alert('역할 변경 실패! 권한이없습니다.')
     console.log('역할 변경 실패', error)
   }
 }
 
-function clickBan() {
-  console.log('확인누름')
+async function clickBan() {
+  try {
+    await removeOrganization({
+      organizationId: props.selectedOrganizedId,
+      email: props.selectedMember.email
+    })
+    emit('organizationMemberRemoved', { memberId: props.selectedMember.memberId })
+  } catch (error) {
+    alert('추방 실패! 권한이없습니다.')
+    console.log('추방 실패', error)
+  }
 }
 function clickCancel() {
   console.log('취소누름')

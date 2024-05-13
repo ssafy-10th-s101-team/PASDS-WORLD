@@ -49,7 +49,7 @@
                         scope="col"
                         class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400 w-1/6"
                       >
-                        조직장
+                        역할
                       </th>
                       <th
                         scope="col"
@@ -79,12 +79,12 @@
                       <td
                         class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
-                        {{ invitation.invitationName }}
+                        {{ invitation.organizationName }}
                       </td>
                       <td
                         class="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white"
                       >
-                        {{ invitation.invitationLeader }}
+                        {{ invitation.organizationRole }}
                       </td>
                       <td
                         class="invisible py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
@@ -102,7 +102,7 @@
                       <!-- 수락 거절 -->
                       <td class="py-4 pr-4 flex justify-between">
                         <svg
-                          @click="handleInvitationAccept"
+                          @click="handleInvitationAccept(invitation)"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -117,7 +117,7 @@
                           />
                         </svg>
                         <svg
-                          @click="handleInvitationReject"
+                          @click="handleInvitationReject(invitation)"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -153,13 +153,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import MemberChangePasswordModal from '../common/MemberChangePasswordModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import cookieHelper from '@/utils/cookie'
 import { localAxios } from '@/utils/http-commons.js'
-
+import { getInvitations } from '@/api/invitation'
+import { acceptOrganizationInvitaion, rejectOrganizationInvitation } from '@/api/organization'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 // const nickname = ref(sessionStorage.getItem('nickname'))
@@ -168,22 +169,43 @@ const isNicknameValid = ref(true)
 
 const invitations = ref([
   {
-    invitationName: 'S101',
-    invitationLeader: '신우섭'
+    organizationName: 'S101',
+    organizationRole: 'MEMBER'
   },
   {
-    invitationName: 'S102',
-    invitationLeader: '김현수'
+    organizationName: 'S102',
+    organizationRole: 'MEMBER'
   },
   {
-    invitationName: 'S103',
-    invitationLeader: '이지은'
+    organizationName: 'S103',
+    organizationRole: 'MEMBER'
   }
 ])
-const handleInvitationAccept = async () => {
-  console.log('딸깍초록')
+const handleInvitationAccept = async (invitation) => {
+  console.log(invitation)
+  const body = {
+    organizationId: invitation.organizationId,
+    teamId: invitation.teamId,
+    roleId: invitation.roleId
+  }
+  const response = await acceptOrganizationInvitaion(body)
+  if (response.isExpired == false) {
+    alert('초대를 정상적으로 수락했습니다.')
+  } else {
+    alert('만료된 초대입니다.')
+  }
+  invitations.value = await getInvitations(0)
 }
-const handleInvitationReject = async () => {
+const handleInvitationReject = async (invitation) => {
+  const body = {
+    organizationId: invitation.organizationId,
+    teamId: invitation.teamId,
+    roleId: invitation.roleId
+  }
+  await rejectOrganizationInvitation(body)
+  alert('초대를 정상적으로 거절했습니다.')
+  invitations.value = await getInvitations(0)
+
   console.log('딸깍빨강')
 }
 const validateNickname = () => {
@@ -208,6 +230,10 @@ const changeNickname = async () => {
       nickname.value = cookieHelper.get('nickname')
     })
 }
+onMounted(async () => {
+  invitations.value = await getInvitations(0)
+  console.log(invitations.value)
+})
 </script>
 
 <style scoped>

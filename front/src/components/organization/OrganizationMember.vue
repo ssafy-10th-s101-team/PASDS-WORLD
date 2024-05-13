@@ -76,19 +76,20 @@
                     <div
                       v-if="member.organizationRole !== 'HEADER'"
                       class="text-samsung-blue dark:text-blue-500 hover:underline"
-                      @click="toggleHidden('organizationRole')"
+                      @click="openMemberModal(member)"
                     >
                       . . .
                     </div>
-                    <OrganizationMemberRoleModal
-                      @organizationRoleChanged="changeOrganizationRole"
-                      :selectedOrganizedId="selectedOrganizationId"
-                      :member="member"
-                    />
                   </td>
                 </tr>
               </tbody>
             </table>
+            <OrganizationMemberRoleModal
+              @organizationRoleChanged="changeOrganizationRole"
+              @organizationMemberRemoved="removeOrganizationRole"
+              :selectedOrganizedId="selectedOrganizationId"
+              :selectedMember="selectedMember"
+            />
           </div>
         </div>
       </div>
@@ -109,12 +110,14 @@ import OrganizationMemberRoleModal from '@/components/organization/OrganizationM
 import { useCommonStore } from '@/stores/common'
 import { getOrganizationMembers } from '@/api/organization'
 const commonStore = useCommonStore()
+const totalPages = ref(1)
 const { toggleHidden } = commonStore
 const props = defineProps({
   selectedOrganizationId: Number
 })
 // const members = ref([])
 const members = ref([])
+const selectedMember = ref({})
 function changeOrganizationRole(data) {
   const { memberId, role } = data
   const member = members.value.find((m) => m.memberId === memberId)
@@ -122,16 +125,38 @@ function changeOrganizationRole(data) {
     member.organizationRole = role // 역할 업데이트, 역할이 `member` 객체 내에 있다고 가정
   }
 }
+function openMemberModal(member) {
+  toggleHidden('organizationRole')
+  selectedMember.value = member
+}
+
+function removeOrganizationRole(data) {
+  const memberId = data.memberId
+
+  // members 배열에서 memberId가 일치하는 멤버의 인덱스를 찾음
+  const index = members.value.findIndex((m) => m.memberId === memberId)
+
+  if (index !== -1) {
+    // 인덱스가 존재하면 해당 위치의 멤버를 배열에서 제거
+    members.value.splice(index, 1)
+  } else {
+    // 멤버를 찾지 못한 경우
+    console.log('Member not found')
+  }
+}
+
 watch(
   () => props.selectedOrganizationId,
   async (newVal, oldVal) => {
     if (newVal !== oldVal) {
-      members.value = await getOrganizationMembers(newVal, 0)
+      const response = await getOrganizationMembers(newVal, totalPages.value)
+      members.value = response.organizationMemberResponse
     }
   }
 )
 onMounted(async () => {
-  members.value = await getOrganizationMembers(props.selectedOrganizationId, 0)
+  const response = await getOrganizationMembers(props.selectedOrganizationId, totalPages.value)
+  members.value = response.organizationMemberResponse
 })
 </script>
 

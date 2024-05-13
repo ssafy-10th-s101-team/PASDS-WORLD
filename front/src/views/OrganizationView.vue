@@ -9,9 +9,9 @@
     <div v-if="isLoaded" class="flex-1">
       <RouterView :selectedOrganizationId="selectedOrganizationId" />
     </div>
-<!--    <div v-else class="flex-1 flex items-center justify-center text-center">-->
-<!--      <b>관리권한을 가진 조직이 없습니다.</b>-->
-<!--    </div>-->
+    <!--    <div v-else class="flex-1 flex items-center justify-center text-center">-->
+    <!--      <b>관리권한을 가진 조직이 없습니다.</b>-->
+    <!--    </div>-->
   </div>
 </template>
 
@@ -21,11 +21,9 @@ import OrganizationSidebar from '@/components/common/OrganizationSidebar.vue'
 const selectedOrganizationId = ref(-1)
 const isLoaded = ref(false)
 function handleOrganizationSelected(data) {
-  console.log('선택된거 부모가 잘 확인했어요. data : ', data)
   selectedOrganizationId.value = data
 }
 function handleLoaded(data) {
-  console.log('실행')
   if (data) {
     isLoaded.value = true
   } else {

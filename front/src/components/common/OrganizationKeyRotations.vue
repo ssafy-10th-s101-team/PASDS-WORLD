@@ -8,10 +8,12 @@
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
               <div class="flex items-center">
                 <button
+                  @click="showBarChart"
                   class="ml-1 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  팀별 사용량
+                  {{ btnText1 }}
                 </button>
                 <button
+                  @click="showTopTeams"
                   class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
                   상위 팀
                 </button>
@@ -77,12 +79,15 @@ const month = ref([])
 const increasing = ref(0)
 const isLoaded = ref(false)
 
+const graphType = ref('line')
+const btnText1 = ref('팀별 사용량')
+
 onMounted(() => {
   isLoaded.value = true
 })
 
 watch(
-  [() => props.organizationId, () => selectedYear.value, () => isLoaded],
+  [() => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
   () => {
     try {
 
@@ -111,7 +116,7 @@ watch(
 
       const ctx = document.getElementById('myChart3').getContext('2d')
       chartInstance.value = new Chart(ctx, {
-        type: 'line',
+        type: graphType.value,
         data: {
           labels: month.value,
           datasets: [{
@@ -144,6 +149,23 @@ watch(
     }
   }, { deep: true }
 )
+
+const showBarChart = () => {
+  if (graphType.value === 'bar') {
+    graphType.value = 'line'
+    btnText1.value = '팀별 사용량'
+    return
+  }
+  if (graphType.value === 'line') {
+    graphType.value = 'bar'
+    btnText1.value = '전체 사용량'
+
+  }
+}
+
+const showTopTeams = () => {
+
+}
 
 
 </script>

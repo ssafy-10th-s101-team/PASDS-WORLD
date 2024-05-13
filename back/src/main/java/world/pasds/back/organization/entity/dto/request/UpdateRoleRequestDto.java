@@ -10,6 +10,6 @@ import world.pasds.back.organization.entity.OrganizationRole;
 @AllArgsConstructor
 public class UpdateRoleRequestDto {
     private Long organizationId;
-    private Long organizationMember;
+    private Long organizationMemberId;
     private OrganizationRole newOrganizationRole;
 }

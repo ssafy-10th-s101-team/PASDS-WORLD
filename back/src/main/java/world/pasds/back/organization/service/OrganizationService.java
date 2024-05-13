@@ -240,6 +240,9 @@ public class OrganizationService {
         }
         memberTeamRepository.deleteAll(removeMemberTeamList);
         memberRoleRepository.deleteAll(removeMemberRoleList);
+
+        //조직에서 삭제
+        memberOrganizationRepository.delete(findMemberAndOrganization);
     }
 
     @Transactional
@@ -353,7 +356,7 @@ public class OrganizationService {
     @Transactional
     public void updateRole(UpdateRoleRequestDto requestDto, Long memberId) {
         Member requestMember = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
-        Member member = memberRepository.findById(requestDto.getOrganizationMember()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(requestDto.getOrganizationMemberId()).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         MemberOrganization requestMemberOrganization = memberOrganizationRepository.findByMemberAndOrganization(requestMember, organization);

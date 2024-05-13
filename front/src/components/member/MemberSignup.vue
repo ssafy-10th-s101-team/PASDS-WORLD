@@ -221,7 +221,7 @@ const sendOtpCode = async () => {
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
-      inputTime.value = 180     // 3분
+      inputTime.value = 180 // 3분
       removeHidden('OTP') // OTP 입력 부분을 보이게 합니다.
       removeHidden('timer') // 타이머를 보이게 하고 재시작합니다.
       startTimer()

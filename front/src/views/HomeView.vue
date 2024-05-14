@@ -17,7 +17,7 @@
                   <li>
                     <router-link
                       :to="{ name: 'memberLogin' }"
-                      class="py-2 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-600 text-white rounded-lg transition duration-300"
+                      class="py-2 px-4 bg-samsung-blue hover:bg-blue-700 dark:bg-samsung-blue dark:hover:bg-blue-600 text-white rounded-lg transition duration-300"
                     >
                       Get Started
                     </router-link>

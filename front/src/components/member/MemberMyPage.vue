@@ -155,6 +155,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useCommonStore } from '@/stores/common'
+import { useUserStore } from '@/stores/user'
 import MemberChangePasswordModal from '../common/MemberChangePasswordModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import cookieHelper from '@/utils/cookie'
@@ -162,6 +163,7 @@ import { localAxios } from '@/utils/http-commons.js'
 import { getInvitations } from '@/api/invitation'
 import { acceptOrganizationInvitaion, rejectOrganizationInvitation } from '@/api/organization'
 const commonStore = useCommonStore()
+const userStore = useUserStore()
 const { toggleHidden } = commonStore
 // const nickname = ref(sessionStorage.getItem('nickname'))
 const nickname = ref(cookieHelper.get('nickname'))
@@ -224,6 +226,7 @@ const changeNickname = async () => {
       alert('닉네임이 변경되었습니다.')
       cookieHelper.delete('nickname')
       cookieHelper.generate('nickname', nickname.value)
+      userStore.setNickname(nickname.value)
     })
     .catch((error) => {
       console.error(error)

@@ -82,10 +82,12 @@
 import { ref, onMounted } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
-import { inviteTeam } from '@/api/team'
+import { assignLeader } from '@/api/team'
 
 const selectedMemberId = ref('')
-
+onMounted(() => {
+  console.log('팀멤버', props.teamMembers)
+})
 const props = defineProps({
   teamId: {
     type: Number,
@@ -104,7 +106,7 @@ const updateLeader = async (event) => {
     newHeaderId: selectedMemberId.value
   }
   try {
-    const response = await inviteTeam(body)
+    const response = await assignLeader(body)
     return response
   } catch (error) {
     return

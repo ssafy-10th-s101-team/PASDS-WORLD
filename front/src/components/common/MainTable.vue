@@ -94,7 +94,11 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <BaseButton buttonText="비밀 추가 +" @click="toggleHidden('privateDataCreate')" />
+    <BaseButton
+      v-if="selectedTeamId !== -1"
+      buttonText="비밀 추가 +"
+      @click="toggleHidden('privateDataCreate')"
+    />
   </div>
   <div class="flex justify-center pt-6">
     <BasePagination
@@ -142,7 +146,12 @@ const showDetail = (privateDataId) => {
 watch(
   [() => props.selectedTeamId, () => currentPage.value],
   () => {
-    fetchPrivateData()
+    if (props.selectedTeamId === -1) {
+      privateDataList.value = []
+      totalPages.value = 0
+    } else {
+      fetchPrivateData()
+    }
   },
   {
     immediate: true

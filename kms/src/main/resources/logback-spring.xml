@@ -14,7 +14,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%%msg%n</pattern>
+            <pattern>%msg%n</pattern>
         </encoder>
         <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
         <!-- 하루에 한번 압축 후 보관, 최대 30일, 1GB까지 보관 -->
@@ -33,7 +33,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%%msg%n</pattern>
+            <pattern>%msg%n</pattern>
         </encoder>
         <file>${LOG_PATH}/${ERR_LOG_FILE_NAME}.log</file>
         <!-- 하루에 한번 압축 후 보관, 최대 30일, 1GB까지 보관 -->

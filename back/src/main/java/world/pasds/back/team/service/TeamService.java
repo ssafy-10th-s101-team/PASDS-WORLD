@@ -277,6 +277,16 @@ public class TeamService {
 
         // 권한 확인 - 조직장 혹은 팀장
         if (member.getId().equals(team.getOrganization().getHeader().getId()) || member.getId().equals(team.getLeader().getId())) {
+            List<Role> roleList = roleRepository.findAllByTeam(team);
+            for (Role role : roleList) {
+                List<MemberRole> memberRoleList = memberRoleRepository.findAllByRole(role);
+                memberRoleRepository.deleteAll(memberRoleList);
+                List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+                roleAuthorityRepository.deleteAll(roleAuthorityList);
+            }
+            roleRepository.deleteAll(roleList);
+            List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
+            memberTeamRepository.deleteAll(memberTeamList);
             teamRepository.delete(team);
         } else {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);

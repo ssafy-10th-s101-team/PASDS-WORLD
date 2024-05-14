@@ -15,6 +15,6 @@ public interface OrganizationDashboardRepository extends JpaRepository<Organizat
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<OrganizationDashboard> findByYearAndMonthAndOrganization(int year, int month, Organization organization);
-    List<OrganizationDashboard> findByOrganization(Organization organization);
+    List<OrganizationDashboard> findAllByOrganization(Organization organization);
 
 }

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
+import world.pasds.back.dashboard.entity.OrganizationDashboard;
+import world.pasds.back.dashboard.repository.OrganizationDashboardRepository;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.*;
 import world.pasds.back.member.repository.MemberOrganizationRepository;
@@ -27,6 +29,7 @@ import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.entity.dto.request.CreateTeamRequestDto;
+import world.pasds.back.team.entity.dto.request.DeleteTeamRequestDto;
 import world.pasds.back.team.entity.dto.response.GetTeamsResponseDto;
 import world.pasds.back.team.repository.TeamRepository;
 import world.pasds.back.team.service.TeamService;
@@ -50,6 +53,7 @@ public class OrganizationService {
     private final RoleRepository roleRepository;
     private final NotificationService notificationService;
     private final TeamService teamService;
+    private final OrganizationDashboardRepository organizationDashboardRepository;
 
     @Transactional
     public void createOrganization(CreateOrganizationRequestDto requestDto, Long memberId) {
@@ -151,13 +155,14 @@ public class OrganizationService {
         // 조직의 모든 팀 삭제
         List<Team> findTeamList = teamRepository.findAllByOrganization(findOrganization);
         for (Team team : findTeamList) {
-            List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
-            memberTeamRepository.deleteAll(memberTeamList);
+            teamService.deleteTeam(new DeleteTeamRequestDto(team.getId()), memberId);
         }
         teamRepository.deleteAll(findTeamList);
 
         List<MemberOrganization> memberOrganizationList = memberOrganizationRepository.findAllByOrganization(findOrganization);
         memberOrganizationRepository.deleteAll(memberOrganizationList);
+        List<OrganizationDashboard> organizationDashboardList = organizationDashboardRepository.findAllByOrganization(findOrganization);
+        organizationDashboardRepository.deleteAll(organizationDashboardList);
         organizationRepository.delete(findOrganization);
     }
 

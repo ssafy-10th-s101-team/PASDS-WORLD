@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -41,6 +42,7 @@ public class SecurityConfig {
             // 이메일 인증하기
             "/app/api/email/verification-email-code",
             "/app/api/key-rotate/handle-masterkey-change",
+            "/actuator/**"
     };
 
     @Value("${security.pepper}")
@@ -89,10 +91,6 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-//                .csrf((csrf) -> csrf
-//                        .csrfTokenRepository(new CookieCsrfTokenRepository())
-//                        .ignoringRequestMatchers("/app/api/key-rotate/handle-masterkey-change")
-//                )
                 .authorizeHttpRequests((authorizeHttpRequests) -> {
                     authorizeHttpRequests.requestMatchers(PUBLIC_ENDPOINTS).permitAll();
                     authorizeHttpRequests.anyRequest().authenticated();
@@ -102,6 +100,16 @@ public class SecurityConfig {
                 })
                 .addFilterBefore(customAuthenticationFilter(buildAuthenticationManager(http)),
                         UsernamePasswordAuthenticationFilter.class)
+                .headers((headers) -> {
+                    headers.addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy", "default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none';"));
+                    headers.addHeaderWriter(new StaticHeadersWriter("X-Frame-Options", "DENY"));
+                    headers.addHeaderWriter(new StaticHeadersWriter("Strict-Transport-Security", "max-age=31536000; includeSubDomains"));
+                    headers.addHeaderWriter(new StaticHeadersWriter("X-Content-Type-Options", "nosniff"));
+                    headers.addHeaderWriter(new StaticHeadersWriter("Cache-Control", "no-cache, no-store, must-revalidate"));
+                    headers.addHeaderWriter(new StaticHeadersWriter("Pragma", "no-cache"));
+                    headers.addHeaderWriter(new StaticHeadersWriter("Expires", "0"));
+                    headers.addHeaderWriter(new StaticHeadersWriter("Server", ""));
+                })
                 .build();
     }
 

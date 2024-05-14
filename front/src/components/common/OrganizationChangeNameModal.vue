@@ -59,10 +59,6 @@ const updateOrganizationName = async (event) => {
     newName: newOrganizationName.value
   }
   try {
-    if (props.oldOrganizationName === 'MY ORGANIZATION') {
-      alert('MY ORGANIZATION은 변경할 수 없습니다')
-      return
-    }
     const response = await renameOrganization(body)
     if (response) {
       alert('조직명이 성공적으로 변경되었습니다.')

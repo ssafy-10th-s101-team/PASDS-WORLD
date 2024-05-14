@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
 import { getOrganizationMembers } from '@/api/organization'
@@ -99,15 +99,6 @@ const { toggleHidden } = commonStore
 const selectedEmails = ref([])
 const orgMembers = ref([])
 const guestRoleId = ref(0)
-
-onMounted(async () => {
-  const fetchMembers = await fetchOrganizationMembers(props.organizationId)
-  orgMembers.value = fetchMembers
-  const guestRole = await props.roles.find((role) => role.name === 'GUEST')
-  if (guestRole) {
-    guestRoleId.value = guestRole.roleId
-  }
-})
 
 const props = defineProps({
   teamId: {
@@ -123,6 +114,24 @@ const props = defineProps({
     required: true
   }
 })
+onMounted(async () => {
+  const fetchMembers = await fetchOrganizationMembers(props.organizationId)
+  orgMembers.value = fetchMembers
+})
+watch(
+  () => props.roles,
+  (newRoles) => {
+    console.log('props roles', newRoles)
+    const guestRole = newRoles.find((role) => role.name === 'GUEST')
+    console.log('guestRole', guestRole)
+    if (guestRole) {
+      guestRoleId.value = guestRole.roleId
+    } else {
+      console.warn('GUEST role not found in roles:', newRoles)
+    }
+  },
+  { immediate: true }
+)
 
 // 역할 목록 가져오기
 const fetchOrganizationMembers = async (organizationId) => {

@@ -94,7 +94,11 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <BaseButton buttonText="비밀 추가 +" @click="toggleHidden('privateDataCreate')" />
+    <BaseButton
+      v-if="selectedTeamId !== -1"
+      buttonText="비밀 추가 +"
+      @click="toggleHidden('privateDataCreate')"
+    />
   </div>
   <div class="flex justify-center pt-6">
     <BasePagination

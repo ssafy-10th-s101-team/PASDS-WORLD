@@ -63,7 +63,6 @@ public class EmailConfig {
             mailSender.setPassword(account.getPassword());
             mailSender.setDefaultEncoding("UTF-8");
             mailSender.setJavaMailProperties(getMailProperties());
-            System.out.println(account.getUsername() + account.getPassword());
             mailSenderList.add(mailSender);
         }
         return mailSenderList;

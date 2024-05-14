@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -84,11 +85,14 @@ public class SecurityConfig {
                 .sessionManagement((sessionManagement) -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
-                // TODO: 실제서비스에서 CSRF 어떻게 해야하지?
-                .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+//                .csrf((csrf) -> csrf
+//                        .csrfTokenRepository(new CookieCsrfTokenRepository())
+//                        .ignoringRequestMatchers("/app/api/key-rotate/handle-masterkey-change")
+//                )
                 .authorizeHttpRequests((authorizeHttpRequests) -> {
                     authorizeHttpRequests.requestMatchers(PUBLIC_ENDPOINTS).permitAll();
                     authorizeHttpRequests.anyRequest().authenticated();

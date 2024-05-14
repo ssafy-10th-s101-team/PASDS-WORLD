@@ -49,7 +49,7 @@ public class EmailService {
                 mailSenderList.get(i).send(emailForm);
                 return;
             } catch (Exception e) {
-
+                System.out.println(i+"번째 이메일 죽음");
             }
         }
 

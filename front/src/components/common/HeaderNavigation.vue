@@ -23,7 +23,7 @@
                 >조직관리
               </router-link>
             </div>
-            <div v-if="nickname" class="mt-6">
+            <div v-if="userStore.nickname" class="mt-6">
               <button
                 @click="logout"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
@@ -33,7 +33,7 @@
               <router-link :to="{ name: 'myPage' }">
                 <span
                   class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                  >{{ nickname }}</span
+                  >{{ userStore.nickname }}</span
                 >
               </router-link>
               <button
@@ -45,7 +45,7 @@
             </div>
 
             <!-- 알림 시작 -->
-            <div v-if="nickname" class="relative notification">
+            <div v-if="userStore.nickname" class="relative notification">
               <svg
                 id="Layer_1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -300,7 +300,7 @@ cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg=="
               </div>
             </div>
             <!-- 알림 끝-->
-            <div v-if="!nickname" class="mt-6">
+            <div v-if="!userStore.nickname" class="mt-6">
               <router-link
                 :to="{ name: 'memberLogin' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
@@ -402,10 +402,11 @@ import { localAxios } from '@/utils/http-commons.js'
 import { getNotifications, readNotification } from '@/api/notification.js'
 import { useRouter } from 'vue-router'
 import cookieHelper from '@/utils/cookie'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
-
-const nickname = ref('')
+const userStore = useUserStore()
+// const nickname = ref('')
 const showNotifications = ref(false)
 const notifications = ref([
   {
@@ -418,7 +419,7 @@ const logout = async () => {
     await localAxios.get(`/member/logout`)
     // sessionStorage.clear()
     cookieHelper.deleteAll()
-    nickname.value = ''
+    userStore.clearNickname()
     router.push({ name: 'home' })
   } catch (error) {}
 }
@@ -467,9 +468,12 @@ const handleNotificationClick = async (notification) => {
 
 onMounted(async () => {
   // nickname.value = sessionStorage.getItem('nickname')
-  nickname.value = cookieHelper.get('nickname')
+
+  userStore.setNickname(cookieHelper.get('nickname'))
+  console.log(' nickname : ', userStore.nickname)
+
   // 잠시 버그만 안나게 추가 했습니다
-  if (nickname.value) {
+  if (userStore.nickname) {
     try {
       notifications.value = await getNotifications(0)
     } catch (error) {

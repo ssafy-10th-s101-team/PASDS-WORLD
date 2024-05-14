@@ -15,7 +15,7 @@
           {{ organizationName }}
         </div>
         <div class="flex justify-center">
-          <BaseButton buttonText="변경" @click="toggleHidden('changeOrganizationNameModal')" />
+          <BaseButton buttonText="변경" @click="checkOrganizationName" />
         </div>
       </div>
 
@@ -95,6 +95,15 @@ onMounted(async () => {
 const organizationName = ref()
 const organizationHeader = ref('')
 const organizationMembers = ref('')
+
+// my organization 확인
+const checkOrganizationName = () => {
+  if (organizationName.value === 'MY ORGANIZATION') {
+    alert('기본 조직은 변경할 수 없습니다')
+  } else toggleHidden('changeOrganizationNameModal')
+}
+
+// 조직 삭제
 const removeOrganization = async (event) => {
   event.preventDefault()
   console.log('organizationId:', props.selectedOrganizationId)
@@ -136,7 +145,7 @@ const fetchOrganizationMembers = async () => {
       organizationHeader.value = selectedMember.name
     }
   } catch (error) {
-    return
+    alert(error.response.data.message)
   }
 }
 </script>

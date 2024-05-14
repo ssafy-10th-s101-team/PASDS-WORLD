@@ -40,6 +40,7 @@ public class SecurityConfig {
             // 이메일 인증하기
             "/app/api/email/verification-email-code",
             "/app/api/key-rotate/handle-masterkey-change",
+            "/actuator/**"
     };
 
     @Value("${security.pepper}")

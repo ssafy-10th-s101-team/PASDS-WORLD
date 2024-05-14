@@ -83,8 +83,6 @@
         :organizationCountList="organizationCountList"
         :organizationId="organizationId"
         :yearList="years"
-        @top-count-loaded="handleTopCountTeams"
-
       />
     </div>
     <div
@@ -95,15 +93,13 @@
         <h1 class="text-black text-xl">저장공간</h1>
       </div>
       <!-- Lower Section (5/6 height) -->
-
-      <!--      <CircleChart :organizationCountList="organizationCountList"-->
-      <!--                   :organizationId="organizationId" />-->
     </div>
     <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-70 flex flex-col">
       <OrganizationViewCounts
         :organizationViewList="organizationViewList"
         :organizationId="organizationId"
         :yearList="years2"
+        @top-view-count-loaded="handleTopCountTeams"
       />
     </div>
     <div
@@ -112,11 +108,12 @@
       <!-- Upper Section (1/6 height) -->
       <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
         <h1 class="text-black text-xl">2024년 5월 상위 팀</h1>
-
       </div>
+      <CircleChart :topCountTeams="topCountTeams" :organizationId="organizationId" :organizationViewList="organizationViewList" />
       <!-- Lower Section (5/6 height) -->
-      <CircleChart :topCountTeams="topCountTeams" />
+
     </div>
+
     <div class="col-span-12 rounded-lg shadow-md p-0 sm:col-span-7 h-70 flex flex-col">
       <OrganizationKeyRotations
         :organizationRotateList="organizationRotateList"
@@ -283,6 +280,7 @@ watch(
 )
 
 const handleTopCountTeams = (data) => {
+  console.log('왜 안오니' + data)
   topCountTeams.value = data
 }
 </script>

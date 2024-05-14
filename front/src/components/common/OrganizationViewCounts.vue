@@ -56,8 +56,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { defineEmits, onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
+import { localAxios } from '@/utils/http-commons.js'
 
 // Props 정의
 const props = defineProps({
@@ -71,6 +72,8 @@ const props = defineProps({
     type: Array
   }
 })
+
+const emit = defineEmits(['top-view-count-loaded'])
 
 const chartInstance = ref(null)
 const graphData = ref([])
@@ -87,7 +90,7 @@ onMounted(() => {
 })
 
 watch(
-  [() => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
+  [() => props.organizationViewList, () => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
   () => {
     try {
 
@@ -163,8 +166,16 @@ const showBarChart = () => {
   }
 }
 
-const showTopTeams = () => {
+const showTopTeams = async () => {
 
+  // ${props.organizationId}
+  await localAxios.get(`/dashboard?organizationId=1&year=2024&month=5&method=v`)
+    .then((response) => {
+      emit('top-view-count-loaded',response.data)
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 }
 
 

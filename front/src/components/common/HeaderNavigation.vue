@@ -397,7 +397,7 @@ cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg=="
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { localAxios } from '@/utils/http-commons.js'
 import { getNotifications, readNotification } from '@/api/notification.js'
 import { useRouter } from 'vue-router'

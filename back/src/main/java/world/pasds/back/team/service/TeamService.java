@@ -328,6 +328,17 @@ public class TeamService {
                  * Todo: 알림 url 설정
                  */
                 Role receiverRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+                // 멤버 팀 추가
+                memberTeamRepository.save(MemberTeam.builder()
+                        .team(team)
+                        .member(receiver)
+                        .build());
+                // 멤버_역할 추가
+                memberRoleRepository.save(MemberRole.builder()
+                        .team(team)
+                        .member(receiver)
+                        .role(receiverRole).build());
+
                 invitationService.inviteMemberToTeam(organization, team, sender, receiver, receiverRole);
             }
         }

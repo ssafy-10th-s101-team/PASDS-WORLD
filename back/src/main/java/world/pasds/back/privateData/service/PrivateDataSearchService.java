@@ -22,6 +22,8 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -97,6 +99,7 @@ public class PrivateDataSearchService {
                 .organizationName(organizationName)
                 .teamId(teamId)
                 .teamName(teamName)
+                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
     }
 }

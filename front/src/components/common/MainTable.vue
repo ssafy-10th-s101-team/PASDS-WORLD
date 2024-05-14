@@ -142,7 +142,12 @@ const showDetail = (privateDataId) => {
 watch(
   [() => props.selectedTeamId, () => currentPage.value],
   () => {
-    fetchPrivateData()
+    if (props.selectedTeamId === -1) {
+      privateDataList.value = []
+      totalPages.value = 0
+    } else {
+      fetchPrivateData()
+    }
   },
   {
     immediate: true

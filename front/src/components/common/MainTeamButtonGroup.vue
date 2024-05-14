@@ -72,10 +72,14 @@ watch(
       if (props.selectedSearchOrganizationId && newOrgId === props.selectedSearchOrganizationId) {
         if (teams.length > 0 && props.selectedSearchTeamId) {
           selectTeam(props.selectedSearchTeamId)
+        } else {
+          emit('team-selected', -1)
         }
       } else {
         if (teams.length > 0) {
           selectTeam(teams[0].teamId)
+        } else {
+          emit('team-selected', -1)
         }
       }
     }

@@ -2,7 +2,6 @@ package world.pasds.back.common.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,8 +19,6 @@ public class EmailConfig {
     private String host;
     @Value("${spring.mail.port}")
     private int port;
-    @Autowired
-    private MailProperties mailProperties;
     @Value("${spring.mail.properties.mail.smtp.auth}")
     private boolean auth;
     @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
@@ -34,6 +31,12 @@ public class EmailConfig {
     private int timeout;
     @Value("${spring.mail.properties.mail.smtp.writetimeout}")
     private int writeTimeout;
+
+    private final MailProperties mailProperties;
+
+    public EmailConfig(MailProperties mailProperties) {
+        this.mailProperties = mailProperties;
+    }
 
     @Configuration
     @ConfigurationProperties(prefix = "spring.mail")

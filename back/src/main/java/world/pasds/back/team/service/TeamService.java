@@ -286,6 +286,8 @@ public class TeamService {
             }
             roleRepository.deleteAll(roleList);
             List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
+            invitationService.deleteInvitation(team);
+            teamDashboardService.deleteTeamDashBoard(team);
             memberTeamRepository.deleteAll(memberTeamList);
             teamRepository.delete(team);
         } else {

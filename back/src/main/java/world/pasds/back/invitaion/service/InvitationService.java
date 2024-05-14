@@ -58,21 +58,21 @@ public class InvitationService {
         Pageable pageable = PageRequest.of(offset, 10);
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
 
-         return invitationRepository.findAllByInvitedMemberEmail(member.getEmail(), pageable)
-                 .stream()
-                 .filter(invitation -> invitation.getExpiredAt().isAfter(LocalDateTime.now()))
-                 .map(invitation -> GetInvitationsResponseDto.builder()
-                         .invitationId(invitation.getId())
-                         .invitedBy(invitation.getInvitedBy().getNickname())
-                         .expiredAt(invitation.getExpiredAt())
-                         .organizationId(Optional.ofNullable(invitation.getOrganization()).map(Organization::getId).orElse(null))
-                         .organizationName(Optional.ofNullable(invitation.getOrganization()).map(Organization::getName).orElse(null))
-                         .organizationRole(Optional.ofNullable(invitation.getOrganizationRole()).map(Enum::toString).orElse(null))
-                         .teamId(Optional.ofNullable(invitation.getTeam()).map(Team::getId).orElse(null))
-                         .teamName(Optional.ofNullable(invitation.getTeam()).map(Team::getName).orElse(null))
-                         .roleId(Optional.ofNullable(invitation.getRole()).map(Role::getId).orElse(null))
-                         .roleName(Optional.ofNullable(invitation.getRole()).map(Role::getName).orElse(null))
-                         .build()).toList();
+        return invitationRepository.findAllByInvitedMemberEmail(member.getEmail(), pageable)
+                .stream()
+                .filter(invitation -> invitation.getExpiredAt().isAfter(LocalDateTime.now()))
+                .map(invitation -> GetInvitationsResponseDto.builder()
+                        .invitationId(invitation.getId())
+                        .invitedBy(invitation.getInvitedBy().getNickname())
+                        .expiredAt(invitation.getExpiredAt())
+                        .organizationId(Optional.ofNullable(invitation.getOrganization()).map(Organization::getId).orElse(null))
+                        .organizationName(Optional.ofNullable(invitation.getOrganization()).map(Organization::getName).orElse(null))
+                        .organizationRole(Optional.ofNullable(invitation.getOrganizationRole()).map(Enum::toString).orElse(null))
+                        .teamId(Optional.ofNullable(invitation.getTeam()).map(Team::getId).orElse(null))
+                        .teamName(Optional.ofNullable(invitation.getTeam()).map(Team::getName).orElse(null))
+                        .roleId(Optional.ofNullable(invitation.getRole()).map(Role::getId).orElse(null))
+                        .roleName(Optional.ofNullable(invitation.getRole()).map(Role::getName).orElse(null))
+                        .build()).toList();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -270,5 +270,11 @@ public class InvitationService {
                 invitationRepository.delete(invitation);
             }
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteInvitation(Team team) {
+        List<Invitation> invitationList = invitationRepository.findAllByTeam(team);
+        invitationRepository.deleteAll(invitationList);
     }
 }

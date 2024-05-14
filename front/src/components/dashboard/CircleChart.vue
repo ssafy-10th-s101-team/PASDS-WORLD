@@ -1,7 +1,9 @@
 <template>
-  <div class="mt-6 h-64">
-    <canvas id="myChart" width="1025" height="400" role="img"
-            aria-label="line graph to show selling overview in terms of months and numbers"></canvas>
+  <div class="relative w-full h-1/6 pl-2 pr-2 pb-4">
+    <div class="mt-4 h-64">
+      <canvas id="myChart4" width="400" height="400" role="img"
+              aria-label="line graph to show selling overview in terms of months and numbers"></canvas>
+    </div>
   </div>
 </template>
 
@@ -16,24 +18,19 @@ const props = defineProps({
   },
   organizationId: {
     type: Number
+  },
+  organizationViewList: {
+    type: Array
   }
 })
 
 const chartInstance = ref(null)
 const graphData = ref([])
-const selectedYear = ref(2024)
-const month = ref([])
-const isLoaded = ref(false)
+const teams = ref([])
 
-const graphType = ref('pie')
-
-
-onMounted(() => {
-  isLoaded.value = true
-})
 
 watch(
-  [() => props.organizationId, () => props.topCountTeams, () => isLoaded],
+  [() => props.organizationViewList, () => props.organizationId, () => props.topCountTeams],
   () => {
     try {
 
@@ -45,32 +42,39 @@ watch(
       // 로그를 통해 전달된 props 확인
       console.log('전달된 topCountTeams:', props.topCountTeams)
 
-      month.value = []
+      teams.value = []
       graphData.value = []
 
       // 월
-      props.topCountTeams.forEach((data) => {
-        console.log(selectedYear.value)
-        console.log(data)
-        if (selectedYear.value == data[0] && !month.value.includes(data[1])) {
-          month.value.push(data[1])
-          graphData.value.push(data[2])
-          console.log(month.value)
-        }
+      props.topCountTeams.forEach((team) => {
+        teams.value.push(team.teamName)
+        graphData.value.push(team.data)
       })
 
 
-      const ctx = document.getElementById('myChart').getContext('2d')
+      const ctx = document.getElementById('myChart4').getContext('2d')
       chartInstance.value = new Chart(ctx, {
-        type: graphType.value,
+        type: 'doughnut',
         data: {
-          labels: month.value,
+          labels: teams.value,
           datasets: [{
-            borderColor: '#4A5568',
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.5)',
+              'rgba(54, 162, 235, 0.5)',
+              'rgba(255, 206, 86, 0.5)',
+              'rgba(75, 192, 192, 0.5)',
+              'rgba(153, 102, 255, 0.5)',
+              'rgba(255, 159, 64, 0.5)'],
+            borderColor: ['rgb(255, 99, 132,1.5)',
+              'rgba(54, 162, 235, 1.5)',
+              'rgba(255, 206, 86, 1.5)',
+              'rgba(75, 192, 192, 1.5)',
+              'rgba(153, 102, 255, 1.5)',
+              'rgba(255, 159, 64, 1.5)'],
             data: graphData.value,
             fill: false,
             pointBackgroundColor: '#4A5568',
-            borderWidth: 3,
+            borderWidth: 1,
             pointBorderWidth: 4,
             pointHoverRadius: 6,
             pointHoverBorderWidth: 8,
@@ -83,7 +87,7 @@ watch(
           },
           scales: {
             y: {
-              display: true
+              display: false
             }
           }
         }
@@ -94,6 +98,8 @@ watch(
     }
   }, { deep: true }
 )
+
+
 </script>
 
 <style scoped>

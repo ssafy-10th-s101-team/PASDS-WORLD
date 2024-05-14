@@ -87,7 +87,7 @@ onMounted(() => {
 })
 
 watch(
-  [() => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
+  [() => props.organizationRotateList, () => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
   () => {
     try {
 

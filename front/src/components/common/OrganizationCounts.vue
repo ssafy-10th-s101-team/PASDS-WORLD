@@ -75,8 +75,7 @@ const props = defineProps({
   }
 })
 
-// emit 정의
-const emit = defineEmits(['top-count-loaded'])
+
 
 const chartInstance = ref(null)
 const graphData = ref([])
@@ -93,7 +92,7 @@ onMounted(() => {
 })
 
 watch(
-  [() => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
+  [()=> props.organizationCountList, () => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
   () => {
     try {
 
@@ -168,15 +167,7 @@ const showBarChart = () => {
   }
 }
 
-const showTopTeams = async () => {
-  await localAxios.get(`/dashboard?organizationId=${props.organizationId}&`)
-    .then((response) => {
-      emit('top-count-loaded',response.data)
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-}
+
 
 </script>
 

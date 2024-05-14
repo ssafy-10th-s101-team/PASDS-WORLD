@@ -12,11 +12,6 @@
                   class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
                   {{ btnText1 }}
                 </button>
-                <button
-                  @click="showTopTeams"
-                  class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  상위 팀
-                </button>
               </div>
               <div class="lg:ml-10">
                 <div
@@ -73,8 +68,6 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['top-view-count-loaded'])
-
 const chartInstance = ref(null)
 const graphData = ref([])
 const selectedYear = ref(2024)
@@ -90,7 +83,7 @@ onMounted(() => {
 })
 
 watch(
-  [() => props.organizationViewList, () => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
+  [() => props.organizationViewList, () => props.organizationId, () => selectedYear.value, () => isLoaded.value, () => graphType.value],
   () => {
     try {
 
@@ -124,10 +117,11 @@ watch(
           labels: month.value,
           datasets: [{
             label: '조회수',
-            borderColor: '#4A5568',
+            borderColor: '#4151b2',
+            backgroundColor: '#4151b2',
             data: graphData.value,
             fill: false,
-            pointBackgroundColor: '#4A5568',
+            pointBackgroundColor: '#4151b2',
             borderWidth: 1,
             pointBorderWidth: 1,
             pointHoverRadius: 6,
@@ -146,6 +140,7 @@ watch(
           }
         }
       })
+
     } catch (error) {
       console.error(error)
       // showErrorAlert(error.response.data.message)
@@ -166,17 +161,6 @@ const showBarChart = () => {
   }
 }
 
-const showTopTeams = async () => {
-
-  // ${props.organizationId}
-  await localAxios.get(`/dashboard?organizationId=1&year=2024&month=5&method=v`)
-    .then((response) => {
-      emit('top-view-count-loaded',response.data)
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-}
 
 
 </script>

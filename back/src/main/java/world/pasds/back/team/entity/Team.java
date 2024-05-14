@@ -42,6 +42,9 @@ public class Team extends BaseEntity {
     private byte[] encryptedIv;
 
     @Setter
+    private Long masterKeyVersion;
+
+    @Setter
     private LocalDateTime expiredAt;
 
 }

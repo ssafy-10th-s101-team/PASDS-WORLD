@@ -172,6 +172,7 @@ public class TeamService {
         KmsEncryptionKeysResponseDto encryptionKeys = keyService.generateKeys();
         byte[] encryptedDataKey = Base64.getDecoder().decode(encryptionKeys.getEncryptedDataKey());
         byte[] encryptedIv = Base64.getDecoder().decode(encryptionKeys.getEncryptedIv());
+        Long masterKeyVersion = encryptionKeys.getMasterKeyVersion();
         LocalDateTime expiredAt = LocalDateTime.now().plusDays(90);
 
         Team savedTeam;
@@ -185,6 +186,7 @@ public class TeamService {
                     .secretCount(0)
                     .encryptedDataKey(encryptedDataKey)
                     .encryptedIv(encryptedIv)
+                    .masterKeyVersion(masterKeyVersion)
                     .expiredAt(expiredAt)
                     .build();
             savedTeam = teamRepository.save(newTeam);
@@ -197,6 +199,7 @@ public class TeamService {
                     .secretCount(0)
                     .encryptedDataKey(encryptedDataKey)
                     .encryptedIv(encryptedIv)
+                    .masterKeyVersion(masterKeyVersion)
                     .expiredAt(expiredAt)
                     .build();
             savedTeam = teamRepository.save(newTeam);
@@ -479,7 +482,6 @@ public class TeamService {
     @Async
     @Transactional
     public void refreshByMasterKey() {
-
         //team 목록 가져오기..
         Long startId = 0L;
         Long endId = 1000L;
@@ -492,6 +494,7 @@ public class TeamService {
                     KmsKeyDto requestDto = KmsKeyDto.builder()
                             .encryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()))
                             .encryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()))
+                            .masterKeyVersion(team.getMasterKeyVersion())
                             .build();
 
                     //data key 재암호화 요청.
@@ -500,6 +503,7 @@ public class TeamService {
                     //재암호화된 data key들 갱신
                     team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
                     team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+                    team.setMasterKeyVersion(responseDto.getMasterKeyVersion());
                     team.setExpiredAt(LocalDateTime.now().plusDays(90));
                     teamRepository.save(team);
 
@@ -563,7 +567,6 @@ public class TeamService {
         if ("LEADER".equals(role.getName()) || "HEADER".equals(role.getName())) {
             //팀 데이터 키 갱신.
             changeTeamDataKey(team);
-            return;
         } else {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
@@ -574,6 +577,7 @@ public class TeamService {
         KmsKeyDto requestDto = KmsKeyDto.builder()
                 .encryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()))
                 .encryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()))
+                .masterKeyVersion(team.getMasterKeyVersion())
                 .build();
 
         //기존 데이터 키 복호화 및 재발급 요청
@@ -588,18 +592,19 @@ public class TeamService {
                     Base64.getDecoder().decode(responseDto.getOldIv()));
 
             //재암호화
-            byte[] encrpytedContent = keyService.encryptSecret(plainContent,
+            byte[] encryptedContent = keyService.encryptSecret(plainContent,
                     Base64.getDecoder().decode(responseDto.getNewDataKey()),
                     Base64.getDecoder().decode(responseDto.getNewIv()));
 
             //재암호화된 privateData 저장.
-            privateData.setContent(encrpytedContent);
+            privateData.setContent(encryptedContent);
             privateDataRepository.save(privateData);
         }
 
         //재암호화된 data key들 갱신
         team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedNewDataKey()));
         team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedNewIv()));
+        team.setMasterKeyVersion(responseDto.getMasterKeyVersion());
         teamRepository.save(team);
 
         //로그 찍기

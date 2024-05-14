@@ -6,10 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.dashboard.entity.OrganizationDashboard;
+import world.pasds.back.dashboard.entity.TeamDashboard;
 import world.pasds.back.dashboard.entity.dto.response.MainDashboardResponseDto;
 import world.pasds.back.dashboard.repository.OrganizationDashboardRepository;
+import world.pasds.back.dashboard.repository.TeamDashboardRepository;
 import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.repository.OrganizationRepository;
+import world.pasds.back.team.entity.Team;
+import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +33,7 @@ public class OrganizationDashboardService {
                 .orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         List<OrganizationDashboard> organizationDashboardList = organizationDashboardRepository.findByOrganization(organization);
-
+//        System.out.println(organizationDashboardList.size() + "하잉잉");
         MainDashboardResponseDto mainDashboardResponseDto = new MainDashboardResponseDto();
 
         for(OrganizationDashboard organizationDashboard : organizationDashboardList) {
@@ -38,6 +42,7 @@ public class OrganizationDashboardService {
             int view = organizationDashboard.getViews();
             int count = organizationDashboard.getCount();
             int rotate = organizationDashboard.getRotate();
+
             mainDashboardResponseDto.getOrganizationCountList().add(new int[] {year, mon, count});
             mainDashboardResponseDto.getOrganizationViewList().add(new int[] {year, mon, view});
             mainDashboardResponseDto.getOrganizationRotateList().add(new int[] {year, mon, rotate});

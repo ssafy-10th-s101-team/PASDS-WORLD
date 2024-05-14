@@ -50,14 +50,14 @@ public class LoggingAspect {
             Object result = joinPoint.proceed();
             long endTime = System.currentTimeMillis();
             logInfo.setResponseTime(endTime - startTime);
-            String logMessage = objectMapper.writeValueAsString(Map.entry("logInfo", logInfo));
+            String logMessage = objectMapper.writeValueAsString(Map.of("logInfo", logInfo));
             logger.info(logMessage);
             return result;
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             logInfo.setException(sw.toString());
-            String logMessage = objectMapper.writeValueAsString(logInfo);
+            String logMessage = objectMapper.writeValueAsString(Map.of("logInfo", logInfo));
             logger.error(logMessage);
             throw e;
         }

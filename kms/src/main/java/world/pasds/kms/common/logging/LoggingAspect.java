@@ -1,5 +1,6 @@
 package world.pasds.kms.common.logging;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -12,35 +13,64 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class LoggingAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
+    private final ObjectMapper objectMapper;
 
     @Pointcut("within(*..*Controller)")
-    public void controller() {
-    }
+    public void controller() {}
 
     @Around("controller()")
-    public Object logResponseInfo(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object requestLogging(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request =
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
-        logger.info("Request URL: " + request.getRequestURL().toString());
-        logger.info("HTTP Method: " + request.getMethod());
-        logger.info("Controller: " + joinPoint.getSignature().getDeclaringTypeName());
-        logger.info("Method: " + joinPoint.getSignature().getName());
+        Map<String, String> headers = getHeadersInfo(request);
+        LogInfo logInfo = LogInfo.builder()
+                .url(request.getRequestURL().toString())
+                .name(joinPoint.getSignature().getName())
+                .className(joinPoint.getSignature().getDeclaringTypeName())
+                .method(request.getMethod())
+                .headers(headers)
+                .build();
 
         long startTime = System.currentTimeMillis();
-        Object result = joinPoint.proceed();  // 컨트롤러 메소드 실행
-        long endTime = System.currentTimeMillis();
 
-        logger.info("Response from: " + joinPoint.getSignature().getName());
-        logger.info("Response Time: " + (endTime - startTime) + "ms");
+        try {
+            Object result = joinPoint.proceed();
+            long endTime = System.currentTimeMillis();
+            logInfo.setResponseTime(endTime - startTime);
+            String logMessage = objectMapper.writeValueAsString(Map.entry("logInfo", logInfo));
+            logger.info(logMessage);
+            return result;
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            logInfo.setException(sw.toString());
+            String logMessage = objectMapper.writeValueAsString(logInfo);
+            logger.error(logMessage);
+            throw e;
+        }
+    }
 
-        return result;
+    private Map<String, String> getHeadersInfo(HttpServletRequest request) {
+        Map<String, String> map = new HashMap<>();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = headerNames.nextElement();
+            String value = request.getHeader(key);
+            map.put(key, value);
+        }
+        return map;
     }
 }
-

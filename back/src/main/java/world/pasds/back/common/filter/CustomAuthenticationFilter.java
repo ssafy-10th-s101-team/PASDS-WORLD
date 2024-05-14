@@ -131,10 +131,10 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 		if (prevFirstLoginCnt != null && Integer.parseInt(prevFirstLoginCnt) < 10) {
 			redisTemplate.opsForValue()
 				.set("FIRST_LOGIN_" + ip + "_" + email, Integer.parseInt(prevFirstLoginCnt) + 1,
-					Duration.ofMillis(120000));        // 2분 내 재시도를 반복 시도로 본다.
+					Duration.ofMillis(300000));        // 5분 내 재시도를 반복 시도로 본다.
 		}
 		if (prevFirstLoginCnt == null) {
-			redisTemplate.opsForValue().set("FIRST_LOGIN_" + ip + "_" + email, 1, Duration.ofMillis(60000));
+			redisTemplate.opsForValue().set("FIRST_LOGIN_" + ip + "_" + email, 1, Duration.ofMillis(300000));
 		}
 
 		Authentication authentication;

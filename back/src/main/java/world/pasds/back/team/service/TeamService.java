@@ -458,6 +458,8 @@ public class TeamService {
 
             memberRoleRepository.save(findMemberAndRole);
         }
+        team.setLeader(newLeader);
+        teamRepository.save(team);
     }
 
     @Transactional

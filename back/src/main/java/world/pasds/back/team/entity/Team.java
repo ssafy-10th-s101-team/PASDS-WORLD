@@ -3,10 +3,13 @@ package world.pasds.back.team.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import world.pasds.back.common.BaseEntity;
+import world.pasds.back.invitaion.entity.Invitation;
 import world.pasds.back.member.entity.Member;
 import world.pasds.back.organization.entity.Organization;
+import world.pasds.back.role.entity.Role;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,5 +46,11 @@ public class Team extends BaseEntity {
 
     @Setter
     private LocalDateTime expiredAt;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Role> roles;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invitation> invitations;
 
 }

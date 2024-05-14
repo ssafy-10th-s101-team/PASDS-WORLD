@@ -85,7 +85,9 @@ import BaseModal from './BaseModal.vue'
 import { inviteTeam } from '@/api/team'
 
 const selectedMemberId = ref('')
-
+onMounted(() => {
+  console.log('팀멤버', props.teamMembers)
+})
 const props = defineProps({
   teamId: {
     type: Number,

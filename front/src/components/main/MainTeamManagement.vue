@@ -230,9 +230,39 @@
             @change-page="changePage"
           />
         </div>
+        <div class="flex justify-between pt-6">
+          <div class="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+              />
+            </svg>
+            <div @click="updateKey">보안 강화하기</div>
+          </div>
+          <div class="text-red-500" @click="toggleHidden('deleteTeamModal')">팀삭제</div>
+        </div>
       </div>
     </div>
   </div>
+  <BaseModal modalId="deleteTeamModal">
+    <div class="space-y-6 px-6 lg:px-8 sm:pb-6 xl:pb-8">
+      <div class="text-red-500">삭제한 팀은 복구할 수 없습니다.</div>
+      <div class="text-red-500">삭제하시겠습니까?</div>
+    </div>
+    <div class="flex justify-center pb-6">
+      <BaseButton buttonText="삭제" @click="removeTeam" />
+      <div class="disabled"></div>
+    </div>
+  </BaseModal>
   <MainAuthorizationModal :teamId="teamId" :roleId="selectedRoleId" @role-updated="refreshRoles" />
   <MainMemberRoleModal
     :teamId="teamId"
@@ -242,7 +272,7 @@
   />
   <ChangeTeamNameModal :teamId="teamId" :teamName="teamName" @teamName-updated="refreshTeam" />
   <ChangeTeamLeaderModal :teamId="teamId" :teamMembers="teamMembers" />
-  <TeamInvitationModal :teamId="teamId" :organizationId="organizationId" />
+  <TeamInvitationModal :teamId="teamId" :organizationId="organizationId" :roles="roles" />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
 
@@ -255,12 +285,14 @@ import TeamInvitationModal from '../common/TeamInvitationModal.vue'
 import TeamRoleCreationModal from '../common/TeamRoleCreationModal.vue'
 import ChangeTeamNameModal from '../common/TeamChangeNameModal.vue'
 import ChangeTeamLeaderModal from '../common/TeamChangeLeaderModal.vue'
+import BaseModal from '../common/BaseModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import BasePagination from '../common/BasePagination.vue'
 import { useCommonStore } from '@/stores/common'
 import { getRole } from '@/api/role'
-import { getLeader, getTeamMembers } from '@/api/team'
+import { deleteTeam, getLeader, getTeamMembers, regenerateDataKey } from '@/api/team'
 import router from '@/router'
+import BaseAlert from '../common/BaseAlert.vue'
 const commonStore = useCommonStore()
 const route = useRoute()
 const organizationId = Number(route.query.organizationId)
@@ -291,8 +323,9 @@ onMounted(async () => {
   const fetchrole = await fetchRole(teamId.value)
   roles.value = fetchrole
   const members = await fetchTeamMembers(teamId.value)
-  teamMembers.value = members
-  const leader = fetchLeader(teamId.value)
+  teamMembers.value = members.teamMemberResponse
+  const leader = await fetchLeader(teamId.value)
+
   teamLeader.value = leader.nickname
 })
 
@@ -354,11 +387,21 @@ const refreshTeam = async (newTeamName) => {
   teamName.value = newTeamName
   router.push({ query: { ...route.query, teamName: newTeamName } })
 }
+
+// 키회전 요청
+const updateKey = async () => {
+  try {
+    regenerateDataKey(teamId.value)
+    window.alert('성공')
+  } catch (error) {
+    console.error(error.response.data.message)
+  }
+}
 // 팀원 조회
 
 const fetchTeamMembers = async (teamId) => {
   try {
-    return await getTeamMembers(teamId, 0)
+    return await getTeamMembers(teamId, 1)
   } catch (error) {
     console.error('Unexpected error:', error)
   }
@@ -367,11 +410,25 @@ const fetchTeamMembers = async (teamId) => {
 // 팀장 조회
 const fetchLeader = async (teamId) => {
   try {
-    const response = await getLeader(teamId)
-    console.log('팀장', response)
-    return response
+    return await getLeader(teamId)
   } catch (error) {
     return
+  }
+}
+
+// 팀 삭제
+const removeTeam = async (event) => {
+  event.preventDefault()
+
+  try {
+    const body = {
+      teamId: teamId.value
+    }
+    await deleteTeam(body)
+    alert('삭제 성공')
+    router.push({ name: 'mainpage' })
+  } catch (error) {
+    window.alert(error.response.data.message)
   }
 }
 </script>

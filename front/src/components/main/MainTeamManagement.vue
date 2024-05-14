@@ -292,7 +292,7 @@ import { useCommonStore } from '@/stores/common'
 import { getRole } from '@/api/role'
 import { deleteTeam, getLeader, getTeamMembers, regenerateDataKey } from '@/api/team'
 import router from '@/router'
-import BaseAlert from '../common/BaseAlert.vue'
+
 const commonStore = useCommonStore()
 const route = useRoute()
 const organizationId = Number(route.query.organizationId)
@@ -320,8 +320,8 @@ onMounted(async () => {
     },
     { immediate: true }
   )
-  const fetchrole = await fetchRole(teamId.value)
-  roles.value = fetchrole
+  await fetchRole(teamId.value)
+
   const members = await fetchTeamMembers(teamId.value)
   teamMembers.value = members.teamMemberResponse
   const leader = await fetchLeader(teamId.value)
@@ -369,8 +369,8 @@ const goBack = () => {
 const fetchRole = async (teamId) => {
   try {
     const response = await getRole(teamId)
-    console.log('역할이 잘 올까요', response)
-    return response
+    roles.value = response
+    console.log('roles', roles.value)
   } catch (error) {
     console.error('Unexpected error:', error)
   }

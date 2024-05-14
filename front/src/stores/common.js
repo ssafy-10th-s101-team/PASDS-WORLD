@@ -51,6 +51,7 @@ export const useCommonStore = defineStore('common', () => {
       clearInterval(intervalId.value);
       intervalId.value = null;
       message.value = null;
+      loginBlock.value = false
     }
   }
 

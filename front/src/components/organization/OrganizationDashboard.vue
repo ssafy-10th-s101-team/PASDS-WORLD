@@ -48,10 +48,10 @@
         <h1 class="text-black text-xl">결제수단 정보</h1>
       </div>
       <!-- Lower Section (5/6 height) -->
-      <div class="relative w-full h-1/6 pt-2 pl-2 pr-2">
+      <div class="relative w-full h-1/6 pt-2 pl-1 pr-2">
         <button type="button"
                 class="w-full text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2 text-center inline-flex items-center dark:focus:ring-gray-800 dark:bg-white dark:border-gray-700 dark:text-gray-900 dark:hover:bg-gray-200 mr-2">
-          <svg class="mr-2 -ml-1 w-10 h-3" viewBox="0 0 660 203" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="mr-2 w-10 h-3" viewBox="0 0 660 203" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M233.003 199.762L266.362 4.002H319.72L286.336 199.762H233.003V199.762ZM479.113 8.222C468.544 4.256 451.978 0 431.292 0C378.566 0 341.429 26.551 341.111 64.604C340.814 92.733 367.626 108.426 387.865 117.789C408.636 127.387 415.617 133.505 415.517 142.072C415.384 155.195 398.931 161.187 383.593 161.187C362.238 161.187 350.892 158.22 333.368 150.914L326.49 147.803L319.003 191.625C331.466 197.092 354.511 201.824 378.441 202.07C434.531 202.07 470.943 175.822 471.357 135.185C471.556 112.915 457.341 95.97 426.556 81.997C407.906 72.941 396.484 66.898 396.605 57.728C396.605 49.591 406.273 40.89 427.165 40.89C444.611 40.619 457.253 44.424 467.101 48.39L471.882 50.649L479.113 8.222V8.222ZM616.423 3.99899H575.193C562.421 3.99899 552.861 7.485 547.253 20.233L468.008 199.633H524.039C524.039 199.633 533.198 175.512 535.27 170.215C541.393 170.215 595.825 170.299 603.606 170.299C605.202 177.153 610.098 199.633 610.098 199.633H659.61L616.423 3.993V3.99899ZM551.006 130.409C555.42 119.13 572.266 75.685 572.266 75.685C571.952 76.206 576.647 64.351 579.34 57.001L582.946 73.879C582.946 73.879 593.163 120.608 595.299 130.406H551.006V130.409V130.409ZM187.706 3.99899L135.467 137.499L129.902 110.37C120.176 79.096 89.8774 45.213 56.0044 28.25L103.771 199.45L160.226 199.387L244.23 3.99699L187.706 3.996"
               fill="#0E4595"></path>
@@ -63,25 +63,61 @@
         </button>
       </div>
       <div class="relative w-full h-4/6 p-2">
-        <img
-          src="https://horizon-tailwind-react-git-tailwind-components-horizon-ui.vercel.app/static/media/Nft3.3b3e6a4b3ada7618de6c.png"
-          class="mb-3 h-full w-full rounded-xl 3xl:h-full 3xl:w-full" alt="">
-        <button
-          class="absolute top-3 right-3 flex items-center justify-center rounded-full bg-white p-2 text-brand-500 hover:cursor-pointer">
-          <div class="flex h-full w-full items-center justify-center rounded-full text-xl hover:bg-gray-50">
-            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em"
-                 width="1em" xmlns="http://www.w3.org/2000/svg">
-              <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                    d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z"></path>
-            </svg>
+        <img class="relative object-cover w-full h-full rounded-xl" src="https://i.imgur.com/kGkSg1v.png">
+
+        <div class="w-full px-8 absolute top-4">
+          <div class="flex justify-between">
+            <div class="">
+              <p class="font-light">
+                Name
+              </p>
+              <p class="font-medium tracking-widest font-mono">
+                Karthik P
+              </p>
+            </div>
+            <img class="w-14"
+                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1000px-Mastercard-logo.svg.png" />
           </div>
-        </button>
+          <div class="pt-1">
+            <p class="font-light">
+              Num.
+            </p>
+            <p class="font-medium tracking-more-wider font-mono">
+              4642 3489 9867 <span
+              class="  rounded-full ml-1 px-2 py-1 text-xs absolute">●●●●</span>
+            </p>
+
+          </div>
+          <div class="pt-2 pr-3">
+            <div class="flex justify-between">
+
+              <div class="">
+                <p class="font-light text-xs text-xs">
+                  Expires At
+                </p>
+                <p class="font-medium tracking-wider text-sm font-mono">
+                  03/25
+                </p>
+              </div>
+
+              <div class="">
+                <p class="font-light text-xs">
+                  CVC
+                </p>
+                <p class="font-bold tracking-more-wider text-sm font-mono">
+                  123
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
     <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-70 flex flex-col">
       <OrganizationCounts
         :organizationCountList="organizationCountList"
-        :organizationId="organizationId"
+        :selectedOrganizationId="organizationId"
         :yearList="years"
       />
     </div>
@@ -93,13 +129,23 @@
         <h1 class="text-black text-xl">저장공간</h1>
       </div>
       <!-- Lower Section (5/6 height) -->
+      <div class="relative w-full h-1/6 pt-2 pl-2 pr-2">
+        <span
+          class=" text-xs text-gray-600">용량 {{storage}}%</span>
+        <div class="h-4 relative w-60 rounded-full overflow-hidden">
+          <div class=" w-full h-full bg-gray-200 absolute "></div>
+          <div class=" h-full bg-gray-600 sm:bg-indigo-500 absolute" style="width:90%"></div>
+        </div>
+      </div>
+      <div class="relative w-full h-3/6 pt-2 pl-2 pr-2">
+        프리미엄 요금제 가입하고 무제한 사용하기
+      </div>
     </div>
     <div class="col-span-12 rounded-lg shadow-md bg-gray-200 p-0 sm:col-span-7 h-70 flex flex-col">
       <OrganizationViewCounts
         :organizationViewList="organizationViewList"
-        :organizationId="organizationId"
+        :selectedOrganizationId="organizationId"
         :yearList="years2"
-        @top-view-count-loaded="handleTopCountTeams"
       />
     </div>
     <div
@@ -107,20 +153,21 @@
     >
       <!-- Upper Section (1/6 height) -->
       <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
-        <h1 class="text-black text-xl">2024년 5월 상위 팀</h1>
+        <h1 class="text-black text-xl">2024년 5월 사용량</h1>
       </div>
-      <CircleChart :topCountTeams="topCountTeams" :organizationId="organizationId" :organizationViewList="organizationViewList" />
+      <CircleChart :topCountTeams="topCountTeams" :selectedOrganizationId="organizationId"
+                   :organizationViewList="organizationViewList" />
       <!-- Lower Section (5/6 height) -->
 
     </div>
 
-    <div class="col-span-12 rounded-lg shadow-md p-0 sm:col-span-7 h-70 flex flex-col">
-      <OrganizationKeyRotations
-        :organizationRotateList="organizationRotateList"
-        :organizationId="organizationId"
-        :yearList="years3"
-      />
-    </div>
+    <!--    <div class="col-span-12 rounded-lg shadow-md p-0 sm:col-span-7 h-70 flex flex-col">-->
+    <!--      <OrganizationKeyRotations-->
+    <!--        :organizationRotateList="organizationRotateList"-->
+    <!--        :selectedOrganizationId="organizationId"-->
+    <!--        :yearList="years3"-->
+    <!--      />-->
+    <!--    </div>-->
 
     <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
@@ -132,7 +179,6 @@ import { defineProps, onMounted, ref, watch } from 'vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import OrganizationCounts from '@/components/common/OrganizationCounts.vue'
 import OrganizationViewCounts from '@/components/common/OrganizationViewCounts.vue'
-import OrganizationKeyRotations from '@/components/common/OrganizationKeyRotations.vue'
 import CircleChart from '@/components/dashboard/CircleChart.vue'
 
 const organizationViewList = ref([])
@@ -147,6 +193,8 @@ const years2 = ref([])
 const years3 = ref([])
 
 const topCountTeams = ref([])
+
+const storage = ref(90)
 
 const props = defineProps({
   selectedOrganizationId: {
@@ -212,6 +260,7 @@ onMounted(async () => {
         }
       })
 
+      getTopTeams()
 
     })
     .catch((error) => {
@@ -261,7 +310,6 @@ watch(
         }
       })
 
-
       // 연도 selectBox
       organizationRotateList.value.forEach((data) => {
         if (!years3.value.includes(data[0])) {
@@ -269,20 +317,27 @@ watch(
         }
       })
 
-
     } catch (error) {
       console.error(error)
       if (error.response && error.response.data) {
-        // showErrorAlert(error.response.data.message)
+        showErrorAlert(error.response.data.message)
       }
     }
   }
 )
 
-const handleTopCountTeams = (data) => {
-  console.log('왜 안오니' + data)
-  topCountTeams.value = data
+const getTopTeams = async () => {
+
+  // ${props.organizationId}
+  await localAxios.get(`/dashboard?organizationId=1&year=2024&month=5&method=v`)
+    .then((response) => {
+      topCountTeams.value = response.data
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 }
+
 </script>
 
 <style scoped></style>

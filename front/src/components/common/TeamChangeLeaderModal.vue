@@ -82,7 +82,10 @@
 import { ref, onMounted } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
-import { inviteTeam } from '@/api/team'
+import { assignLeader } from '@/api/team'
+import { useCommonStore } from '@/stores/common'
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 
 const selectedMemberId = ref('')
 onMounted(() => {
@@ -103,11 +106,12 @@ const updateLeader = async (event) => {
   event.preventDefault()
   const body = {
     teamId: props.teamId,
-    newHeaderId: selectedMemberId.value
+    newLeaderId: selectedMemberId.value
   }
   try {
-    const response = await inviteTeam(body)
-    return response
+    await assignLeader(body)
+    alert('팀장이 변경되었습니다')
+    toggleHidden('changeTeamLeaderModal')
   } catch (error) {
     return
   }

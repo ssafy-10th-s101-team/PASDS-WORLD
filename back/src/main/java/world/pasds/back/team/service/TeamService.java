@@ -277,6 +277,18 @@ public class TeamService {
 
         // 권한 확인 - 조직장 혹은 팀장
         if (member.getId().equals(team.getOrganization().getHeader().getId()) || member.getId().equals(team.getLeader().getId())) {
+            List<Role> roleList = roleRepository.findAllByTeam(team);
+            for (Role role : roleList) {
+                List<MemberRole> memberRoleList = memberRoleRepository.findAllByRole(role);
+                memberRoleRepository.deleteAll(memberRoleList);
+                List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+                roleAuthorityRepository.deleteAll(roleAuthorityList);
+            }
+            roleRepository.deleteAll(roleList);
+            List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
+            invitationService.deleteInvitation(team);
+            teamDashboardService.deleteTeamDashBoard(team);
+            memberTeamRepository.deleteAll(memberTeamList);
             teamRepository.delete(team);
         } else {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
@@ -316,6 +328,17 @@ public class TeamService {
                  * Todo: 알림 url 설정
                  */
                 Role receiverRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+                // 멤버 팀 추가
+                memberTeamRepository.save(MemberTeam.builder()
+                        .team(team)
+                        .member(receiver)
+                        .build());
+                // 멤버_역할 추가
+                memberRoleRepository.save(MemberRole.builder()
+                        .team(team)
+                        .member(receiver)
+                        .role(receiverRole).build());
+
                 invitationService.inviteMemberToTeam(organization, team, sender, receiver, receiverRole);
             }
         }
@@ -435,6 +458,8 @@ public class TeamService {
 
             memberRoleRepository.save(findMemberAndRole);
         }
+        team.setLeader(newLeader);
+        teamRepository.save(team);
     }
 
     @Transactional

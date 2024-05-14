@@ -29,18 +29,6 @@ public class NotificationService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notify(Member fromMember, Member toMember, String title, String message, NotificationType type, String url) {
-        Notification notification = Notification.builder()
-                .fromMember(fromMember.getId())
-                .toMember(toMember.getId())
-                .title(title)
-                .message(message)
-                .type(type)
-                .actionUrl(url)
-                .status(NotificationStatus.UNREAD)
-                .build();
-
-        notificationRepository.save(notification);
-
         NotificationResponseDto responseDto = NotificationResponseDto.builder()
                 .fromMemberNickName(fromMember.getNickname())
                 .toMemberNickName(toMember.getNickname())

@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import world.pasds.back.common.exception.BusinessException;
+import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.common.service.RedisService;
 import world.pasds.back.member.dto.request.ChangeNicknameRequestDto;
 import world.pasds.back.member.dto.request.ChangePasswordRequestDto;
@@ -89,6 +91,8 @@ public class MemberController {
     public ResponseEntity<?> changeNickname(
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @RequestBody ChangeNicknameRequestDto changeNickRequestDto) {
+        if(changeNickRequestDto.getNickname() == null || changeNickRequestDto.getNickname().length() < 2)
+            throw new BusinessException(ExceptionCode.NICKNAME_INVALID_FORMAT);
         memberService.changeNickname(userDetails, changeNickRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

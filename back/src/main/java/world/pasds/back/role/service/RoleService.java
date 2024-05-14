@@ -252,7 +252,7 @@ public class RoleService {
         }
 
         // 이미 역할을 부여받은 멤버인지 확인
-        MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndRole(assignedMember, role);
+        MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(assignedMember, team);
         if (findMemberAndRole == null) {
             MemberRole memberRole = MemberRole.builder()
                     .member(assignedMember)

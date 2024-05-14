@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import world.pasds.kms.common.BaseEntity;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -19,4 +21,5 @@ public class MasterKey extends BaseEntity{
     @Column(length = 16) //binary
     private byte[] iv;
 
+    private LocalDateTime expiredAt;
 }

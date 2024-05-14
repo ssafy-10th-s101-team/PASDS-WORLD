@@ -3,15 +3,21 @@ package world.pasds.kms.datakey.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class MasterKeyData{
+    private Long id;
     private byte[] value;
     private byte[] iv;
+    private long expirySeconds;
 
-    public MasterKeyData(byte[] value, byte[] iv){
+    public MasterKeyData(Long id, byte[] value, byte[] iv, long expirySeconds){
+        this.id = id;
         this.value = value;
         this.iv = iv;
+        this.expirySeconds = expirySeconds;
     }
 
     @Override

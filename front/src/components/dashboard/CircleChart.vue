@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
 
 // Props 정의
@@ -58,23 +58,11 @@ watch(
         data: {
           labels: teams.value,
           datasets: [{
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.5)',
-              'rgba(54, 162, 235, 0.5)',
-              'rgba(255, 206, 86, 0.5)',
-              'rgba(75, 192, 192, 0.5)',
-              'rgba(153, 102, 255, 0.5)',
-              'rgba(255, 159, 64, 0.5)'],
-            borderColor: ['rgb(255, 99, 132,1.5)',
-              'rgba(54, 162, 235, 1.5)',
-              'rgba(255, 206, 86, 1.5)',
-              'rgba(75, 192, 192, 1.5)',
-              'rgba(153, 102, 255, 1.5)',
-              'rgba(255, 159, 64, 1.5)'],
+            backgroundColor: ['#6d79c4', '#E2E5F4'],
             data: graphData.value,
             fill: false,
-            pointBackgroundColor: '#4A5568',
-            borderWidth: 1,
+            pointBackgroundColor: ['#6d79c4', '#E2E5F4'],
+            borderWidth: 0,
             pointBorderWidth: 4,
             pointHoverRadius: 6,
             pointHoverBorderWidth: 8,

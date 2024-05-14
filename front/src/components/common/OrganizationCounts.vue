@@ -12,11 +12,6 @@
                   class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
                   {{ btnText1 }}
                 </button>
-                <button
-                  @click="showTopTeams"
-                  class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  상위 팀
-                </button>
               </div>
               <div class="lg:ml-10">
                 <div
@@ -56,10 +51,8 @@
 </template>
 
 <script setup>
-import { defineEmits, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
-import { useCommonStore } from '@/stores/common.js'
-import { localAxios } from '@/utils/http-commons.js'
 
 
 // Props 정의
@@ -125,10 +118,11 @@ watch(
           labels: month.value,
           datasets: [{
             label: '민감정보수',
-            borderColor: '#4A5568',
+            borderColor: '#4151b2',
+            backgroundColor: '#4151b2',
             data: graphData.value,
             fill: false,
-            pointBackgroundColor: '#4A5568',
+            pointBackgroundColor: '#4151b2',
             borderWidth: 1,
             pointBorderWidth: 1,
             pointHoverRadius: 6,

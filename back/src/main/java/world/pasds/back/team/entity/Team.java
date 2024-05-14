@@ -22,7 +22,7 @@ public class Team extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member leader;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
     private Organization organization;
 

@@ -2,11 +2,11 @@ package world.pasds.back.dashboard.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import world.pasds.back.common.exception.BusinessException;
 import world.pasds.back.common.exception.ExceptionCode;
 import world.pasds.back.dashboard.entity.TeamDashboard;
-import world.pasds.back.dashboard.entity.dto.response.MainDashboardResponseDto;
 import world.pasds.back.dashboard.entity.dto.response.TeamDashboardResponseDto;
 import world.pasds.back.dashboard.repository.TeamDashboardRepository;
 import world.pasds.back.organization.entity.Organization;
@@ -36,7 +36,7 @@ public class TeamDashboardService {
         List<Team> teamList = teamRepository.findAllByOrganization(organization);
         List<TeamDashboardResponseDto> teamDashboardResponseDtoList = new ArrayList<>();
 
-        for(Team team : teamList) {
+        for (Team team : teamList) {
 
             TeamDashboard teamDashboard = teamDashboardRepository.findByYearAndMonthAndTeam(year, month, team)
                     .orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_DASHBOARD_NOT_FOUNT));
@@ -45,11 +45,11 @@ public class TeamDashboardService {
             String teamName = team.getName();
             int data = 0;
 
-            if(method == 'c') {
+            if (method == 'c') {
                 data = teamDashboard.getCount();
-            } else if(method == 'v') {
+            } else if (method == 'v') {
                 data = teamDashboard.getViews();
-            } else if(method == 'r') {
+            } else if (method == 'r') {
                 data = teamDashboard.getRotate();
             }
 
@@ -73,7 +73,7 @@ public class TeamDashboardService {
         Optional<TeamDashboard> existingRecord = teamDashboardRepository
                 .findByYearAndMonthAndTeam(year, month, team);
 
-        if(existingRecord.isEmpty()) {
+        if (existingRecord.isEmpty()) {
             TeamDashboard teamDashboard = new TeamDashboard();
             teamDashboard.setYear(year);
             teamDashboard.setMonth(month);
@@ -96,17 +96,22 @@ public class TeamDashboardService {
                 .findByYearAndMonthAndTeam(year, month, team)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_DASHBOARD_NOT_FOUNT));
 
-        if(code == 'v') {
+        if (code == 'v') {
             teamDashboard.setViews(teamDashboard.getViews() + 1);
-        } else if(code == 'c') {
+        } else if (code == 'c') {
             teamDashboard.setCount(teamDashboard.getCount() + 1);
-        } else if(code == 'r') {
+        } else if (code == 'r') {
             teamDashboard.setRotate(teamDashboard.getRotate() + 1);
-        } else if(code == 'm') {
+        } else if (code == 'm') {
             teamDashboard.setCount(teamDashboard.getCount() - 1);
         }
         teamDashboardRepository.save(teamDashboard);
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteTeamDashBoard(Team team) {
+        List<TeamDashboard> teamDashboardList = teamDashboardRepository.findAllByTeam(team);
+        teamDashboardRepository.deleteAll(teamDashboardList);
+    }
 }

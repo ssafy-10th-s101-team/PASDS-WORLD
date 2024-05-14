@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface MemberRoleRepository extends JpaRepository<MemberRole, Long> {
 
-    MemberRole findByMemberAndRole(Member member, Role role);
+    MemberRole findByTeamAndRole(Team team, Role role);
 
     MemberRole findByMemberAndTeam(Member member, Team team);
 

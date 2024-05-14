@@ -82,7 +82,7 @@
 import { ref, onMounted } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
-import { inviteTeam } from '@/api/team'
+import { assignLeader } from '@/api/team'
 
 const selectedMemberId = ref('')
 onMounted(() => {
@@ -106,7 +106,7 @@ const updateLeader = async (event) => {
     newHeaderId: selectedMemberId.value
   }
   try {
-    const response = await inviteTeam(body)
+    const response = await assignLeader(body)
     return response
   } catch (error) {
     return

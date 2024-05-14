@@ -138,7 +138,9 @@ const fetchOrganizationMembers = async () => {
   try {
     const response = await getOrganizationMembers(props.selectedOrganizationId, 1)
 
-    const selectedMember = response.organizationMemberResponse[0]
+    const selectedMember = response.organizationMemberResponse.find(
+      (member) => member.organizationRole === 'HEADER'
+    )
     organizationMembers.value = response.organizationMemberResponse
     console.log('멤버들', organizationMembers.value)
     if (selectedMember) {

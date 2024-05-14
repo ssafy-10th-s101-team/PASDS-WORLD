@@ -35,7 +35,7 @@ public class AesUtil {
             //byte[]로 변환후 리턴
             return secretKey.getEncoded();
         }catch(NoSuchAlgorithmException e){
-            throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
+            throw new BusinessException(ExceptionCode.KEY_GENERATE_FAIL);
         }
     }
 
@@ -60,7 +60,7 @@ public class AesUtil {
             //암호화 및 리턴
             return  cipher.doFinal(plainBytes);
         } catch(NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
-            throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
+            throw new BusinessException(ExceptionCode.ENCRYPTION_FAIL);
         }
 
 
@@ -79,7 +79,7 @@ public class AesUtil {
             return cipher.doFinal(cipherBytes);
         }
         catch(NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
-            throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
+            throw new BusinessException(ExceptionCode.DECRYPTION_FAIL);
         }
     }
 }

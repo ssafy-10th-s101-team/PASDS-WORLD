@@ -10,4 +10,5 @@ public class RegenerateKeysResponseDto {
     private String newIv;
     private String encryptedNewDataKey;
     private String encryptedNewIv;
+    private Long masterKeyVersion;
 }

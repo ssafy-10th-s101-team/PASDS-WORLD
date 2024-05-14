@@ -27,7 +27,7 @@ public class HmacUtil {
             // 바이트 배열로 키를 추출 후 리턴
             return secretKey.getEncoded();
         } catch (NoSuchAlgorithmException e) {
-            throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
+            throw new BusinessException(ExceptionCode.KEY_GENERATE_FAIL);
         }
 
     }

@@ -12,5 +12,6 @@ public class EncryptionKeysResponseDto {
     private String encryptedDataKey;
     private String iv;
     private String encryptedIv;
+    private Long masterKeyVersion;
 
 }

@@ -10,4 +10,5 @@ import lombok.Setter;
 public class EncryptedDataKeyDto {
     String encryptedDataKey;
     String encryptedIv;
+    Long masterKeyVersion;
 }

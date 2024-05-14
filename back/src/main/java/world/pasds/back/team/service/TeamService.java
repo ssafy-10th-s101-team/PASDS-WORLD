@@ -29,7 +29,9 @@ import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.privateData.entity.PrivateData;
+import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.privateData.repository.jpa.PrivateDataRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRoleRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -64,6 +66,7 @@ public class TeamService {
     private final PrivateDataRepository privateDataRepository;
     private final OrganizationDashboardService organizationDashboardService;
     private final TeamDashboardService teamDashboardService;
+    private final PrivateDataRoleRepository privateDataRoleRepository;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(Long organizationId, Long memberId) {
@@ -279,12 +282,24 @@ public class TeamService {
         if (member.getId().equals(team.getOrganization().getHeader().getId()) || member.getId().equals(team.getLeader().getId())) {
             List<Role> roleList = roleRepository.findAllByTeam(team);
             for (Role role : roleList) {
+                // 팀의 모든 멤버_역할 삭제
                 List<MemberRole> memberRoleList = memberRoleRepository.findAllByRole(role);
                 memberRoleRepository.deleteAll(memberRoleList);
+
+                // 팀의 비밀_역할 삭제
+                List<PrivateDataRole> privateDataRoleList = privateDataRoleRepository.findAllByRole(role);
+                privateDataRoleRepository.deleteAll(privateDataRoleList);
+
+                // 팀의 역할_권한 삭제
                 List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
                 roleAuthorityRepository.deleteAll(roleAuthorityList);
             }
+            // 팀의 모든 역할 삭제
             roleRepository.deleteAll(roleList);
+            // 팀의 모든 비밀 삭제
+            List<PrivateData> privateDataList = privateDataRepository.findAllByTeam(team);
+            privateDataRepository.deleteAll(privateDataList);
+            // 팀의 모든 초대 삭제
             List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
             invitationService.deleteInvitation(team);
             teamDashboardService.deleteTeamDashBoard(team);

@@ -469,7 +469,6 @@ const handleNotificationClick = async (notification) => {
 onMounted(async () => {
   // nickname.value = sessionStorage.getItem('nickname')
 
-  userStore.setNickname(cookieHelper.get('nickname'))
   console.log(' nickname : ', userStore.nickname)
 
   // 잠시 버그만 안나게 추가 했습니다

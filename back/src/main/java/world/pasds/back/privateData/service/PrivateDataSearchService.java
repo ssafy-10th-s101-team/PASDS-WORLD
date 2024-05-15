@@ -2,6 +2,7 @@ package world.pasds.back.privateData.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,6 @@ import world.pasds.back.team.entity.Team;
 import world.pasds.back.team.repository.TeamRepository;
 
 import java.io.IOException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -38,13 +37,16 @@ public class PrivateDataSearchService {
     private final RoleAuthorityRepository roleAuthorityRepository;
 
     public void savePrivateData(PrivateData privateData, Long organizationId, String organizationName, Long teamId, String teamName) {
-        privateDataSearchRepository.save(convertToDocument(privateData, organizationId, organizationName, teamId, teamName));
+        PrivateDataDocument document = convertToDocument(privateData, organizationId, organizationName, teamId, teamName);
+        applyTimestampPipeline(document);
     }
 
     public void updatePrivateData(PrivateData privateData) {
         PrivateDataDocument find = privateDataSearchRepository.findByPrivateDataId(privateData.getId());
-        find.setTitle(privateData.getTitle());
-        privateDataSearchRepository.save(find);
+        if (find != null) {
+            find.setTitle(privateData.getTitle());
+            applyTimestampPipeline(find);
+        }
     }
 
     public void deletePrivateData(PrivateData privateData) {
@@ -74,7 +76,6 @@ public class PrivateDataSearchService {
                     PrivateDataDocument.class
             );
         } catch (IOException e) {
-            e.printStackTrace();
             throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
 
@@ -92,6 +93,20 @@ public class PrivateDataSearchService {
                 .toList();
     }
 
+    private void applyTimestampPipeline(PrivateDataDocument document) {
+        try {
+            IndexRequest<PrivateDataDocument> request = IndexRequest.of(i -> i
+                    .index("private_data")
+                    .pipeline("add-timestamp")
+                    .document(document)
+            );
+            client.index(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private PrivateDataDocument convertToDocument(PrivateData privateData, Long organizationId, String organizationName, Long teamId, String teamName) {
         return PrivateDataDocument.builder()
                 .privateDataId(privateData.getId())
@@ -100,7 +115,6 @@ public class PrivateDataSearchService {
                 .organizationName(organizationName)
                 .teamId(teamId)
                 .teamName(teamName)
-                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
     }
 }

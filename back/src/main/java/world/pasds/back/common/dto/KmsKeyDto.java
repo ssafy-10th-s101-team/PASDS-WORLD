@@ -9,4 +9,5 @@ import lombok.Setter;
 public class KmsKeyDto {
     String encryptedDataKey;
     String encryptedIv;
+    Long masterKeyVersion;
 }

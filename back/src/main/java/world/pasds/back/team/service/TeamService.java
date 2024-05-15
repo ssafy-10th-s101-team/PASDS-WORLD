@@ -29,7 +29,9 @@ import world.pasds.back.organization.entity.Organization;
 import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.privateData.entity.PrivateData;
+import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.privateData.repository.jpa.PrivateDataRepository;
+import world.pasds.back.privateData.repository.jpa.PrivateDataRoleRepository;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -64,6 +66,7 @@ public class TeamService {
     private final PrivateDataRepository privateDataRepository;
     private final OrganizationDashboardService organizationDashboardService;
     private final TeamDashboardService teamDashboardService;
+    private final PrivateDataRoleRepository privateDataRoleRepository;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(Long organizationId, Long memberId) {
@@ -172,6 +175,7 @@ public class TeamService {
         KmsEncryptionKeysResponseDto encryptionKeys = keyService.generateKeys();
         byte[] encryptedDataKey = Base64.getDecoder().decode(encryptionKeys.getEncryptedDataKey());
         byte[] encryptedIv = Base64.getDecoder().decode(encryptionKeys.getEncryptedIv());
+        Long masterKeyVersion = encryptionKeys.getMasterKeyVersion();
         LocalDateTime expiredAt = LocalDateTime.now().plusDays(90);
 
         Team savedTeam;
@@ -185,6 +189,7 @@ public class TeamService {
                     .secretCount(0)
                     .encryptedDataKey(encryptedDataKey)
                     .encryptedIv(encryptedIv)
+                    .masterKeyVersion(masterKeyVersion)
                     .expiredAt(expiredAt)
                     .build();
             savedTeam = teamRepository.save(newTeam);
@@ -197,6 +202,7 @@ public class TeamService {
                     .secretCount(0)
                     .encryptedDataKey(encryptedDataKey)
                     .encryptedIv(encryptedIv)
+                    .masterKeyVersion(masterKeyVersion)
                     .expiredAt(expiredAt)
                     .build();
             savedTeam = teamRepository.save(newTeam);
@@ -277,6 +283,30 @@ public class TeamService {
 
         // 권한 확인 - 조직장 혹은 팀장
         if (member.getId().equals(team.getOrganization().getHeader().getId()) || member.getId().equals(team.getLeader().getId())) {
+            List<Role> roleList = roleRepository.findAllByTeam(team);
+            for (Role role : roleList) {
+                // 팀의 모든 멤버_역할 삭제
+                List<MemberRole> memberRoleList = memberRoleRepository.findAllByRole(role);
+                memberRoleRepository.deleteAll(memberRoleList);
+
+                // 팀의 비밀_역할 삭제
+                List<PrivateDataRole> privateDataRoleList = privateDataRoleRepository.findAllByRole(role);
+                privateDataRoleRepository.deleteAll(privateDataRoleList);
+
+                // 팀의 역할_권한 삭제
+                List<RoleAuthority> roleAuthorityList = roleAuthorityRepository.findAllByRole(role);
+                roleAuthorityRepository.deleteAll(roleAuthorityList);
+            }
+            // 팀의 모든 역할 삭제
+            roleRepository.deleteAll(roleList);
+            // 팀의 모든 비밀 삭제
+            List<PrivateData> privateDataList = privateDataRepository.findAllByTeam(team);
+            privateDataRepository.deleteAll(privateDataList);
+            // 팀의 모든 초대 삭제
+            List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
+            invitationService.deleteInvitation(team);
+            teamDashboardService.deleteTeamDashBoard(team);
+            memberTeamRepository.deleteAll(memberTeamList);
             teamRepository.delete(team);
         } else {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
@@ -316,6 +346,17 @@ public class TeamService {
                  * Todo: 알림 url 설정
                  */
                 Role receiverRole = roleRepository.findById(requestDto.getRoleId()).orElseThrow(() -> new BusinessException(ExceptionCode.ROLE_NOT_FOUND));
+                // 멤버 팀 추가
+                memberTeamRepository.save(MemberTeam.builder()
+                        .team(team)
+                        .member(receiver)
+                        .build());
+                // 멤버_역할 추가
+                memberRoleRepository.save(MemberRole.builder()
+                        .team(team)
+                        .member(receiver)
+                        .role(receiverRole).build());
+
                 invitationService.inviteMemberToTeam(organization, team, sender, receiver, receiverRole);
             }
         }
@@ -435,6 +476,8 @@ public class TeamService {
 
             memberRoleRepository.save(findMemberAndRole);
         }
+        team.setLeader(newLeader);
+        teamRepository.save(team);
     }
 
     @Transactional
@@ -467,7 +510,6 @@ public class TeamService {
     @Async
     @Transactional
     public void refreshByMasterKey() {
-
         //team 목록 가져오기..
         Long startId = 0L;
         Long endId = 1000L;
@@ -480,6 +522,7 @@ public class TeamService {
                     KmsKeyDto requestDto = KmsKeyDto.builder()
                             .encryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()))
                             .encryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()))
+                            .masterKeyVersion(team.getMasterKeyVersion())
                             .build();
 
                     //data key 재암호화 요청.
@@ -488,6 +531,7 @@ public class TeamService {
                     //재암호화된 data key들 갱신
                     team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
                     team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+                    team.setMasterKeyVersion(responseDto.getMasterKeyVersion());
                     team.setExpiredAt(LocalDateTime.now().plusDays(90));
                     teamRepository.save(team);
 
@@ -551,7 +595,6 @@ public class TeamService {
         if ("LEADER".equals(role.getName()) || "HEADER".equals(role.getName())) {
             //팀 데이터 키 갱신.
             changeTeamDataKey(team);
-            return;
         } else {
             throw new BusinessException(ExceptionCode.TEAM_UNAUTHORIZED);
         }
@@ -562,6 +605,7 @@ public class TeamService {
         KmsKeyDto requestDto = KmsKeyDto.builder()
                 .encryptedDataKey(Base64.getEncoder().encodeToString(team.getEncryptedDataKey()))
                 .encryptedIv(Base64.getEncoder().encodeToString(team.getEncryptedIv()))
+                .masterKeyVersion(team.getMasterKeyVersion())
                 .build();
 
         //기존 데이터 키 복호화 및 재발급 요청
@@ -576,18 +620,19 @@ public class TeamService {
                     Base64.getDecoder().decode(responseDto.getOldIv()));
 
             //재암호화
-            byte[] encrpytedContent = keyService.encryptSecret(plainContent,
+            byte[] encryptedContent = keyService.encryptSecret(plainContent,
                     Base64.getDecoder().decode(responseDto.getNewDataKey()),
                     Base64.getDecoder().decode(responseDto.getNewIv()));
 
             //재암호화된 privateData 저장.
-            privateData.setContent(encrpytedContent);
+            privateData.setContent(encryptedContent);
             privateDataRepository.save(privateData);
         }
 
         //재암호화된 data key들 갱신
         team.setEncryptedDataKey(Base64.getDecoder().decode(responseDto.getEncryptedNewDataKey()));
         team.setEncryptedIv(Base64.getDecoder().decode(responseDto.getEncryptedNewIv()));
+        team.setMasterKeyVersion(responseDto.getMasterKeyVersion());
         teamRepository.save(team);
 
         //로그 찍기

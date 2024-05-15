@@ -17,4 +17,6 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
 
     List<Invitation> findAllByInvitedMemberEmail(String email);
     List<Invitation> findAllByInvitedMemberEmail (String email, Pageable pageable);
+
+    List<Invitation> findAllByTeam(Team team);
 }

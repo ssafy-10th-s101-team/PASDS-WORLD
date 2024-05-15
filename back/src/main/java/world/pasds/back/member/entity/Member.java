@@ -41,6 +41,9 @@ public class Member extends BaseEntity {
     private byte[] encryptedTotpIv;
 
     @Setter
+    private Long masterKeyVersion;
+
+    @Setter
     private LocalDateTime expiredAt;
 
     @Setter

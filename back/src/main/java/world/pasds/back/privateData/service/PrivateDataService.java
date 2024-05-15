@@ -148,11 +148,13 @@ public class PrivateDataService {
          */
         byte[] encryptedDataKey = team.getEncryptedDataKey();
         byte[] encryptedIv = team.getEncryptedIv();
+        Long masterKeyVersion = team.getMasterKeyVersion();
         byte[] encryptedPrivateData = privateData.getContent();
 
         KmsKeyDto dto = KmsKeyDto.builder()
                 .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
                 .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .masterKeyVersion(masterKeyVersion)
                 .build();
         KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
 
@@ -213,10 +215,11 @@ public class PrivateDataService {
          */
         byte[] encryptedDataKey = team.getEncryptedDataKey();
         byte[] encryptedIv = team.getEncryptedIv();
-
+        Long masterKeyVersion = team.getMasterKeyVersion();
         KmsKeyDto dto = KmsKeyDto.builder()
                 .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
                 .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .masterKeyVersion(masterKeyVersion)
                 .build();
         KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
 

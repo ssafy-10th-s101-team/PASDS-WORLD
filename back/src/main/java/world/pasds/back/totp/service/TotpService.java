@@ -84,12 +84,11 @@ public class TotpService {
                 Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()),
                 Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
 
-        // db에 암호화 한 totpKey, dataKey, iv 저장
+        // db에 암호화 한 totpKey, dataKey, iv, masterVersion 저장
         member.setEncryptedTotpKey(encryptedTotpKey);
-//		member.setEncryptedTotpDataKey(Base64.getDecoder().decode(totpEncryptionKeys.getDataKey()));
-//		member.setEncryptedTotpIv(Base64.getDecoder().decode(totpEncryptionKeys.getIv()));
         member.setEncryptedTotpDataKey(Base64.getDecoder().decode(totpEncryptionKeys.getEncryptedDataKey()));
         member.setEncryptedTotpIv(Base64.getDecoder().decode(totpEncryptionKeys.getEncryptedIv()));
+        member.setMasterKeyVersion(totpEncryptionKeys.getMasterKeyVersion());
         member.setExpiredAt(LocalDateTime.now().plusDays(90));
         memberRepository.save(member);
     }
@@ -132,10 +131,13 @@ public class TotpService {
         byte[] encryptedTotpIv = totpRepository.findEncryptedTotpIvByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.KEY_ERROR));
 
+        Long masterKeyVersion = totpRepository.findMasterKeyVersionByMemberId(memberId);
+
         KmsKeyDto kmsRequest = KmsKeyDto
                 .builder()
                 .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedTotpDataKey))
                 .encryptedIv(Base64.getEncoder().encodeToString(encryptedTotpIv))
+                .masterKeyVersion(masterKeyVersion)
                 .build();
 
         KmsDecryptionKeysResponseDto totpDecryptionKeys = keyService.getKeys(kmsRequest);
@@ -216,6 +218,7 @@ public class TotpService {
                     KmsKeyDto requestDto = KmsKeyDto.builder()
                             .encryptedDataKey(Base64.getEncoder().encodeToString(member.getEncryptedTotpDataKey()))
                             .encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIv()))
+                            .masterKeyVersion(member.getMasterKeyVersion())
                             .build();
 
                     //data key 재암호화 요청.
@@ -224,6 +227,7 @@ public class TotpService {
                     //재암호화된 data key들 갱신
                     member.setEncryptedTotpDataKey(Base64.getDecoder().decode(responseDto.getEncryptedDataKey()));
                     member.setEncryptedTotpIv(Base64.getDecoder().decode(responseDto.getEncryptedIv()));
+                    member.setMasterKeyVersion(responseDto.getMasterKeyVersion());
                     memberRepository.save(member);
 
                     //로그 찍기

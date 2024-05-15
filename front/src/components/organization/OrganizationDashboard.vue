@@ -283,8 +283,8 @@ watch(
     if (!newOrganizationId) return // Optionally, skip when ID is null/undefined
 
     try {
-      // const response = await localAxios.get(`/dashboard/${newOrganizationId}`)
-      const response = await localAxios.get(`/dashboard/1`)
+      const response = await localAxios.get(`/dashboard/${newOrganizationId}`)
+      // const response = await localAxios.get(`/dashboard/1`)
       const data = response.data
       organizationViewList.value = data.organizationViewList
       organizationRotateList.value = data.organizationRotateList
@@ -327,9 +327,7 @@ watch(
 )
 
 const getTopTeams = async () => {
-
-  // ${props.organizationId}
-  await localAxios.get(`/dashboard?organizationId=1&year=2024&month=5&method=v`)
+  await localAxios.get(`/dashboard?organizationId=${props.organizationId}&year=2024&month=5&method=v`)
     .then((response) => {
       topCountTeams.value = response.data
     })

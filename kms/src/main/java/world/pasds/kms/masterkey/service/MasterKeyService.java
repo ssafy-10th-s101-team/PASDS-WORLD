@@ -101,7 +101,7 @@ public class MasterKeyService {
         List<MasterKey> masterKeys = masterKeyRepository.findTop2ByOrderByIdDesc();
 
         //1) db에없거나 만료된경우
-        if(masterKeys == null || masterKeys.isEmpty() || masterKeys.get(0).getExpiredAt().isBefore(LocalDateTime.now())){
+        if(masterKeys == null || masterKeys.isEmpty() || masterKeys.get(0).getExpiredAt() == null || masterKeys.get(0).getExpiredAt().isBefore(LocalDateTime.now())){
             keyCache.put("curMasterKey", generateNewMasterKey());
             System.out.println("마스터 키 새로 생성해서 저장 완료:" + keyCache.getIfPresent("curMasterKey"));
             return;

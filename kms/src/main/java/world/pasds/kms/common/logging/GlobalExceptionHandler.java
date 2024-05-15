@@ -12,6 +12,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Map;
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler {
                 .build();
 
         try {
-            String logMessage = objectMapper.writeValueAsString(logInfo);
+            String logMessage = objectMapper.writeValueAsString(Map.of("logInfo", logInfo));
             logger.error(logMessage);
         } catch (Exception jsonException) {
             logger.error("Error serializing logInfo to JSON", jsonException);

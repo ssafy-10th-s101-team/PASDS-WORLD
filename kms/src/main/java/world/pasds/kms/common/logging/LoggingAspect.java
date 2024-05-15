@@ -32,15 +32,15 @@ public class LoggingAspect {
 
     @Around("controller()")
     public Object requestLogging(ProceedingJoinPoint joinPoint) throws Throwable {
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
 
-        Map<String, String> headers = getHeadersInfo(request);
+        Map<String, String> headers = request != null ? getHeadersInfo(request) : new HashMap<>();
         LogInfo logInfo = LogInfo.builder()
-                .url(request.getRequestURL().toString())
+                .url(request != null ? request.getRequestURL().toString() : "N/A")
                 .name(joinPoint.getSignature().getName())
                 .className(joinPoint.getSignature().getDeclaringTypeName())
-                .method(request.getMethod())
+                .method(request != null ? request.getMethod() : "N/A")
                 .headers(headers)
                 .build();
 

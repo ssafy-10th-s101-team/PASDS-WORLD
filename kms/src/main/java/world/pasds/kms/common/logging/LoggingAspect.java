@@ -32,15 +32,15 @@ public class LoggingAspect {
 
     @Around("controller()")
     public Object requestLogging(ProceedingJoinPoint joinPoint) throws Throwable {
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
 
-        Map<String, String> headers = getHeadersInfo(request);
+        Map<String, String> headers = request != null ? getHeadersInfo(request) : new HashMap<>();
         LogInfo logInfo = LogInfo.builder()
-                .url(request.getRequestURL().toString())
+                .url(request != null ? request.getRequestURL().toString() : "N/A")
                 .name(joinPoint.getSignature().getName())
                 .className(joinPoint.getSignature().getDeclaringTypeName())
-                .method(request.getMethod())
+                .method(request != null ? request.getMethod() : "N/A")
                 .headers(headers)
                 .build();
 
@@ -50,14 +50,14 @@ public class LoggingAspect {
             Object result = joinPoint.proceed();
             long endTime = System.currentTimeMillis();
             logInfo.setResponseTime(endTime - startTime);
-            String logMessage = objectMapper.writeValueAsString(Map.entry("logInfo", logInfo));
+            String logMessage = objectMapper.writeValueAsString(Map.of("logInfo", logInfo));
             logger.info(logMessage);
             return result;
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             logInfo.setException(sw.toString());
-            String logMessage = objectMapper.writeValueAsString(logInfo);
+            String logMessage = objectMapper.writeValueAsString(Map.of("logInfo", logInfo));
             logger.error(logMessage);
             throw e;
         }

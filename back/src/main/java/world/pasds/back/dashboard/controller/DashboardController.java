@@ -30,12 +30,12 @@ public class DashboardController {
 
     @GetMapping
     public ResponseEntity<List<TeamDashboardResponseDto>> getTeamDashboard(
-        @RequestParam(value = "organizationId", required = false) Long organizationId,
+        @RequestParam(value = "organizationId", required = false) String organizationId,
         @RequestParam(value = "year", required = false) int year,
         @RequestParam(value = "month", required = false) int month,
         @RequestParam(value = "method", required = false) char method
     ) {
-        List<TeamDashboardResponseDto> response = teamDashboardService.getTeamDashboard(organizationId, year, month, method);
+        List<TeamDashboardResponseDto> response = teamDashboardService.getTeamDashboard(Long.parseLong(organizationId), year, month, method);
         return ResponseEntity.ok().body(response);
     }
 

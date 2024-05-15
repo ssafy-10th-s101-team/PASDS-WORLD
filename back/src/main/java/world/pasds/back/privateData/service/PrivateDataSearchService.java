@@ -74,6 +74,7 @@ public class PrivateDataSearchService {
                     PrivateDataDocument.class
             );
         } catch (IOException e) {
+            e.printStackTrace();
             throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
 

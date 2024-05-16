@@ -327,7 +327,7 @@ watch(
 )
 
 const getTopTeams = async () => {
-  await localAxios.get(`/dashboard?organizationId=${props.organizationId}&year=2024&month=5&method=v`)
+  await localAxios.get(`/dashboard?organizationId=${props.selectedOrganizationId}&year=2024&month=5&method=v`)
     .then((response) => {
       topCountTeams.value = response.data
     })

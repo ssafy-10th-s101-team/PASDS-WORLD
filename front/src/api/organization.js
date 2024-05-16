@@ -18,10 +18,7 @@ async function getOrganizations() {
   return localAxios.get(prefix).then(success).catch(fail)
 }
 
-//조직리스트 관리자권한이상것만 가져옴
-async function getAdminOrganizations(){
-  return localAxios.get(prefix+'?isAdmin=true').then(success).catch(fail)
-}
+
 
 //조직원 목록 가져옴
 async function getOrganizationMembers(organizationId, offset) {
@@ -103,7 +100,6 @@ async function rejectOrganizationInvitation(body) {
 
 export {
   getOrganizations,
-  getAdminOrganizations,
   getOrganizationMembers,
   updateOrganizationRole,
   createOrganization,

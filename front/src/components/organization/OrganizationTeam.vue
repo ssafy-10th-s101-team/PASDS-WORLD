@@ -60,18 +60,27 @@
                   <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white">
                     {{ team.teamName }}
                   </td>
-                  <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-white">
+                  <td
+                    v-if="team.role"
+                    class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-white"
+                  >
                     {{ team.role }}
+                  </td>
+                  <td
+                    v-else
+                    class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-white"
+                  >
+                    소속된 팀이 아닙니다.
                   </td>
                   <td
                     class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
                   ></td>
                   <td class="py-4 px-6 text-sm text-center whitespace-nowrap">
-                    <router-link :to="{ name: 'teamManagement' }">
-                      <!-- <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline"> -->
-                      {{ team.secretCount }}
-                      <!-- </a> -->
-                    </router-link>
+                    <!-- <router-link :to="{ name: 'teamManagement' }"> -->
+                    <!-- <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline"> -->
+                    {{ team.secretCount }}
+                    <!-- </a> -->
+                    <!-- </router-link> -->
                   </td>
                 </tr>
               </tbody>

@@ -21,7 +21,7 @@ async function getTeams(organizationId) {
     .catch(fail)
 }
 
-//팀리스트 가져옴
+//좀더 자세한 팀리스트 가져옴
 async function getAdminTeams(organizationId) {
   return localAxios
     .get(prefix + `/admin/${organizationId}`)

@@ -60,28 +60,40 @@
                 <li>
                   <router-link
                     :to="{ name: 'organizationTeam' }"
+                    @click="clickRouterList('organizationTeam')"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
+                    :class="{ 'bg-samsung-blue text-white': curRouteName === 'organizationTeam' }"
                     >팀 목록</router-link
                   >
                 </li>
                 <li>
                   <router-link
                     :to="{ name: 'organizationMember' }"
+                    @click="clickRouterList('organizationMember')"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
+                    :class="{ 'bg-samsung-blue text-white': curRouteName === 'organizationMember' }"
                     >조직원 목록
                   </router-link>
                 </li>
-                <li>
+                <li v-if="currentOrganization.role == 'HEADER'">
                   <router-link
+                    @click="clickRouterList('organizationSetting')"
                     :to="{ name: 'organizationSetting' }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
+                    :class="{
+                      'bg-samsung-blue text-white': curRouteName === 'organizationSetting'
+                    }"
                     >설정</router-link
                   >
                 </li>
                 <li>
                   <router-link
+                    @click="clickRouterList('organizationDashboard')"
                     :to="{ name: 'organizationDashboard' }"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-samsung-blue hover:text-white dark:text-white dark:hover:bg-gray-700 pl-11"
+                    :class="{
+                      'bg-samsung-blue text-white': curRouteName === 'organizationDashboard'
+                    }"
                     >대시보드
                   </router-link>
                 </li>
@@ -171,23 +183,38 @@
 
 <script setup>
 import { ref, onMounted, defineEmits } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCommonStore } from '@/stores/common'
 import { getOrganizations } from '@/api/organization.js'
+import router from '@/router'
 const emit = defineEmits(['organization-selected', 'loaded'])
+const route = useRoute()
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const organizations = ref([])
 const currentOrganization = ref('s101')
-
+const curRouteName = ref('')
 const selectOrganization = async (organization) => {
   if (currentOrganization.value == organization) {
     toggleHidden('dropdownOrganization')
     return
   }
-  emit('organization-selected', [organization.organizationId, organization.name])
 
   currentOrganization.value = organization
+  if (curRouteName.value === 'organizationSetting' && currentOrganization.value.role !== 'HEADER') {
+    console.log('설정안보이니까 팀목록으로스르륵')
+    router.push({ name: 'organizationTeam' })
+    curRouteName.value = 'organizationTeam'
+  }
+
+  emit('organization-selected', [organization.organizationId, organization.name])
+
   toggleHidden('dropdownOrganization') // 드롭다운을 닫거나 열기
+}
+
+function clickRouterList(name) {
+  curRouteName.value = name
+  return route.name === name
 }
 
 onMounted(async () => {
@@ -201,6 +228,7 @@ onMounted(async () => {
       organizations.value[0].name
     ])
     emit('loaded', true)
+    curRouteName.value = 'organizationTeam'
     currentOrganization.value = organizations.value[0]
   }
 })

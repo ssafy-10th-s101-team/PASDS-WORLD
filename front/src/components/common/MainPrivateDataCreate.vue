@@ -305,7 +305,7 @@
               </svg>
             </button>
             <div v-if="showDropdown" class="mt-2">
-              <div v-for="role in roles" :key="role.roleId" class="flex items-center p-2">
+              <div v-for="role in props.roles" :key="role.roleId" class="flex items-center p-2">
                 <input
                   type="checkbox"
                   :id="'role-' + role.roleId"
@@ -355,7 +355,6 @@ const privateDataId = ref('')
 const content = ref('')
 const url = ref('')
 const memo = ref('')
-const roles = ref([])
 const selectedRoles = ref([])
 const showDropdown = ref(false)
 const privateDataSuccessAlert = ref(false)

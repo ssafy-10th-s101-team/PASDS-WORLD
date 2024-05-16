@@ -76,17 +76,30 @@
       <BaseButton buttonText="변경" @click="updateHeader" />
     </div>
   </BaseModal>
+  <BaseAlert
+    alertText="조직장이 성공적으로 변경되었습니다."
+    v-if="changeOrganizationHeaderSuccessAlert"
+  />
+  <BaseFailAlert :alertText="errorMsg" v-if="changeOrganizationHeaderFailAlert" />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineEmits } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { assignHeader } from '@/api/organization'
+import { useCommonStore } from '@/stores/common'
 
 const selectedMemberId = ref(0)
-import { watch } from 'vue'
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
+const changeOrganizationHeaderSuccessAlert = ref(false)
+const changeOrganizationHeaderFailAlert = ref(false)
+const errorMsg = ref('')
 
+const emit = defineEmits(['organization-change-header'])
 const props = defineProps({
   organizationId: {
     type: Number,
@@ -98,16 +111,28 @@ const props = defineProps({
   }
 })
 
-const updateHeader = async (event) => {
-  event.preventDefault()
+const updateHeader = async () => {
   const body = {
     organizationId: props.organizationId,
     newHeaderId: selectedMemberId.value
   }
   try {
     const response = await assignHeader(body)
+    changeOrganizationHeaderSuccessAlert.value = true
+    setTimeout(() => {
+      changeOrganizationHeaderSuccessAlert.value = false
+    }, 3000)
+    emit('organization-change-header', true)
+    toggleHidden('changeOrganizationHeaderModal')
     return response
   } catch (error) {
+    const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+    errorMsg.value = errmsg
+    changeOrganizationHeaderFailAlert.value = true
+    setTimeout(() => {
+      changeOrganizationHeaderFailAlert.value = false
+    }, 3000)
+    toggleHidden('changeOrganizationHeaderModal')
     return
   }
 }

@@ -52,6 +52,7 @@
   <OrganizationChangeHeaderModal
     :organizationId="props.selectedOrganizationId"
     :organizationMembers="organizationMembers"
+    @organization-change-header="handleOrganizationChangeHeader"
   />
   <OrganizationChangeNameModal
     :organizationId="props.selectedOrganizationId"
@@ -149,6 +150,10 @@ const fetchOrganizationMembers = async () => {
   } catch (error) {
     alert(error.response.data.message)
   }
+}
+
+function handleOrganizationChangeHeader() {
+  fetchOrganizationMembers()
 }
 </script>
 

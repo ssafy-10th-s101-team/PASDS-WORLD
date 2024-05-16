@@ -32,6 +32,7 @@ public class Team extends BaseEntity {
 
     private Integer roleCount;
 
+    @Setter
     private Integer secretCount;
 
     @Setter

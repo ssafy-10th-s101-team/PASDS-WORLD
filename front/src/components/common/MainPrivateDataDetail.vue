@@ -341,15 +341,22 @@
       </form>
     </div>
   </BaseModal>
+  <BaseAlert alertText="비밀이 성공적으로 수정되었습니다." v-if="privateDataUpdateSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="privateDataUpdateFailAlert" />
+  <BaseAlert alertText="비밀이 성공적으로 삭제되었습니다." v-if="privateDataDeleteSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="privateDataDeleteFailAlert" />
 </template>
 
 <script setup>
-import { ref, defineProps, watch } from 'vue'
+import { ref, defineProps, watch, defineEmits } from 'vue'
 import BaseModal from './BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { useCommonStore } from '@/stores/common'
 import { getPrivateData, updatePrivateData, deletePrivateData } from '@/api/data'
 import { getRole } from '@/api/role'
 
+const emit = defineEmits(['private-deleted', 'private-updated'])
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
 const showPassword = ref(false)
@@ -364,6 +371,11 @@ const selectedRoles = ref([])
 const showDropdown = ref(false)
 const canUpdate = ref(false)
 const canDelete = ref(false)
+const privateDataUpdateSuccessAlert = ref(false)
+const privateDataUpdateFailAlert = ref(false)
+const privateDataDeleteSuccessAlert = ref(false)
+const privateDataDeleteFailAlert = ref(false)
+const errorMsg = ref('')
 
 const props = defineProps({
   teamId: Number,
@@ -430,15 +442,21 @@ const updatePrivate = async (event) => {
       roleId: selectedRoles.value
     }
     const response = await updatePrivateData(body)
-    if (response) {
-      alert('비밀이 성공적으로 수정되었습니다.')
-    }
+    privateDataUpdateSuccessAlert.value = true
+    setTimeout(() => {
+      privateDataUpdateSuccessAlert.value = false
+    }, 3000)
+    emit('private-updated', true)
     toggleHidden('privateDataDetail')
   } catch (error) {
     const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-    alert(errmsg)
+    errorMsg.value = '비밀 변경에 실패하였습니다.'
+    privateDataUpdateFailAlert.value = true
+    setTimeout(() => {
+      privateDataUpdateFailAlert.value = false
+    }, 3000)
+    toggleHidden('privateDataDetail')
   }
-  // location.reload()
 }
 
 const deletePrivate = async (event) => {
@@ -453,15 +471,21 @@ const deletePrivate = async (event) => {
       privateDataId: props.privateDataId
     }
     const response = await deletePrivateData(body)
-    if (response) {
-      alert('비밀이 성공적으로 삭제되었습니다.')
-    }
+    privateDataDeleteSuccessAlert.value = true
+    setTimeout(() => {
+      privateDataDeleteSuccessAlert.value = false
+    }, 3000)
+    emit('private-deleted', true)
     toggleHidden('privateDataDetail')
   } catch (error) {
     const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-    alert(errmsg)
+    errorMsg.value = '비밀 삭제에 실패하였습니다.'
+    privateDataDeleteFailAlert.value = true
+    setTimeout(() => {
+      privateDataDeleteFailAlert.value = false
+    }, 3000)
+    toggleHidden('privateDataDetail')
   }
-  location.reload()
 }
 function validateFields() {
   return title.value.trim() && content.value.trim()

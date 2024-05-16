@@ -126,7 +126,7 @@ const banTeamMember = async (event) => {
     }
     await removeTeam(body)
     emit('memberRole-updated')
-    toggleHidden('teamRoleUpdateModal')
+    toggleHidden('memberRole')
   } catch (error) {
     window.alert(error.response.data.message)
   }

@@ -25,7 +25,8 @@
         <button
           @click="moveToTeamRole"
           type="button"
-          class="rounded-l-lg border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-700 dark:hover:bg-gray-600 dark:hover:text-white dark:text-white"
+          :class="{ 'bg-samsung-blue text-white': currentTab === 'role' }"
+          class="rounded-l-lg border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-700 dark:hover:bg-gray-600 dark:hover:text-white dark:text-white"
         >
           역할
         </button>
@@ -33,7 +34,8 @@
         <button
           @click="moveToTeamInfo"
           type="button"
-          class="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-700 dark:hover:bg-gray-600 dark:hover:text-white dark:text-white"
+          :class="{ 'bg-samsung-blue text-white': currentTab === 'info' }"
+          class="rounded-r-md border border-gray-200 text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-700 dark:hover:bg-gray-600 dark:hover:text-white dark:text-white"
         >
           팀 정보
         </button>
@@ -246,9 +248,13 @@
                 d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
               />
             </svg>
-            <div @click="updateKey">보안 강화하기</div>
+            <div @click="updateKey">
+              <a href=""> 보안 강화하기 </a>
+            </div>
           </div>
-          <div class="text-red-500" @click="toggleHidden('deleteTeamModal')">팀삭제</div>
+          <div class="text-red-500" @click="toggleHidden('deleteTeamModal')">
+            <a href=""> 팀삭제 </a>
+          </div>
         </div>
       </div>
     </div>
@@ -271,8 +277,18 @@
     @memberRole-updated="refreshMembers"
   />
   <ChangeTeamNameModal :teamId="teamId" :teamName="teamName" @teamName-updated="refreshTeam" />
-  <ChangeTeamLeaderModal :teamId="teamId" :teamMembers="teamMembers" />
-  <TeamInvitationModal :teamId="teamId" :organizationId="organizationId" :roles="roles" />
+  <ChangeTeamLeaderModal
+    :teamId="teamId"
+    :teamMembers="teamMembers"
+    @teamLeader-updated="refreshLeader"
+  />
+  <TeamInvitationModal
+    :teamId="teamId"
+    :organizationId="organizationId"
+    :roles="roles"
+    :teamMembers="teamMembers"
+    @teamMember-invited="refreshMembers"
+  />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
 
@@ -369,7 +385,8 @@ const goBack = () => {
 const fetchRole = async (teamId) => {
   try {
     const response = await getRole(teamId)
-    roles.value = response
+
+    roles.value = response.filter((role) => role.name !== 'HEADER')
     console.log('roles', roles.value)
   } catch (error) {
     console.error('Unexpected error:', error)
@@ -387,7 +404,9 @@ const refreshTeam = async (newTeamName) => {
   teamName.value = newTeamName
   router.push({ query: { ...route.query, teamName: newTeamName } })
 }
-
+const refreshLeader = async () => {
+  teamLeader.value = await fetchLeader(teamId.value)
+}
 // 키회전 요청
 const updateKey = async () => {
   try {

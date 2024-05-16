@@ -1,13 +1,13 @@
 <template>
-  <BaseModal modalId="teamInvitationModal" class="max-w-4xl">
-    <div class="space-y-6 px-6 lg:px-8 pb-4 sm:pb-6 xl:pb-8">
+  <BaseModal modalId="teamInvitationModal">
+    <div class="p-6">
       <h3 class="text-xl text-gray-900 dark:text-white">팀 초대</h3>
-      <div class="w-full max-w-5xl mx-auto">
+      <div class="overflow-auto">
         <!-- Adjusted width of the container -->
         <div class="flex flex-col">
-          <div class="shadow-md sm:rounded-lg w-full">
+          <div class="shadow-md sm:rounded-lg">
             <!-- Adjusted width -->
-            <div class="inline-block min-w-full align-middle">
+            <div class="inline-block min-w-full">
               <div class="overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-700">
                   <thead class="bg-gray-100 dark:bg-gray-700">
@@ -100,6 +100,7 @@ const selectedEmails = ref([])
 const orgMembers = ref([])
 const guestRoleId = ref(0)
 
+const emit = defineEmits(['teamName-updated'])
 const props = defineProps({
   teamId: {
     type: Number,
@@ -112,11 +113,20 @@ const props = defineProps({
   roles: {
     type: Array,
     required: true
+  },
+  teamMembers: {
+    type: Array,
+    required: true
   }
 })
 onMounted(async () => {
+  console.log('teamMembers', props.teamMembers)
   const fetchMembers = await fetchOrganizationMembers(props.organizationId)
+  console.log('orgMembers', fetchMembers)
   orgMembers.value = fetchMembers
+  // orgMembers.value = fetchMembers.filter(
+  //   (member) => !props.teamMembers.some((teamMember) => teamMember.id === member.memberId)
+  // )
 })
 watch(
   () => props.roles,
@@ -157,6 +167,7 @@ const inviteMembers = async (event) => {
       await inviteTeam(body)
       toggleHidden('teamInvitationModal')
       alert('성공적으로 초대하였습니다.')
+      emit('teamName-updated')
     } catch (error) {
       alert(error.response.data.message)
     }
@@ -164,4 +175,9 @@ const inviteMembers = async (event) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+</style>

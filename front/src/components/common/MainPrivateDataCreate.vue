@@ -175,7 +175,7 @@
               </svg>
             </button>
             <div v-if="showDropdown" class="mt-2">
-              <div v-for="role in roles" :key="role.roleId" class="flex items-center p-2">
+              <div v-for="role in props.roles" :key="role.roleId" class="flex items-center p-2">
                 <input
                   type="checkbox"
                   :id="'role-' + role.roleId"
@@ -341,7 +341,6 @@ import BaseModal from './BaseModal.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { createPrivateData } from '@/api/data'
-import { getRole } from '@/api/role'
 import { useCommonStore } from '@/stores/common'
 
 const emit = defineEmits(['private-created'])
@@ -385,7 +384,8 @@ const changeToLogin = () => {
 }
 
 const props = defineProps({
-  teamId: Number
+  teamId: Number,
+  roles: Array
 })
 
 const createPrivate = async () => {
@@ -421,11 +421,6 @@ const createPrivate = async () => {
     toggleHidden('privateDataCreate')
   }
 }
-
-onMounted(async () => {
-  const response = await getRole(props.teamId)
-  roles.value = response.filter((role) => role.name !== 'HEADER' && role.name !== 'LEADER')
-})
 
 function validateFields() {
   return title.value.trim() && content.value.trim()

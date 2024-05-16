@@ -87,7 +87,12 @@
                 </tr>
               </tbody>
             </table>
-            <MainPrivateDataDetail :privateDataId="selectedDataId" :teamId="props.selectedTeamId" />
+            <MainPrivateDataDetail
+              :privateDataId="selectedDataId"
+              :teamId="props.selectedTeamId"
+              @private-deleted="handlePrivateDeleted"
+              @private-updated="handlePrivateUpdated"
+            />
           </div>
         </div>
       </div>
@@ -107,7 +112,11 @@
       @change-page="changePage"
     />
   </div>
-  <MainPrivateDataCreate :teamId="selectedTeamId" @private-created="handlePrivateCreated" />
+  <MainPrivateDataCreate
+    :teamId="selectedTeamId"
+    :roles="teamRoles"
+    @private-created="handlePrivateCreated"
+  />
 </template>
 
 <script setup>
@@ -117,6 +126,7 @@ import MainPrivateDataCreate from './MainPrivateDataCreate.vue'
 import MainPrivateDataDetail from './MainPrivateDataDetail.vue'
 import { watch, ref, defineProps, nextTick } from 'vue'
 import { getPrivateDatas } from '@/api/data'
+import { getRole } from '@/api/role'
 import BasePagination from '@/components/common/BasePagination.vue'
 
 const commonStore = useCommonStore()
@@ -125,6 +135,7 @@ const privateDataList = ref([])
 const selectedDataId = ref()
 const currentPage = ref(1)
 const totalPages = ref(10)
+const teamRoles = ref([])
 
 const props = defineProps({
   selectedTeamId: Number
@@ -132,6 +143,10 @@ const props = defineProps({
 
 const fetchPrivateData = async () => {
   if (props.selectedTeamId !== -1) {
+    const roleResponse = await getRole(props.selectedTeamId)
+    teamRoles.value = roleResponse.filter(
+      (role) => role.name !== 'HEADER' && role.name !== 'LEADER'
+    )
     const response = await getPrivateDatas(props.selectedTeamId, currentPage.value)
     privateDataList.value = response.privateDataResponse
     totalPages.value = response.totalPages
@@ -163,6 +178,14 @@ function changePage(page) {
 }
 
 function handlePrivateCreated() {
+  fetchPrivateData()
+}
+
+function handlePrivateDeleted() {
+  fetchPrivateData()
+}
+
+function handlePrivateUpdated() {
   fetchPrivateData()
 }
 </script>

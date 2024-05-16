@@ -280,6 +280,8 @@ public class PrivateDataService {
         organizationDashboardService.checkOrganizationDashboardDay(organizationId);
         organizationDashboardService.upOrganizationDashBoard(organizationId, 'c');
 
+        team.setSecretCount(team.getSecretCount() + 1);
+        teamRepository.save(team);
     }
 
     @Transactional
@@ -412,5 +414,7 @@ public class PrivateDataService {
         organizationDashboardService.checkOrganizationDashboardDay(organizationId);
         organizationDashboardService.upOrganizationDashBoard(organizationId, 'm');
 
+        team.setSecretCount(team.getSecretCount() - 1);
+        teamRepository.save(team);
     }
 }

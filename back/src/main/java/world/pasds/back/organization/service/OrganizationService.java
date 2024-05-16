@@ -344,11 +344,22 @@ public class OrganizationService {
             Role header = roleRepository.findByTeamAndName(team, "HEADER");
             MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(member, team);
             MemberRole findNewHeaderAndRole = memberRoleRepository.findByMemberAndTeam(newHeader, team);
-            findMemberAndRole.setRole(guest);
-            findNewHeaderAndRole.setRole(header);
 
+            // 새로운 조직장이 팀에 가입되어 있지 않은 경우 가입시키기
+            if (findNewHeaderAndRole == null) {
+                findNewHeaderAndRole = MemberRole.builder()
+                        .member(newHeader)
+                        .role(header)
+                        .team(team)
+                        .build();
+                memberRoleList.add(findNewHeaderAndRole);
+            } else if (!findNewHeaderAndRole.getRole().getId().equals(header.getId())) {    // 새로운 조직장이 팀에 가입되어 있지만 역할이 다른 경우
+                findNewHeaderAndRole.setRole(header);
+                memberRoleList.add(findNewHeaderAndRole);
+            }
+
+            findMemberAndRole.setRole(guest);
             memberRoleList.add(findMemberAndRole);
-            memberRoleList.add(findNewHeaderAndRole);
         }
         memberRoleRepository.saveAll(memberRoleList);
 

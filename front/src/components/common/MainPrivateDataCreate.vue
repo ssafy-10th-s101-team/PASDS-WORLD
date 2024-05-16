@@ -331,14 +331,22 @@
       </form>
     </div>
   </BaseModal>
+  <BaseAlert alertText="비밀이 성공적으로 생성되었습니다." v-if="privateDataSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="privateDataFailAlert" />
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, defineEmits } from 'vue'
 import BaseModal from './BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { createPrivateData } from '@/api/data'
 import { getRole } from '@/api/role'
+import { useCommonStore } from '@/stores/common'
 
+const emit = defineEmits(['private-created'])
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const showPassword = ref(false)
 const type = ref('LOGIN')
 const loginButton = ref(null)
@@ -351,6 +359,9 @@ const memo = ref('')
 const roles = ref([])
 const selectedRoles = ref([])
 const showDropdown = ref(false)
+const privateDataSuccessAlert = ref(false)
+const privateDataFailAlert = ref(false)
+const errorMsg = ref('')
 
 const togglePasswordVisibility = (event) => {
   event.preventDefault()
@@ -394,14 +405,22 @@ const createPrivate = async () => {
       roleId: selectedRoles.value
     }
     const response = await createPrivateData(body)
-    if (response) {
-      alert('비밀이 성공적으로 생성되었습니다.')
-    }
+    console.log('hello')
+    privateDataSuccessAlert.value = true
+    setTimeout(() => {
+      privateDataSuccessAlert.value = false
+    }, 3000)
+    emit('private-created', true)
+    toggleHidden('privateDataCreate')
   } catch (error) {
     const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-    alert(errmsg)
+    errorMsg.value = errmsg
+    privateDataFailAlert.value = true
+    setTimeout(() => {
+      privateDataFailAlert.value = false
+    }, 3000)
+    toggleHidden('privateDataCreate')
   }
-  location.reload()
 }
 
 onMounted(async () => {

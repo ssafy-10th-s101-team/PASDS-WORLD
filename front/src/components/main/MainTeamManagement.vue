@@ -369,7 +369,17 @@ const goBack = () => {
 const fetchRole = async (teamId) => {
   try {
     const response = await getRole(teamId)
-    roles.value = response.filter((role) => role.name !== 'HEADER')
+    roles.value = response.map((role) => {
+      if (role.name === 'HEADER') {
+        role.name = '조직장'
+      } else if (role.name === 'LEADER') {
+        role.name = '팀장'
+      } else if (role.name === 'GUEST') {
+        role.name = '손님'
+      }
+      return role
+    })
+    roles.value = response.filter((role) => role.name !== '조직장')
     console.log('roles', roles.value)
   } catch (error) {
     console.error('Unexpected error:', error)

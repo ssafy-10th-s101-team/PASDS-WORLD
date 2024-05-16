@@ -94,8 +94,8 @@
         </div>
       </div>
     </div>
-    <div class="mt-5 flex justify-center" @click="toggleHidden('organizationInvitationModal')">
-      <BaseButton buttonText="초대하기 +" />
+    <div class="mt-5 flex justify-center">
+      <BaseButton buttonText="초대하기 +" @click="toggleHidden('organizationInvitationModal')" />
     </div>
   </div>
 

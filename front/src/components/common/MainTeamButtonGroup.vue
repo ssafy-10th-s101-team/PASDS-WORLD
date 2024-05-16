@@ -36,11 +36,14 @@
       }"
     >
       <div class="mt-5">
-        <BaseButton buttonText="팀 설정" />
+        <BaseButton v-if="selectedTeamId !== -1" buttonText="팀 설정" />
       </div>
     </router-link>
   </div>
-  <TeamCreationModal :organizationId="props.selectedOrganizationId" />
+  <TeamCreationModal
+    :organizationId="props.selectedOrganizationId"
+    @team-created="handleTeamCreated"
+  />
 </template>
 
 <script setup>
@@ -50,7 +53,7 @@ import { useCommonStore } from '@/stores/common'
 import { watch, ref, defineProps, defineEmits } from 'vue'
 import { getTeams } from '@/api/team'
 
-const emit = defineEmits(['team-selected', 'loaded'])
+const emit = defineEmits(['team-selected', 'loaded', 'team-created'])
 const props = defineProps({
   selectedOrganizationId: Number,
   selectedSearchOrganizationId: Number,
@@ -79,6 +82,7 @@ watch(
         if (teams.length > 0) {
           selectTeam(teams[0].teamId)
         } else {
+          selectedTeamId.value = -1
           emit('team-selected', -1)
         }
       }
@@ -106,6 +110,25 @@ function selectTeam(id) {
   teamButtons.value.forEach((btn) => {
     if (btn) btn.blur()
   })
+}
+
+async function handleTeamCreated() {
+  const teams = await getTeams(props.selectedOrganizationId)
+  teamList.value = teams
+  if (props.selectedSearchOrganizationId) {
+    if (teams.length > 0 && props.selectedSearchTeamId) {
+      selectTeam(props.selectedSearchTeamId)
+    } else {
+      emit('team-selected', -1)
+    }
+  } else {
+    if (teams.length > 0) {
+      selectTeam(teams[0].teamId)
+    } else {
+      selectedTeamId.value = -1
+      emit('team-selected', -1)
+    }
+  }
 }
 </script>
 

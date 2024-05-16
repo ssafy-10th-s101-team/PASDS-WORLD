@@ -50,9 +50,12 @@ import BaseModal from '@/components/common/BaseModal.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { inviteOrganization } from '@/api/organization.js'
+import { useCommonStore } from '@/stores/common'
 const props = defineProps({
   selectedOrganizationId: Number
 })
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const email = ref('')
 const role = ref('')
 const invitationSuccessAlert = ref(false)
@@ -77,6 +80,7 @@ async function sendInvitation() {
       invitationFailAlert.value = false
     }, 3000)
   }
+  toggleHidden('organizationInvitationModal')
 }
 
 // }

@@ -9,6 +9,7 @@
               <div class="flex items-center">
                 <button
                   @click="showBarChart"
+                  :disabled="!isLoaded"
                   class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
                   {{ btnText1 }}
                 </button>
@@ -78,17 +79,17 @@ const increasing = ref(0)
 const isLoaded = ref(false)
 
 const graphType = ref('line')
-const btnText1 = ref('팀별 사용량')
+const btnText1 = ref('막대 그래프')
 
 onMounted(() => {
   isLoaded.value = true
 })
 
 watch(
-  [()=> props.organizationCountList, () => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
+  [()=> props.organizationCountList, () => props.organizationId, () => selectedYear.value, () => graphType.value],
   () => {
     try {
-
+      isLoaded.value = false;
       // 기존 차트 인스턴스가 있으면 파괴
       if (chartInstance.value) {
         chartInstance.value.destroy()
@@ -140,10 +141,20 @@ watch(
             }
           }
         }
+        
       })
+
+      setTimeout(() => {
+        isLoaded.value = true;
+      // console.log(isLoaded.value)
+    }, 1000)
+
     } catch (error) {
+      console.log("aaaaaaa")
       console.error(error)
       // showErrorAlert(error.response.data.message)
+    } finally {
+      
     }
   }, { deep: true }
 )
@@ -151,12 +162,12 @@ watch(
 const showBarChart = () => {
   if (graphType.value === 'bar') {
     graphType.value = 'line'
-    btnText1.value = '팀별 사용량'
+    btnText1.value = '막대 그래프'
     return
   }
   if (graphType.value === 'line') {
     graphType.value = 'bar'
-    btnText1.value = '전체 사용량'
+    btnText1.value = '꺾은선 그래프'
 
   }
 }

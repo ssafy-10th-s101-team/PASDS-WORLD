@@ -277,6 +277,7 @@ public class TotpService {
         KmsKeyDto requestDto = KmsKeyDto.builder()
                 .encryptedDataKey(Base64.getEncoder().encodeToString(member.getEncryptedTotpDataKey()))
                 .encryptedIv(Base64.getEncoder().encodeToString(member.getEncryptedTotpIv()))
+                .masterKeyVersion(member.getMasterKeyVersion())
                 .build();
 
         //기존 데이터 키 복호화 및 재발급 요청

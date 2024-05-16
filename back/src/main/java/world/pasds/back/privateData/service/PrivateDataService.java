@@ -303,6 +303,7 @@ public class PrivateDataService {
         KmsKeyDto dto = KmsKeyDto.builder()
                 .encryptedDataKey(Base64.getEncoder().encodeToString(encryptedDataKey))
                 .encryptedIv(Base64.getEncoder().encodeToString(encryptedIv))
+                .masterKeyVersion(team.getMasterKeyVersion())
                 .build();
         KmsDecryptionKeysResponseDto decryptKeys = keyService.getKeys(dto);
 

@@ -224,10 +224,11 @@ const showErrorAlert = (message) => {
 onMounted(async () => {
   organizationId.value = props.selectedOrganizationId
   organizationName.value = props.selectedOrganizationName
-
+  // console.log(props.selectedOrganizationId)
+  // console.log("ggggg")
   // ${props.selectedOrganizationId}
   await localAxios
-    .get(`/dashboard/1`)
+    .get(`/dashboard/${props.selectedOrganizationId}`)
     .then((response) => {
       const data = response.data
       organizationViewList.value = data.organizationViewList

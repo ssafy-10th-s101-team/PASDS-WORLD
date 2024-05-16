@@ -22,12 +22,7 @@ public class OrganizationController {
     @GetMapping("")
     public ResponseEntity<?> getOrganizations(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(required = false) boolean isAdmin) {
         List<GetOrganizationsResponseDto> response;
-
-        if (isAdmin) {
-            response = organizationService.getAdminOrganizations(userDetails.getMemberId());
-        } else {
-            response = organizationService.getOrganizations(userDetails.getMemberId());
-        }
+        response = organizationService.getOrganizations(userDetails.getMemberId());
 
         return ResponseEntity.ok().body(response);
     }

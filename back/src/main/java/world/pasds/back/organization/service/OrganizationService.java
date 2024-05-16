@@ -236,7 +236,7 @@ public class OrganizationService {
         List<MemberRole> removeMemberRoleList = new ArrayList<>();
         for (Team team : findTeamList) {
             MemberTeam findTeamMember = memberTeamRepository.findByMemberAndTeam(removeMember, team);
-            MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+            MemberRole findMemberRole = memberRoleRepository.findByMemberAndTeam(removeMember, team);
             if (findTeamMember != null) {
                 removeMemberTeamList.add(findTeamMember);
             }

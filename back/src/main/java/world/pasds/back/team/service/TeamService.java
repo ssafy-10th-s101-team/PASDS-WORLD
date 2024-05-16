@@ -380,7 +380,7 @@ public class TeamService {
         }
 
         // 팀장 추방 불가
-        if (removeMember.getId().equals(team.getLeader().getId())) {
+        if (team.getLeader() != null && removeMember.getId().equals(team.getLeader().getId())) {
             throw new BusinessException(ExceptionCode.BAD_REQUEST);
         }
 

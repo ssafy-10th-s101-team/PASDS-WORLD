@@ -100,16 +100,16 @@ public class SecurityConfig {
                 })
                 .addFilterBefore(customAuthenticationFilter(buildAuthenticationManager(http)),
                         UsernamePasswordAuthenticationFilter.class)
-                .headers((headers) -> {
-                    headers.addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy", "default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none';"));
-                    headers.addHeaderWriter(new StaticHeadersWriter("X-Frame-Options", "DENY"));
-                    headers.addHeaderWriter(new StaticHeadersWriter("Strict-Transport-Security", "max-age=31536000; includeSubDomains"));
-                    headers.addHeaderWriter(new StaticHeadersWriter("X-Content-Type-Options", "nosniff"));
-                    headers.addHeaderWriter(new StaticHeadersWriter("Cache-Control", "no-cache, no-store, must-revalidate"));
-                    headers.addHeaderWriter(new StaticHeadersWriter("Pragma", "no-cache"));
-                    headers.addHeaderWriter(new StaticHeadersWriter("Expires", "0"));
-                    headers.addHeaderWriter(new StaticHeadersWriter("Server", ""));
-                })
+                .headers(headers -> headers
+                        .addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"))
+                        .addHeaderWriter(new StaticHeadersWriter("X-Frame-Options", "DENY"))
+                        .addHeaderWriter(new StaticHeadersWriter("Strict-Transport-Security", "max-age=31536000; includeSubDomains"))
+                        .addHeaderWriter(new StaticHeadersWriter("X-Content-Type-Options", "nosniff"))
+                        .addHeaderWriter(new StaticHeadersWriter("Cache-Control", "no-cache, no-store, must-revalidate"))
+                        .addHeaderWriter(new StaticHeadersWriter("Pragma", "no-cache"))
+                        .addHeaderWriter(new StaticHeadersWriter("Expires", "0"))
+                        .addHeaderWriter(new StaticHeadersWriter("Server", ""))
+                )
                 .build();
     }
 

@@ -183,6 +183,11 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 		logger.info("> X-FORWARDED-FOR : " + ip);
 
 		if (ip == null) {
+			ip = request.getHeader("X-Real-IP");
+			logger.info("> X-Real-IP : " + ip);
+		}
+
+		if (ip == null) {
 			ip = request.getHeader("Proxy-Client-IP");
 			logger.info("> Proxy-Client-IP : " + ip);
 		}

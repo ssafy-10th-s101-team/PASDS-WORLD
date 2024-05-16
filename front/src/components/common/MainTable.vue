@@ -87,7 +87,12 @@
                 </tr>
               </tbody>
             </table>
-            <MainPrivateDataDetail :privateDataId="selectedDataId" :teamId="props.selectedTeamId" />
+            <MainPrivateDataDetail
+              :privateDataId="selectedDataId"
+              :teamId="props.selectedTeamId"
+              @private-deleted="handlePrivateDeleted"
+              @private-updated="handlePrivateUpdated"
+            />
           </div>
         </div>
       </div>
@@ -173,6 +178,14 @@ function changePage(page) {
 }
 
 function handlePrivateCreated() {
+  fetchPrivateData()
+}
+
+function handlePrivateDeleted() {
+  fetchPrivateData()
+}
+
+function handlePrivateUpdated() {
   fetchPrivateData()
 }
 </script>

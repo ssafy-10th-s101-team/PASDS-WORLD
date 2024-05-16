@@ -53,7 +53,7 @@
       <!-- 검색 결과 리스트 -->
       <ul
         v-if="searchResults.length > 0"
-        class="search-results absolute w-full z-10 mt-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        class="search-results absolute w-full mt-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
       >
         <li
           v-for="result in searchResults"

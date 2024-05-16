@@ -5,7 +5,7 @@
     <div
       :id="modalId"
       aria-hidden="true"
-      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg z-10"
     >
       <div
         class="relative w-full max-w-md px-4 h-full md:h-auto max-w-full max-h-full overflow-auto"

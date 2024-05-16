@@ -282,6 +282,7 @@
     :teamId="teamId"
     :organizationId="organizationId"
     :roles="roles"
+    :teamMembers="teamMembers"
     @teamMember-invited="refreshMembers"
   />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />

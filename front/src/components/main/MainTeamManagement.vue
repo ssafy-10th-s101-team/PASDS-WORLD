@@ -369,7 +369,7 @@ const goBack = () => {
 const fetchRole = async (teamId) => {
   try {
     const response = await getRole(teamId)
-    roles.value = response
+    roles.value = response.filter((role) => role.name !== 'HEADER')
     console.log('roles', roles.value)
   } catch (error) {
     console.error('Unexpected error:', error)

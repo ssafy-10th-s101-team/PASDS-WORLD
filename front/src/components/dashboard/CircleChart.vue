@@ -58,10 +58,10 @@ watch(
         data: {
           labels: teams.value,
           datasets: [{
-            backgroundColor: ['#6d79c4', '#E2E5F4'],
+            backgroundColor: ['#6d79c4', '#E2E5F4', '#1428A0', '#3243AC', '#8A94D0', '#C5CAE8'],
             data: graphData.value,
             fill: false,
-            pointBackgroundColor: ['#6d79c4', '#E2E5F4'],
+            pointBackgroundColor: ['#6d79c4', '#E2E5F4', '#1428A0', '#3243AC', '#8A94D0', '#C5CAE8'],
             borderWidth: 0,
             pointBorderWidth: 4,
             pointHoverRadius: 6,

@@ -44,6 +44,7 @@ public class PrivateDataSearchService {
     public void updatePrivateData(PrivateData privateData) {
         PrivateDataDocument find = privateDataSearchRepository.findByPrivateDataId(privateData.getId());
         if (find != null) {
+            privateDataSearchRepository.delete(find);
             find.setTitle(privateData.getTitle());
             applyTimestampPipeline(find);
         }
@@ -102,7 +103,6 @@ public class PrivateDataSearchService {
             );
             client.index(request);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }

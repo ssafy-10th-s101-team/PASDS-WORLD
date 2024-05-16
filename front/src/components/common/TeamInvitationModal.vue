@@ -100,6 +100,7 @@ const selectedEmails = ref([])
 const orgMembers = ref([])
 const guestRoleId = ref(0)
 
+const emit = defineEmits(['teamName-updated'])
 const props = defineProps({
   teamId: {
     type: Number,
@@ -157,6 +158,7 @@ const inviteMembers = async (event) => {
       await inviteTeam(body)
       toggleHidden('teamInvitationModal')
       alert('성공적으로 초대하였습니다.')
+      emit('teamName-updated')
     } catch (error) {
       alert(error.response.data.message)
     }

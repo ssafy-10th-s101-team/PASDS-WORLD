@@ -91,6 +91,7 @@ const selectedMemberId = ref('')
 onMounted(() => {
   console.log('팀멤버', props.teamMembers)
 })
+const emit = defineEmits(['teamLeader-updated'])
 const props = defineProps({
   teamId: {
     type: Number,
@@ -111,6 +112,7 @@ const updateLeader = async (event) => {
   try {
     await assignLeader(body)
     alert('팀장이 변경되었습니다')
+    emit('teamLeader-updated')
     toggleHidden('changeTeamLeaderModal')
   } catch (error) {
     return

@@ -273,8 +273,17 @@
     @memberRole-updated="refreshMembers"
   />
   <ChangeTeamNameModal :teamId="teamId" :teamName="teamName" @teamName-updated="refreshTeam" />
-  <ChangeTeamLeaderModal :teamId="teamId" :teamMembers="teamMembers" />
-  <TeamInvitationModal :teamId="teamId" :organizationId="organizationId" :roles="roles" />
+  <ChangeTeamLeaderModal
+    :teamId="teamId"
+    :teamMembers="teamMembers"
+    @teamLeader-updated="refreshLeader"
+  />
+  <TeamInvitationModal
+    :teamId="teamId"
+    :organizationId="organizationId"
+    :roles="roles"
+    @teamMember-invited="refreshMembers"
+  />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
 </template>
 
@@ -371,17 +380,8 @@ const goBack = () => {
 const fetchRole = async (teamId) => {
   try {
     const response = await getRole(teamId)
-    roles.value = response.map((role) => {
-      if (role.name === 'HEADER') {
-        role.name = '조직장'
-      } else if (role.name === 'LEADER') {
-        role.name = '팀장'
-      } else if (role.name === 'GUEST') {
-        role.name = '손님'
-      }
-      return role
-    })
-    roles.value = response.filter((role) => role.name !== '조직장')
+
+    roles.value = response.filter((role) => role.name !== 'HEADER')
     console.log('roles', roles.value)
   } catch (error) {
     console.error('Unexpected error:', error)
@@ -399,7 +399,9 @@ const refreshTeam = async (newTeamName) => {
   teamName.value = newTeamName
   router.push({ query: { ...route.query, teamName: newTeamName } })
 }
-
+const refreshLeader = async () => {
+  teamLeader.value = await fetchLeader(teamId.value)
+}
 // 키회전 요청
 const updateKey = async () => {
   try {

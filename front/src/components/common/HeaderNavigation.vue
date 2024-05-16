@@ -24,24 +24,26 @@
               </router-link>
             </div>
             <div v-if="userStore.nickname" class="mt-6">
-              <button
-                @click="logout"
-                class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-              >
-                로그아웃
-              </button>
+              
               <router-link :to="{ name: 'myPage' }">
                 <span
                   class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
                   >{{ userStore.nickname }}</span
                 >
               </router-link>
+
               <button
+                @click="logout"
+                class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+              >
+                로그아웃
+              </button>
+              <!-- <button
                 @click="jwtTest"
                 class="text-gray-800 dark hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
               >
                 토큰테스트
-              </button>
+              </button> -->
             </div>
 
             <!-- 알림 시작 -->

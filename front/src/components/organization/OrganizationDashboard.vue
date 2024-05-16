@@ -12,22 +12,22 @@
         <div class="p-0 pt-3 pl-4">
           <!-- 첫 번째 구역 -->
           <p class="text-sm">월간 비용 누계</p>
-          <div class="text-2xl text-gray-800">230원</div>
+          <div class="text-2xl text-gray-800">56,320원</div>
         </div>
         <div class="p-0 pt-3 pl-4">
           <!-- 두 번째 구역 -->
           <p class="text-sm">이번 달 총 예상 비용</p>
-          <div class="text-2xl text-gray-800">230원</div>
+          <div class="text-2xl text-gray-800">123,220원</div>
         </div>
         <div class="p-0 pt-3 pl-4">
           <!-- 세 번째 구역 -->
           <p class="text-sm">동일 기간 지난 달 비용</p>
-          <div class="text-2xl text-gray-800">230원</div>
+          <div class="text-2xl text-gray-800">48,020원</div>
         </div>
         <div class="p-0 pt-3 pl-4">
           <!-- 네 번째 구역 -->
           <p class="text-sm">지난 달의 총 비용</p>
-          <div class="text-2xl text-gray-800">230원</div>
+          <div class="text-2xl text-gray-800">101,300원</div>
         </div>
       </div>
       <div

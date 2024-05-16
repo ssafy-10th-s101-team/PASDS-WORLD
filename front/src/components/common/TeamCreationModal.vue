@@ -25,17 +25,28 @@
       </button>
     </form>
   </BaseModal>
+  <BaseAlert alertText="팀이 성공적으로 생성되었습니다." v-if="teamSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="teamFailAlert" />
 </template>
 
 <script setup>
-import { ref, defineProps } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
+import { useCommonStore } from '@/stores/common'
 import BaseModal from './BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { createTeam } from '@/api/team'
 
+const emit = defineEmits(['team-created'])
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const props = defineProps({
   organizationId: Number
 })
 const teamName = ref('')
+const teamSuccessAlert = ref(false)
+const teamFailAlert = ref(false)
+const errorMsg = ref('')
 
 const createT = async () => {
   try {
@@ -44,14 +55,21 @@ const createT = async () => {
       teamName: teamName.value
     }
     const response = await createTeam(body)
-    if (response) {
-      alert('팀이 성공적으로 생성되었습니다.')
-    }
+    teamSuccessAlert.value = true
+    setTimeout(() => {
+      teamSuccessAlert.value = false
+    }, 3000)
+    emit('team-created', true)
+    toggleHidden('teamCreationModal')
   } catch (error) {
     const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-    alert(errmsg)
+    errorMsg.value = errmsg
+    teamFailAlert.value = true
+    setTimeout(() => {
+      teamFailAlert.value = false
+    }, 3000)
+    toggleHidden('teamCreationModal')
   }
-  location.reload()
 }
 </script>
 

@@ -25,24 +25,43 @@
       </button>
     </form>
   </BaseModal>
+  <BaseAlert alertText="조직이 성공적으로 생성되었습니다." v-if="organizationSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="organizationFailAlert" />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, defineEmits } from 'vue'
 import BaseModal from './BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { createOrganization } from '@/api/organization'
+import { useCommonStore } from '@/stores/common'
 
+const emit = defineEmits(['private-created'])
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const organizationName = ref('')
+const organizationSuccessAlert = ref(false)
+const organizationFailAlert = ref(false)
+const errorMsg = ref('')
 
 const createOrg = async () => {
   try {
     const body = { name: organizationName.value }
     await createOrganization(body)
-    alert('조직이 성공적으로 생성되었습니다.')
-    location.reload()
+    organizationSuccessAlert.value = true
+    setTimeout(() => {
+      organizationSuccessAlert.value = false
+    }, 3000)
+    emit('organization-created', true)
+    toggleHidden('organizationCreationModal')
   } catch (error) {
-    alert('조직 생성에 실패했습니다.')
-    location.reload()
+    errorMsg.value = '조직 생성에 실패했습니다.'
+    organizationFailAlert.value = true
+    setTimeout(() => {
+      organizationFailAlert.value = false
+    }, 3000)
+    toggleHidden('organizationCreationModal')
   }
 }
 </script>

@@ -405,7 +405,6 @@ const createPrivate = async () => {
       roleId: selectedRoles.value
     }
     const response = await createPrivateData(body)
-    console.log('hello')
     privateDataSuccessAlert.value = true
     setTimeout(() => {
       privateDataSuccessAlert.value = false

@@ -115,19 +115,11 @@ function selectTeam(id) {
 async function handleTeamCreated() {
   const teams = await getTeams(props.selectedOrganizationId)
   teamList.value = teams
-  if (props.selectedSearchOrganizationId) {
-    if (teams.length > 0 && props.selectedSearchTeamId) {
-      selectTeam(props.selectedSearchTeamId)
-    } else {
-      emit('team-selected', -1)
-    }
+  if (teamList.value.length > 0) {
+    selectTeam(teamList.value[teamList.value.length - 1].teamId)
   } else {
-    if (teams.length > 0) {
-      selectTeam(teams[0].teamId)
-    } else {
-      selectedTeamId.value = -1
-      emit('team-selected', -1)
-    }
+    selectedTeamId.value = -1
+    emit('team-selected', -1)
   }
 }
 </script>

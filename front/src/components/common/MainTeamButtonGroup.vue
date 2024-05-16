@@ -36,7 +36,7 @@
       }"
     >
       <div class="mt-5">
-        <BaseButton buttonText="팀 설정" />
+        <BaseButton v-if="selectedTeamId !== -1" buttonText="팀 설정" />
       </div>
     </router-link>
   </div>
@@ -79,6 +79,7 @@ watch(
         if (teams.length > 0) {
           selectTeam(teams[0].teamId)
         } else {
+          selectedTeamId.value = -1
           emit('team-selected', -1)
         }
       }

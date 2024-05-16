@@ -182,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits } from 'vue'
+import { ref, onMounted, watch, defineEmits, defineProps } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCommonStore } from '@/stores/common'
 import { getOrganizations } from '@/api/organization.js'
@@ -212,6 +212,11 @@ const selectOrganization = async (organization) => {
   toggleHidden('dropdownOrganization') // 드롭다운을 닫거나 열기
 }
 
+const props = defineProps({
+  selectedOrganizationId: Number,
+  organizationName: String
+})
+
 function clickRouterList(name) {
   curRouteName.value = name
   return route.name === name
@@ -232,6 +237,13 @@ onMounted(async () => {
     currentOrganization.value = organizations.value[0]
   }
 })
+
+watch(
+  () => props.organizationName,
+  (newVal) => {
+    currentOrganization.value.name = newVal
+  }
+)
 </script>
 
 <style scoped></style>

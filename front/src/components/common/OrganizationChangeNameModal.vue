@@ -25,18 +25,30 @@
       </button>
     </form>
   </BaseModal>
+  <BaseAlert
+    alertText="조직명이 성공적으로 변경되었습니다."
+    v-if="changeOrganizationNameSuccessAlert"
+  />
+  <BaseFailAlert :alertText="errorMsg" v-if="changeOrganizationNameFailAlert" />
 </template>
 
 <script setup>
 import { ref, defineProps, onMounted } from 'vue'
 import BaseModal from './BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import router from '@/router'
 import { useRoute } from 'vue-router'
 import { renameOrganization } from '@/api/organization'
+import { useCommonStore } from '@/stores/common'
 
-const route = useRoute()
+const commonStore = useCommonStore()
+const { toggleHidden } = commonStore
 const newOrganizationName = ref('')
 const emit = defineEmits(['organizationName-updated'])
+const changeOrganizationNameSuccessAlert = ref(false)
+const changeOrganizationNameFailAlert = ref(false)
+const errorMsg = ref('')
 const props = defineProps({
   organizationId: {
     type: Number,
@@ -60,16 +72,21 @@ const updateOrganizationName = async (event) => {
   }
   try {
     const response = await renameOrganization(body)
-    if (response) {
-      alert('조직명이 성공적으로 변경되었습니다.')
-      emit('teamName-updated', newOrganizationName.value)
-      router.push({ query: { ...route.query, teamName: newOrganizationName.value } })
-    }
+    changeOrganizationNameSuccessAlert.value = true
+    setTimeout(() => {
+      changeOrganizationNameSuccessAlert.value = false
+    }, 3000)
+    emit('organizationName-updated', newOrganizationName.value)
+    toggleHidden('changeOrganizationNameModal')
   } catch (error) {
     const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-    alert(errmsg)
+    errorMsg.value = errmsg
+    changeOrganizationNameFailAlert.value = true
+    setTimeout(() => {
+      changeOrganizationNameFailAlert.value = false
+    }, 3000)
+    toggleHidden('changeOrganizationNameModal')
   }
-  location.reload()
 }
 </script>
 

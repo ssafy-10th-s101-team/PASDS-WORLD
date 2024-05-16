@@ -57,12 +57,12 @@
   <OrganizationChangeNameModal
     :organizationId="props.selectedOrganizationId"
     :oldOrganizationName="organizationName"
-    @organizationName-updated="fetchOrganizationName"
+    @organizationName-updated="handleOrganizationChangeName"
   />
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, defineEmits } from 'vue'
 import BaseButton from '../common/BaseButton.vue'
 import OrganizationChangeNameModal from '../common/OrganizationChangeNameModal.vue'
 import OrganizationChangeHeaderModal from '../common/OrganizationChangeHeaderModal.vue'
@@ -73,6 +73,7 @@ import { useCommonStore } from '@/stores/common'
 import { getOrganizations, getOrganizationMembers } from '@/api/organization'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+const emit = defineEmits(['organizationName-updated'])
 
 const props = defineProps({
   selectedOrganizationId: {
@@ -154,6 +155,11 @@ const fetchOrganizationMembers = async () => {
 
 function handleOrganizationChangeHeader() {
   fetchOrganizationMembers()
+}
+
+function handleOrganizationChangeName(newOrganizationName) {
+  organizationName.value = newOrganizationName
+  emit('organizationName-updated', newOrganizationName)
 }
 </script>
 

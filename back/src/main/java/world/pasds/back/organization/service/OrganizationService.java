@@ -25,6 +25,7 @@ import world.pasds.back.organization.entity.dto.response.GetOrganizationMemberDt
 import world.pasds.back.organization.entity.dto.response.GetOrganizationMemberResponseDto;
 import world.pasds.back.organization.entity.dto.response.GetOrganizationsResponseDto;
 import world.pasds.back.organization.repository.OrganizationRepository;
+import world.pasds.back.privateData.service.PrivateDataSearchService;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.repository.RoleRepository;
 import world.pasds.back.team.entity.Team;
@@ -35,7 +36,6 @@ import world.pasds.back.team.repository.TeamRepository;
 import world.pasds.back.team.service.TeamService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,6 +54,7 @@ public class OrganizationService {
     private final NotificationService notificationService;
     private final TeamService teamService;
     private final OrganizationDashboardRepository organizationDashboardRepository;
+    private final PrivateDataSearchService privateDataSearchService;
 
     @Transactional
     public void createOrganization(CreateOrganizationRequestDto requestDto, Long memberId) {
@@ -308,6 +309,7 @@ public class OrganizationService {
         }
 
         organization.setName(requestDto.getNewName());
+        privateDataSearchService.renameOrganization(organization.getId(), requestDto.getNewName());
         organizationRepository.save(organization);
     }
 

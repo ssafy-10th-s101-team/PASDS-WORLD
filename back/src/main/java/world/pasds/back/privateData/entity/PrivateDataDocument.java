@@ -25,8 +25,10 @@ public class PrivateDataDocument {
 
     private Long teamId;
 
+    @Setter
     private String organizationName;
 
+    @Setter
     private String teamName;
 
 }

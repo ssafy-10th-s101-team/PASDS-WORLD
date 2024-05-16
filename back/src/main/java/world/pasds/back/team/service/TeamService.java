@@ -26,12 +26,12 @@ import world.pasds.back.member.repository.MemberRepository;
 import world.pasds.back.member.repository.MemberRoleRepository;
 import world.pasds.back.member.repository.MemberTeamRepository;
 import world.pasds.back.organization.entity.Organization;
-import world.pasds.back.organization.entity.OrganizationRole;
 import world.pasds.back.organization.repository.OrganizationRepository;
 import world.pasds.back.privateData.entity.PrivateData;
 import world.pasds.back.privateData.entity.PrivateDataRole;
 import world.pasds.back.privateData.repository.jpa.PrivateDataRepository;
 import world.pasds.back.privateData.repository.jpa.PrivateDataRoleRepository;
+import world.pasds.back.privateData.service.PrivateDataSearchService;
 import world.pasds.back.role.entity.Role;
 import world.pasds.back.role.entity.RoleAuthority;
 import world.pasds.back.role.repository.RoleAuthorityRepository;
@@ -43,7 +43,6 @@ import world.pasds.back.team.repository.TeamRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -67,6 +66,7 @@ public class TeamService {
     private final OrganizationDashboardService organizationDashboardService;
     private final TeamDashboardService teamDashboardService;
     private final PrivateDataRoleRepository privateDataRoleRepository;
+    private final PrivateDataSearchService privateDataSearchService;
 
     @Transactional
     public List<GetTeamsResponseDto> getTeams(Long organizationId, Long memberId) {
@@ -504,6 +504,7 @@ public class TeamService {
         }
 
         team.setName(requestDto.getNewName());
+        privateDataSearchService.renameTeam(team.getId(), requestDto.getNewName());
         teamRepository.save(team);
     }
 

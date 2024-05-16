@@ -44,9 +44,8 @@ public class PrivateDataSearchService {
     public void updatePrivateData(PrivateData privateData) {
         PrivateDataDocument find = privateDataSearchRepository.findByPrivateDataId(privateData.getId());
         if (find != null) {
-            privateDataSearchRepository.delete(find);
             find.setTitle(privateData.getTitle());
-            applyTimestampPipeline(find);
+            privateDataSearchRepository.save(find);
         }
     }
 
@@ -116,5 +115,19 @@ public class PrivateDataSearchService {
                 .teamId(teamId)
                 .teamName(teamName)
                 .build();
+    }
+
+    public void renameOrganization(Long organizationId, String newName) {
+        List<PrivateDataDocument> privateDataDocumentList = privateDataSearchRepository.findAllByOrganizationId(organizationId)
+                .stream().peek(document -> document.setOrganizationName(newName)).toList();
+
+        privateDataSearchRepository.saveAll(privateDataDocumentList);
+    }
+
+    public void renameTeam(Long teamId, String newName) {
+        List<PrivateDataDocument> privateDataDocumentList = privateDataSearchRepository.findAllByOrganizationId(teamId)
+                .stream().peek(document -> document.setOrganizationName(newName)).toList();
+
+        privateDataSearchRepository.saveAll(privateDataDocumentList);
     }
 }

@@ -93,7 +93,7 @@
       </div>
     </div>
   </div>
-  <div class="flex justify-center">
+  <div class="flex justify-center mt-2">
     <BaseButton
       v-if="selectedTeamId !== -1"
       buttonText="비밀 추가 +"

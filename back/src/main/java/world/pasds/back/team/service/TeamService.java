@@ -102,9 +102,9 @@ public class TeamService {
         Organization organization = organizationRepository.findById(organizationId).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         //권한 체크
-        List<OrganizationRole> roles = Arrays.asList(OrganizationRole.HEADER, OrganizationRole.ADMIN);
-        boolean authorized = memberOrganizationRepository.existsByMemberAndOrganizationAndOrganizationRoleIn(member, organization, roles);
-        if (!authorized) throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
+//        List<OrganizationRole> roles = Arrays.asList(OrganizationRole.HEADER, OrganizationRole.ADMIN);
+//        boolean authorized = memberOrganizationRepository.existsByMemberAndOrganizationAndOrganizationRoleIn(member, organization, roles);
+//        if (!authorized) throw new BusinessException(ExceptionCode.ORGANIZATION_UNAUTHORIZED);
 
         //모든 팀목록 조회
         List<Team> findTeamList = teamRepository.findAllByOrganization(organization);

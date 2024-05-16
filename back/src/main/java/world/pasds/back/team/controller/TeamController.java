@@ -30,6 +30,7 @@ public class TeamController {
         return ResponseEntity.ok().body(response);
     }
 
+    //좀더 자세한 팀 정보 가져옴.
     @GetMapping("/admin/{organizationId}")
     public ResponseEntity<?> getAdminTeams(@PathVariable(name = "organizationId") Long organizationId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<GetAdminTeamsResponseDto> response = teamService.getAdminTeams(organizationId, userDetails.getMemberId());

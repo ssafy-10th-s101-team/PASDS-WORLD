@@ -54,7 +54,7 @@
               >
                 <span class="flex-1 ml-3 whitespace-nowrap">조직 추가 +</span>
               </a>
-              <OrganizationCreationModal />
+              <OrganizationCreationModal @organization-created="handleOrganizationCreated" />
             </li>
           </ul>
         </div>
@@ -103,6 +103,15 @@ function selectOrganization(id) {
   selectedOrganizationId.value = id
   emit('organization-selected', id)
   emit('loaded', true)
+}
+
+async function handleOrganizationCreated() {
+  const orgs = await fetchOrganization()
+  organizations.value = orgs
+  if (orgs.length > 0) {
+    selectedOrganizationId.value = orgs[orgs.length - 1].organizationId
+    selectOrganization(selectedOrganizationId.value)
+  }
 }
 </script>
 

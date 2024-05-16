@@ -107,7 +107,7 @@
       @change-page="changePage"
     />
   </div>
-  <MainPrivateDataCreate :teamId="selectedTeamId" />
+  <MainPrivateDataCreate :teamId="selectedTeamId" @private-created="handlePrivateCreated" />
 </template>
 
 <script setup>
@@ -160,6 +160,10 @@ watch(
 
 function changePage(page) {
   currentPage.value = page
+}
+
+function handlePrivateCreated() {
+  fetchPrivateData()
 }
 </script>
 

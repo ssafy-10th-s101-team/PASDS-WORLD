@@ -233,7 +233,9 @@
               <a href=""> 보안 강화하기 </a>
             </div>
           </div>
-          <div class="text-red-500" @click="toggleHidden('deleteTeamModal')">팀삭제</div>
+          <div class="delete-team text-red-500" @click="toggleHidden('deleteTeamModal')">
+            팀삭제
+          </div>
         </div>
       </div>
     </div>
@@ -463,4 +465,8 @@ const handleTeamRemove = async (event) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.delete-team {
+  cursor: pointer;
+}
+</style>

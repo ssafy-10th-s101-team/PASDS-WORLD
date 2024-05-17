@@ -148,8 +148,6 @@ const fetchRoleDetail = async () => {
 
     newRoleName.value = response.name
     roleAuths.value = response.authorities
-
-    console.log('이 역할의 권한들: ', roleAuths.value)
   } catch (error) {
     return
   }
@@ -165,7 +163,6 @@ const postRole = async (event) => {
       authorities: selectedAuthorities.value
     }
     await updateRole(body)
-
     emit('role-updated')
     toggleHidden('teamRoleUpdateModal')
     // 닫기
@@ -176,8 +173,6 @@ const postRole = async (event) => {
 
 const removeRole = async (event) => {
   event.preventDefault()
-  console.log('teamId:', props.teamId)
-  console.log('roleId:', props.roleId)
   try {
     const body = {
       teamId: props.teamId,

@@ -251,15 +251,17 @@ public class RoleService {
             throw new BusinessException(ExceptionCode.TEAM_MEMBER_NOT_FOUND);
         }
 
-        // GUEST로 교환
+        // 팀장 부여인 경우
         if (role.getName().equals("LEADER")) {
             // 팀에 리더가 존재하는지 확인
             MemberRole teamAndRole = memberRoleRepository.findByTeamAndRole(team, role);
-            if (teamAndRole != null) {
+            if (teamAndRole != null) { // GUEST로 교환
                 Role guestRole = roleRepository.findByTeamAndName(team, "GUEST");
                 teamAndRole.setRole(guestRole);
                 memberRoleRepository.save(teamAndRole);
             }
+            team.setLeader(assignedMember);
+            teamRepository.save(team);
         }
 
         // 이미 역할을 부여받은 멤버인지 확인

@@ -14,6 +14,7 @@
           <input
             type="email"
             id="email"
+            @keyup.enter="sendOtpCode"
             v-model="email"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="name@domain.com"
@@ -156,7 +157,7 @@ const isPasswordSame = ref(false)
 const isNicknameValid = ref(false)
 const commonStore = useCommonStore()
 const { toggleHidden, removeHidden, startTimer, stopTimer } = commonStore
-const { emailRequest, inputTime } = toRefs(commonStore)
+const { inputTime } = toRefs(commonStore)
 
 // alert toggle
 const EmailSuccessAlert = ref(false)

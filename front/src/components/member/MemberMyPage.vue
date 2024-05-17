@@ -155,6 +155,8 @@
     v-if="acceptOrganizationInvitaionSuccessAlert"
   />
   <BaseFailAlert :alertText="errorMsg" v-if="acceptOrganizationInvitaionFailAlert" />
+  <BaseAlert alertText="닉네임이 변경되었습니다." v-if="changeNicknameSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="changeNicknameFailAlert" />
 </template>
 
 <script setup>
@@ -177,6 +179,8 @@ const nickname = ref(cookieHelper.get('nickname'))
 const isNicknameValid = ref(true)
 const acceptOrganizationInvitaionSuccessAlert = ref(false)
 const acceptOrganizationInvitaionFailAlert = ref(false)
+const changeNicknameSuccessAlert = ref(false)
+const changeNicknameFailAlert = ref(false)
 const errorMsg = ref('')
 
 const invitations = ref([
@@ -239,15 +243,23 @@ const changeNickname = async () => {
   await localAxios
     .post('/member/change-nickname', body)
     .then(() => {
-      console.log('닉네임 변경 성공')
-      alert('닉네임이 변경되었습니다.')
       cookieHelper.delete('nickname')
       cookieHelper.generate('nickname', nickname.value)
       userStore.setNickname(nickname.value)
+
+      changeNicknameSuccessAlert.value = true
+      setTimeout(() => {
+        changeNicknameSuccessAlert.value = false
+      }, 3000)
     })
     .catch((error) => {
-      console.error(error)
+      errorMsg.value = '닉네임 변경에 실패하였습니다.'
       nickname.value = cookieHelper.get('nickname')
+
+      changeNicknameFailAlert.value = true
+      setTimeout(() => {
+        changeNicknameFailAlert.value = false
+      }, 3000)
     })
 }
 onMounted(async () => {

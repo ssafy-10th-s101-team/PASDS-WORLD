@@ -1,6 +1,6 @@
 <template>
   <!-- 버튼 -->
-  <div class="max-w-2xl mx-auto flex justify-between sm:px-6 lg:px-8">
+  <!-- <div class="max-w-2xl mx-auto flex justify-between sm:px-6 lg:px-8">
     <h2>{{ teamName }} 팀 설정 페이지</h2>
     <button type="button" @click="goBack">
       <svg
@@ -18,7 +18,7 @@
         />
       </svg>
     </button>
-  </div>
+  </div> -->
   <div class="max-w-2xl mx-auto flex justify-between sm:px-6 lg:px-8">
     <div class="max-w-lg">
       <div class="inline-flex shadow-sm rounded-md mt-5" role="group">
@@ -326,24 +326,56 @@ const currentTab = ref('role')
 const roles = ref([])
 const teamMembers = ref([])
 
-// onMounted 시 정보들 가져옴
-onMounted(async () => {
-  teamId.value = Number(route.query.teamId)
-  watch(
-    () => route.query.teamName,
-    (newName) => {
-      if (newName) teamName.value = newName
-    },
-    { immediate: true }
-  )
-  await fetchRole(teamId.value)
-
-  const members = await fetchTeamMembers(teamId.value)
-  teamMembers.value = members.teamMemberResponse
-  const leader = await fetchLeader(teamId.value)
-
-  teamLeader.value = leader.nickname
+const props = defineProps({
+  selectedTeamId: Number,
+  selectedTeamName: String
 })
+// 역할 목록 가져오기
+const fetchRole = async (teamId) => {
+  try {
+    const response = await getRole(teamId)
+
+    roles.value = response.filter((role) => role.name !== 'HEADER')
+    console.log('roles', roles.value)
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
+}
+// 팀원 조회
+
+const fetchTeamMembers = async (teamId) => {
+  try {
+    return await getTeamMembers(teamId, 1)
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
+}
+
+// 팀장 조회
+const fetchLeader = async (teamId) => {
+  try {
+    return await getLeader(teamId)
+  } catch (error) {
+    return
+  }
+}
+
+watch(
+  () => props.selectedTeamId,
+  (newTeamId) => {
+    if (newTeamId !== -1) {
+      teamId.value = newTeamId
+      teamName.value = props.selectedTeamName
+      // 팀 정보 API를 호출하여 teamInfo를 업데이트합니다.
+      fetchRole(newTeamId)
+      fetchTeamMembers(newTeamId)
+      fetchLeader(newTeamId)
+    } else {
+      teamMembers.value = null
+    }
+  },
+  { immediate: true }
+)
 
 // 버튼 토글
 const moveToTeamInfo = () => {
@@ -381,18 +413,6 @@ const goBack = () => {
   router.go(-1)
 }
 
-// 역할 목록 가져오기
-const fetchRole = async (teamId) => {
-  try {
-    const response = await getRole(teamId)
-
-    roles.value = response.filter((role) => role.name !== 'HEADER')
-    console.log('roles', roles.value)
-  } catch (error) {
-    console.error('Unexpected error:', error)
-  }
-}
-
 // 새로고침
 const refreshRoles = async () => {
   roles.value = await fetchRole(teamId.value)
@@ -414,24 +434,6 @@ const updateKey = async () => {
     window.alert('성공')
   } catch (error) {
     console.error(error.response.data.message)
-  }
-}
-// 팀원 조회
-
-const fetchTeamMembers = async (teamId) => {
-  try {
-    return await getTeamMembers(teamId, 1)
-  } catch (error) {
-    console.error('Unexpected error:', error)
-  }
-}
-
-// 팀장 조회
-const fetchLeader = async (teamId) => {
-  try {
-    return await getLeader(teamId)
-  } catch (error) {
-    return
   }
 }
 

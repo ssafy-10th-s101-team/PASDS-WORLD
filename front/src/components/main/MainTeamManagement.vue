@@ -335,6 +335,7 @@ const fetchTeamMembers = async (teamId) => {
 // 팀장 조회
 const fetchLeader = async (teamId) => {
   try {
+    console.log('리더는누구', getLeader(teamId))
     return await getLeader(teamId)
   } catch (error) {
     return
@@ -349,8 +350,8 @@ watch(
 
       // 팀 정보 API를 호출하여 teamInfo를 업데이트합니다.
       fetchRole(newTeamId)
-      fetchTeamMembers(newTeamId)
-      fetchLeader(newTeamId)
+      teamMembers.value = fetchTeamMembers(newTeamId)
+      teamLeader.value = fetchLeader(newTeamId)
     } else {
       teamMembers.value = null
     }
@@ -406,7 +407,7 @@ const checkTeamName = () => {
 
 // 새로고침
 const refreshRoles = async () => {
-  roles.value = await fetchRole(teamId.value)
+  await fetchRole(teamId.value)
   await nextTick()
 }
 const refreshMembers = async () => {

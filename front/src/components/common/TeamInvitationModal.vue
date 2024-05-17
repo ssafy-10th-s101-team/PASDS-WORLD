@@ -27,7 +27,7 @@
                       <th scope="col" class="sr-only"></th>
                       <!-- 체크박스 -->
                       <th scope="col" class="p-4">
-                        <div class="flex items-center">
+                        <div class="flex items-center" style="display: none">
                           <input
                             id="checkbox-all"
                             type="checkbox"

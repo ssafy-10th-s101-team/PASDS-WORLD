@@ -68,7 +68,7 @@
               확인
             </button>
           </div>
-          <div class="text-red-500 px-6 pb-6" @click="banTeamMember">추방하기</div>
+          <div class="ban-button text-red-500 px-6 pb-6" @click="banTeamMember">추방하기</div>
         </div>
       </div>
     </div>
@@ -109,9 +109,10 @@ const updateMemberRole = async (event) => {
   }
   try {
     await assignRole(body)
-    emit('memberRole-updated')
+    emit('memberRole-updated', { status: true, alertText: '팀원의 역할이 변경되었습니다.' })
     toggleHidden('memberRole')
   } catch (error) {
+    emit('memberRole-updated', { status: false, alertText: '팀원 역할 변경에 실패했습니다.' })
     return
   }
 }
@@ -126,12 +127,16 @@ const banTeamMember = async (event) => {
       memberId: props.memberId
     }
     await removeTeam(body)
-    emit('memberRole-updated')
+    emit('memberRole-updated', { status: true, alertText: '팀원을 추방했습니다.' })
     toggleHidden('memberRole')
   } catch (error) {
-    window.alert(error.response.data.message)
+    emit('memberRole-updated', { status: false, alertText: '팀원 추방에 실패했습니다.' })
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.ban-button {
+  cursor: pointer;
+}
+</style>

@@ -42,7 +42,7 @@
                     class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
                   >
                     <tr
-                      v-for="orgMember in orgMembers"
+                      v-for="orgMember in filteredOrgMembers"
                       :key="orgMember.email"
                       class="hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
@@ -98,9 +98,8 @@ const { toggleHidden } = commonStore
 
 const selectedEmails = ref([])
 const orgMembers = ref([])
-const guestRoleId = ref(0)
-
-const emit = defineEmits(['teamName-updated'])
+const filteredOrgMembers = ref([])
+const emit = defineEmits(['teamMember-invited'])
 const props = defineProps({
   teamId: {
     type: Number,
@@ -120,11 +119,8 @@ const props = defineProps({
   }
 })
 onMounted(async () => {
-  console.log('teamMembers', props.teamMembers)
-  const fetchMembers = await fetchOrganizationMembers(props.organizationId)
-  console.log('orgMembers', fetchMembers)
-  orgMembers.value = fetchMembers
-  orgMembers.value = fetchMembers.filter(
+  orgMembers.value = await fetchOrganizationMembers(props.organizationId)
+  filteredOrgMembers.value = orgMembers.value.filter(
     (member) => !props.teamMembers.some((teamMember) => teamMember.id === member.memberId)
   )
 })
@@ -139,25 +135,50 @@ const fetchOrganizationMembers = async (organizationId) => {
     console.error('Unexpected error:', error)
   }
 }
+watch(
+  () => props.organizationId,
+  async (newVal) => {
+    orgMembers.value = await fetchOrganizationMembers(newVal)
+    filteredOrgMembers.value = orgMembers.value.filter(
+      (member) => !props.teamMembers.some((teamMember) => teamMember.id === member.memberId)
+    )
+  }
+)
+
+watch(
+  () => props.teamMembers,
+  async (newVal) => {
+    filteredOrgMembers.value = orgMembers.value.filter(
+      (member) => !newVal.some((teamMember) => teamMember.id === member.memberId)
+    )
+  }
+)
 
 const inviteMembers = async (event) => {
   event.preventDefault()
-  for (const email of selectedEmails.value) {
-    const body = {
-      teamId: props.teamId,
-      organizationId: props.organizationId,
-      inviteMemberEmail: email,
-      roleId: guestRoleId.value
-    }
-    try {
-      await inviteTeam(body)
-      toggleHidden('teamInvitationModal')
-      alert('성공적으로 초대하였습니다.')
-      emit('teamName-updated')
-    } catch (error) {
-      alert(error.response.data.message)
-    }
+  const guestRoleArr = props.roles.filter((role) => role.name === 'GUEST')
+
+  if (!guestRoleArr) {
+    //base alert 넣기
   }
+  const guestRoleId = guestRoleArr[0].roleId
+  try {
+    for (const email of selectedEmails.value) {
+      const body = {
+        teamId: props.teamId,
+        organizationId: props.organizationId,
+        inviteMemberEmail: email,
+        roleId: guestRoleId
+      }
+      await inviteTeam(body)
+    }
+    toggleHidden('teamInvitationModal')
+    emit('teamMember-invited', { status: true, alertText: '팀원을 초대했습니다.' })
+  } catch (error) {
+    console.log(error.response.data.message)
+    emit('teamMember-invited', { status: true, alertText: '팀원을 초대에 실패했습니다.' })
+  }
+  selectedEmails.value = []
 }
 </script>
 

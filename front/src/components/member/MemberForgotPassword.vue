@@ -104,13 +104,14 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
+    <BaseFailAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
     <BaseAlert alertText="비밀번호 재설정 되었습니다." v-if="ChangePasswordSuccessAlert" />
   </div>
 </template>
 
 <script setup>
 import BaseAlert from '../common/BaseAlert.vue'
+import BaseFailAlert from '../common/BaseFailAlert.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { ref, toRefs } from 'vue'
 import { useCommonStore } from '@/stores/common'
@@ -197,7 +198,7 @@ const sendOtpCode = async () => {
     .then(() => {
       loading.value = false
       showEmailSuccessAlert()
-      inputTime.value = 180     // 3분
+      inputTime.value = 180 // 3분
       startTimer()
     })
     .catch((error) => {

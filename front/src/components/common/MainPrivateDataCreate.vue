@@ -38,7 +38,7 @@
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
             <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >이름</label
+            >이름</label
             >
             <input
               type="text"
@@ -53,7 +53,7 @@
             <!-- 아이디 입력 필드 -->
             <div>
               <label for="privateDataId" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-                >아이디</label
+              >아이디</label
               >
               <input
                 type="text"
@@ -67,7 +67,7 @@
             <!-- 비밀번호 입력 필드 -->
             <div>
               <label for="content" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-                >비밀번호</label
+              >비밀번호</label
               >
               <div class="relative">
                 <input
@@ -141,7 +141,7 @@
           <!-- 메모 입력 필드 -->
           <div class="mb-6">
             <label for="memo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >메모</label
+            >메모</label
             >
             <textarea
               id="memo"
@@ -183,8 +183,8 @@
                   :value="role.roleId"
                 />
                 <label :for="'role-' + role.roleId" class="ml-2 text-sm text-gray-600">{{
-                  role.name
-                }}</label>
+                    role.name
+                  }}</label>
               </div>
             </div>
           </div>
@@ -194,7 +194,7 @@
           <!-- 이름 입력 필드 -->
           <div class="mb-6">
             <label for="title" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >이름</label
+            >이름</label
             >
             <input
               type="text"
@@ -209,7 +209,7 @@
             <!-- 비밀 입력 필드 -->
             <div>
               <label for="content" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-                >비밀</label
+              >비밀</label
               >
               <div class="relative">
                 <input
@@ -271,7 +271,7 @@
           <!-- 메모 입력 필드 -->
           <div class="mb-6">
             <label for="memo" class="block mb-2 text-sm text-gray-900 dark:text-gray-300"
-              >메모</label
+            >메모</label
             >
             <textarea
               id="memo"
@@ -313,8 +313,8 @@
                   :value="role.roleId"
                 />
                 <label :for="'role-' + role.roleId" class="ml-2 text-sm text-gray-600">{{
-                  role.name
-                }}</label>
+                    role.name
+                  }}</label>
               </div>
             </div>
           </div>
@@ -336,7 +336,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, defineEmits } from 'vue'
+import { defineEmits, onMounted, ref } from 'vue'
 import BaseModal from './BaseModal.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
@@ -360,6 +360,7 @@ const showDropdown = ref(false)
 const privateDataSuccessAlert = ref(false)
 const privateDataFailAlert = ref(false)
 const errorMsg = ref('')
+
 
 const togglePasswordVisibility = (event) => {
   event.preventDefault()
@@ -392,33 +393,47 @@ const createPrivate = async () => {
     alert('모든 항목을 채워주세요.')
     return
   }
-  try {
-    const body = {
-      teamId: props.teamId,
-      type: type.value,
-      title: title.value,
-      content: content.value,
-      memo: memo.value,
-      privateDataId: privateDataId.value,
-      url: url.value,
-      roleId: selectedRoles.value
-    }
-    const response = await createPrivateData(body)
-    privateDataSuccessAlert.value = true
-    setTimeout(() => {
-      privateDataSuccessAlert.value = false
-    }, 3000)
-    emit('private-created', true)
-    toggleHidden('privateDataCreate')
-  } catch (error) {
-    const errmsg = error.response ? error.response.data.message : 'Error fetching data'
-    errorMsg.value = errmsg
-    privateDataFailAlert.value = true
-    setTimeout(() => {
-      privateDataFailAlert.value = false
-    }, 3000)
-    toggleHidden('privateDataCreate')
+  const body = {
+    teamId: props.teamId,
+    type: type.value,
+    title: title.value,
+    content: content.value,
+    memo: memo.value,
+    privateDataId: privateDataId.value,
+    url: url.value,
+    roleId: selectedRoles.value
   }
+
+  await createPrivateData(body)
+    .then(() => {
+      privateDataSuccessAlert.value = true
+      setTimeout(() => {
+        privateDataSuccessAlert.value = false
+      }, 3000)
+      emit('private-created', true)
+      initializeField()
+      toggleHidden('privateDataCreate')
+    })
+    .catch((error) => {
+      const errmsg = error.response ? error.response.data.message : 'Error fetching data'
+      errorMsg.value = errmsg
+      privateDataFailAlert.value = true
+      setTimeout(() => {
+        privateDataFailAlert.value = false
+      }, 3000)
+      initializeField()
+      toggleHidden('privateDataCreate')
+    })
+
+}
+const initializeField = () => {
+  type.value = 'LOGIN'
+  title.value = ''
+  content.value = ''
+  memo.value = ''
+  privateDataId.value = ''
+  url.value = ''
+  selectedRoles.value = []
 }
 
 function validateFields() {

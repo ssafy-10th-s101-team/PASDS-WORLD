@@ -450,6 +450,7 @@ const refreshTeam = async (newTeamName) => {
 }
 const refreshLeader = async () => {
   teamLeader.value = await fetchLeader(teamId.value)
+  teamMembers.value = await fetchTeamMembers(teamId.value)
 }
 // 키회전 요청
 const updateKey = async () => {

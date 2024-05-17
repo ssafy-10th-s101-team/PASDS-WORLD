@@ -49,6 +49,8 @@
       <div class="disabled"></div>
     </div>
   </BaseModal>
+  <BaseAlert alertText="조직이 성공적으로 생성되었습니다." v-if="deleteOrganizationSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="deleteOrganizationFailAlert" />
   <OrganizationChangeHeaderModal
     :organizationId="props.selectedOrganizationId"
     :organizationMembers="organizationMembers"
@@ -64,6 +66,8 @@
 <script setup>
 import { ref, onMounted, watch, defineEmits } from 'vue'
 import BaseButton from '../common/BaseButton.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import OrganizationChangeNameModal from '../common/OrganizationChangeNameModal.vue'
 import OrganizationChangeHeaderModal from '../common/OrganizationChangeHeaderModal.vue'
 import { deleteOrganization } from '@/api/organization'
@@ -73,7 +77,10 @@ import { useCommonStore } from '@/stores/common'
 import { getOrganizations, getOrganizationMembers } from '@/api/organization'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
-const emit = defineEmits(['organizationName-updated'])
+const emit = defineEmits(['organizationName-updated', 'organization-deleted'])
+const deleteOrganizationSuccessAlert = ref(false)
+const deleteOrganizationFailAlert = ref(false)
+const errorMsg = ref('')
 
 const props = defineProps({
   selectedOrganizationId: {
@@ -115,10 +122,17 @@ const removeOrganization = async (event) => {
       organizationId: props.selectedOrganizationId
     }
     await deleteOrganization(body)
-    alert('삭제 성공')
-    router.push({ name: 'mainpage' })
+    deleteOrganizationSuccessAlert.value = true
+    setTimeout(() => {
+      deleteOrganizationSuccessAlert.value = false
+      window.location.reload()
+    }, 2000)
   } catch (error) {
-    window.alert(error.response.data.message)
+    errorMsg.value = '조직 삭제에 실패하였습니다.'
+    deleteOrganizationFailAlert.value = true
+    setTimeout(() => {
+      deleteOrganizationFailAlert.value = false
+    }, 2000)
   }
 }
 // 조직명을 가져오기 위한 나의 전체 조직 조회

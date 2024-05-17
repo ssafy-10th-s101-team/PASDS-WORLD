@@ -150,6 +150,13 @@
     </div>
   </div>
   <MemberChangePasswordModal />
+  <BaseAlert
+    alertText="초대를 정상적으로 수락했습니다."
+    v-if="acceptOrganizationInvitaionSuccessAlert"
+  />
+  <BaseFailAlert :alertText="errorMsg" v-if="acceptOrganizationInvitaionFailAlert" />
+  <BaseAlert alertText="닉네임이 변경되었습니다." v-if="changeNicknameSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="changeNicknameFailAlert" />
 </template>
 
 <script setup>
@@ -158,6 +165,8 @@ import { useCommonStore } from '@/stores/common'
 import { useUserStore } from '@/stores/user'
 import MemberChangePasswordModal from '../common/MemberChangePasswordModal.vue'
 import BaseButton from '../common/BaseButton.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import cookieHelper from '@/utils/cookie'
 import { localAxios } from '@/utils/http-commons.js'
 import { getInvitations } from '@/api/invitation'
@@ -168,6 +177,11 @@ const { toggleHidden } = commonStore
 // const nickname = ref(sessionStorage.getItem('nickname'))
 const nickname = ref(cookieHelper.get('nickname'))
 const isNicknameValid = ref(true)
+const acceptOrganizationInvitaionSuccessAlert = ref(false)
+const acceptOrganizationInvitaionFailAlert = ref(false)
+const changeNicknameSuccessAlert = ref(false)
+const changeNicknameFailAlert = ref(false)
+const errorMsg = ref('')
 
 const invitations = ref([
   {
@@ -192,9 +206,16 @@ const handleInvitationAccept = async (invitation) => {
   }
   const response = await acceptOrganizationInvitaion(body)
   if (response.expired == false) {
-    alert('초대를 정상적으로 수락했습니다.')
+    acceptOrganizationInvitaionSuccessAlert.value = true
+    setTimeout(() => {
+      acceptOrganizationInvitaionSuccessAlert.value = false
+    }, 3000)
   } else {
-    alert('만료된 초대입니다. ')
+    errorMsg.value = '만료된 초대입니다.'
+    acceptOrganizationInvitaionFailAlert.value = true
+    setTimeout(() => {
+      acceptOrganizationInvitaionFailAlert.value = false
+    }, 3000)
   }
   invitations.value = await getInvitations(0)
 }
@@ -222,15 +243,23 @@ const changeNickname = async () => {
   await localAxios
     .post('/member/change-nickname', body)
     .then(() => {
-      console.log('닉네임 변경 성공')
-      alert('닉네임이 변경되었습니다.')
       cookieHelper.delete('nickname')
       cookieHelper.generate('nickname', nickname.value)
       userStore.setNickname(nickname.value)
+
+      changeNicknameSuccessAlert.value = true
+      setTimeout(() => {
+        changeNicknameSuccessAlert.value = false
+      }, 3000)
     })
     .catch((error) => {
-      console.error(error)
+      errorMsg.value = '닉네임 변경에 실패하였습니다.'
       nickname.value = cookieHelper.get('nickname')
+
+      changeNicknameFailAlert.value = true
+      setTimeout(() => {
+        changeNicknameFailAlert.value = false
+      }, 3000)
     })
 }
 onMounted(async () => {

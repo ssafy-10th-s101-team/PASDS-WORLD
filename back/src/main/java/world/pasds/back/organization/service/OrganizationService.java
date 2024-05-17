@@ -339,6 +339,7 @@ public class OrganizationService {
         // 새로운 조직장은 모든 팀에서 "HEADER"로 변경
         List<Team> teamList = teamRepository.findAllByOrganization(organization);
         List<MemberRole> memberRoleList = new ArrayList<>();
+        List<MemberTeam> memberTeamList = new ArrayList<>();
         for (Team team : teamList) {
             Role guest = roleRepository.findByTeamAndName(team, "GUEST");
             Role header = roleRepository.findByTeamAndName(team, "HEADER");
@@ -353,6 +354,10 @@ public class OrganizationService {
                         .team(team)
                         .build();
                 memberRoleList.add(findNewHeaderAndRole);
+                memberTeamList.add(MemberTeam.builder()
+                        .member(newHeader)
+                        .team(team)
+                        .build());
             } else if (!findNewHeaderAndRole.getRole().getId().equals(header.getId())) {    // 새로운 조직장이 팀에 가입되어 있지만 역할이 다른 경우
                 findNewHeaderAndRole.setRole(header);
                 memberRoleList.add(findNewHeaderAndRole);
@@ -361,6 +366,7 @@ public class OrganizationService {
             findMemberAndRole.setRole(guest);
             memberRoleList.add(findMemberAndRole);
         }
+        memberTeamRepository.saveAll(memberTeamList);
         memberRoleRepository.saveAll(memberRoleList);
 
         // 조직장 위임

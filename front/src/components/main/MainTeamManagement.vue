@@ -233,7 +233,9 @@
               <a href=""> 보안 강화하기 </a>
             </div>
           </div>
-          <div class="text-red-500" @click="toggleHidden('deleteTeamModal')">팀삭제</div>
+          <div class="delete-team text-red-500" @click="toggleHidden('deleteTeamModal')">
+            팀삭제
+          </div>
         </div>
       </div>
     </div>
@@ -269,6 +271,8 @@
     @teamMember-invited="refreshMembers"
   />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
+  <BaseAlert :alertText="alertText" v-if="invitationSuccessAlert" />
+  <BaseFailAlert :alertText="alertText" v-if="invitationFailAlert" />
   <BaseAlert alertText="팀 삭제 성공했습니다." v-if="teamDeleteSuccess" />
 </template>
 
@@ -314,6 +318,9 @@ const currentTab = ref('role')
 const roles = ref([])
 const teamMembers = ref([])
 
+const alertText = ref('')
+const invitationSuccessAlert = ref(false)
+const invitationFailAlert = ref(false)
 const teamDeleteSuccess = ref(false)
 
 const props = defineProps({
@@ -422,8 +429,20 @@ const refreshRoles = async () => {
   await fetchRole(teamId.value)
   await nextTick()
 }
-const refreshMembers = async () => {
-  teamMembers.value = await fetchTeamMembers(teamId.value)
+const refreshMembers = async (data) => {
+  alertText.value = data.alertText
+  if (data.status) {
+    teamMembers.value = await fetchTeamMembers(teamId.value)
+    invitationSuccessAlert.value = true
+    setTimeout(() => {
+      invitationSuccessAlert.value = false
+    }, 3000)
+  } else {
+    invitationFailAlert.value = true
+    setTimeout(() => {
+      invitationFailAlert.value = false
+    }, 3000)
+  }
 }
 const refreshTeam = async (newTeamName) => {
   teamName.value = newTeamName
@@ -463,4 +482,8 @@ const handleTeamRemove = async (event) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.delete-team {
+  cursor: pointer;
+}
+</style>

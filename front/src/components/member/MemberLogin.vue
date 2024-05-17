@@ -108,7 +108,7 @@
         </div>
       </form>
     </div>
-    <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
+    <BaseFailAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
 </template>
 
@@ -116,7 +116,7 @@
 import { ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
-import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import { useCommonStore } from '@/stores/common.js'
 import cookieHelper from '@/utils/cookie.js'
@@ -152,7 +152,8 @@ const validateForm = async () => {
     email: email.value,
     password: password.value
   }
-  await localAxios.post(`/member/first-login`, body)
+  await localAxios
+    .post(`/member/first-login`, body)
     .then((response) => {
       console.log(response)
       // 앱 재연동하기에서 보일 이메일
@@ -168,13 +169,15 @@ const validateForm = async () => {
     .catch((error) => {
       console.error(error)
       showErrorAlert(error.response.data.message)
-      if (error.response.data.message === "로그인 5회 시도로 로그인이 불가합니다. 5분 후 시도해주세요.") {
-        inputTime.value = 300     // 5분
-        removeHidden("timer")
+      if (
+        error.response.data.message ===
+        '로그인 5회 시도로 로그인이 불가합니다. 5분 후 시도해주세요.'
+      ) {
+        inputTime.value = 300 // 5분
+        removeHidden('timer')
         startTimer()
       }
     })
-
 }
 </script>
 

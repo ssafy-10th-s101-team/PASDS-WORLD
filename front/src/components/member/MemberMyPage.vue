@@ -154,7 +154,12 @@
     alertText="초대를 정상적으로 수락했습니다."
     v-if="acceptOrganizationInvitaionSuccessAlert"
   />
+  <BaseAlert
+    alertText="초대를 정상적으로 거절했습니다."
+    v-if="rejectOrganizationInvitaionSuccessAlert"
+  />
   <BaseFailAlert :alertText="errorMsg" v-if="acceptOrganizationInvitaionFailAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="rejectOrganizationInvitaionFailAlert" />
   <BaseAlert alertText="닉네임이 변경되었습니다." v-if="changeNicknameSuccessAlert" />
   <BaseFailAlert :alertText="errorMsg" v-if="changeNicknameFailAlert" />
 </template>
@@ -179,6 +184,8 @@ const nickname = ref(cookieHelper.get('nickname'))
 const isNicknameValid = ref(true)
 const acceptOrganizationInvitaionSuccessAlert = ref(false)
 const acceptOrganizationInvitaionFailAlert = ref(false)
+const rejectOrganizationInvitaionSuccessAlert = ref(false)
+const rejectOrganizationInvitaionFailAlert = ref(false)
 const changeNicknameSuccessAlert = ref(false)
 const changeNicknameFailAlert = ref(false)
 const errorMsg = ref('')
@@ -205,7 +212,7 @@ const handleInvitationAccept = async (invitation) => {
     roleId: invitation.roleId
   }
   const response = await acceptOrganizationInvitaion(body)
-  if (response.expired == false) {
+  if (!response.isExpired) {
     acceptOrganizationInvitaionSuccessAlert.value = true
     setTimeout(() => {
       acceptOrganizationInvitaionSuccessAlert.value = false
@@ -225,11 +232,20 @@ const handleInvitationReject = async (invitation) => {
     teamId: invitation.teamId,
     roleId: invitation.roleId
   }
-  await rejectOrganizationInvitation(body)
-  alert('초대를 정상적으로 거절했습니다.')
-  invitations.value = await getInvitations(0)
-
-  console.log('딸깍빨강')
+  const response = await rejectOrganizationInvitation(body)
+  if (!response.isExpired) {
+    rejectOrganizationInvitaionSuccessAlert.value = true
+    setTimeout(() => {
+      rejectOrganizationInvitaionSuccessAlert.value = false
+    }, 3000)
+    invitations.value = await getInvitations(0)
+  } else {
+    errorMsg.value = '만료된 초대입니다.'
+    rejectOrganizationInvitaionFailAlert.value = true
+    setTimeout(() => {
+      rejectOrganizationInvitaionFailAlert.value = false
+    }, 3000)
+  }
 }
 const validateNickname = () => {
   const regex = /^.{2,20}$/

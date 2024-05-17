@@ -127,7 +127,7 @@
     </form>
     <BaseAlert alertText="메일이 송신되었습니다. 이메일을 확인해주세요." v-if="EmailSuccessAlert" />
     <BaseAlert alertText="인증되었습니다." v-if="OTPSuccessAlert" />
-    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
+    <BaseFailAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
 
@@ -138,6 +138,7 @@ import { localAxios } from '@/utils/http-commons.js'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useCommonStore } from '@/stores/common.js'
 import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import BaseTimer from '@/components/common/BaseTimer.vue'
 import BaseSpinner from '@/components/common/BaseSpinner.vue'
 import cookieHelper from '@/utils/cookie'

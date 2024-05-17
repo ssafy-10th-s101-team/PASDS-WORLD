@@ -13,15 +13,15 @@
               <router-link
                 :to="{ name: 'main' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                >메인
-              </router-link>
+                >메인</router-link
+              >
             </div>
             <div v-if="userStore.nickname" class="mt-6">
               <router-link
                 :to="{ name: 'organization' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                >조직관리
-              </router-link>
+                >조직관리</router-link
+              >
             </div>
             <div v-if="userStore.nickname" class="mt-6">
               <router-link :to="{ name: 'myPage' }">
@@ -37,12 +37,6 @@
               >
                 로그아웃
               </button>
-              <!-- <button
-                @click="jwtTest"
-                class="text-gray-800 dark hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-              >
-                토큰테스트
-              </button> -->
             </div>
 
             <!-- 알림 시작 -->
@@ -305,91 +299,9 @@ cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg=="
               <router-link
                 :to="{ name: 'memberLogin' }"
                 class="text-gray-800 dark:text-white hover:bg-samsung-blue hover:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                >로그인
-              </router-link>
+                >로그인</router-link
+              >
             </div>
-
-            <!-- <a
-              href="#"
-              class="text-white bg-samsung-blue hover:bg-samsung-blue focus:ring-4 focus:ring-samsung-blue font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-samsung-blue dark:hover:bg-samsung-blue focus:outline-none dark:focus:ring-samsung-blue"
-              >Get started</a
-            > -->
-            <!-- <button
-              data-collapse-toggle="mobile-menu-2"
-              type="button"
-              class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-samsung-blue focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-              aria-controls="mobile-menu-2"
-              aria-expanded="false"
-              @click="toggleHidden('mobile-menu-2')"
-            >
-              <span class="sr-only">Open main menu</span>
-              <svg
-                class="w-6 h-6"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <svg
-                class="hidden w-6 h-6"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </button>
-          </div>
-          <div
-            class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1"
-            id="mobile-menu-2"
-          >
-            <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-              <li>
-                <router-link
-                  :to="{ name: 'dashboard' }"
-                  class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-samsung-blue hover:text-white lg:hover:bg-transparent lg:border-0 lg:hover:text-samsung-blue lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >비밀</router-link
-                >
-              </li> -->
-            <!-- <li>
-                <a
-                  href="#"
-                  class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-samsung-blue hover:text-white lg:hover:bg-transparent lg:border-0 lg:hover:text-samsung-blue lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >Menu</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-samsung-blue hover:text-white lg:hover:bg-transparent lg:border-0 lg:hover:text-samsung-blue lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >Menu</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-samsung-blue hover:text-white lg:hover:bg-transparent lg:border-0 lg:hover:text-samsung-blue lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >Menu</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-samsung-blue hover:text-white lg:hover:bg-transparent lg:border-0 lg:hover:text-samsung-blue lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >Menu</a
-                >
-              </li> 
-            </ul> -->
           </div>
         </div>
       </nav>
@@ -398,8 +310,8 @@ cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg=="
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { localAxios } from '@/utils/http-commons.js'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { localAxios, baseURL } from '@/utils/http-commons.js'
 import { getNotifications, readNotification } from '@/api/notification.js'
 import { useRouter } from 'vue-router'
 import cookieHelper from '@/utils/cookie'
@@ -407,31 +319,18 @@ import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const userStore = useUserStore()
-// const nickname = ref('')
 const showNotifications = ref(false)
-const notifications = ref([
-  {
-    message: 'hello'
-  }
-])
+const notifications = ref([])
 
 const logout = async () => {
   try {
     await localAxios.get(`/member/logout`)
-    // sessionStorage.clear()
     cookieHelper.deleteAll()
     userStore.clearNickname()
     router.push({ name: 'home' })
   } catch (error) {}
 }
-const jwtTest = async () => {
-  try {
-    const response = await localAxios.post(`/member/jwt-test`, null)
-    console.log(response.data)
-  } catch (error) {}
-}
 
-//알림 관련 함수
 const toggleNotifications = () => {
   if (notifications.value.length <= 0) {
     showNotifications.value = false
@@ -440,50 +339,66 @@ const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value
 }
 
-//알림 목록 끄기
 const handleClickOutside = (event) => {
   if (!event.target.closest('.notification') && showNotifications.value) {
     showNotifications.value = false
   }
 }
 
-//알림 클릭시 이동
 const handleNotificationClick = async (notification) => {
   try {
-    // 알림 읽음 처리 API 호출
     await readNotification(notification.id)
-    // 알림토글 끄기
     showNotifications.value = !showNotifications.value
-    // 알림 하나 제거
     const index = notifications.value.findIndex((n) => n.id === notification.id)
     if (index !== -1) {
       notifications.value.splice(index, 1)
     }
-    // myPage로 라우팅
     router.push({ name: 'myPage' })
   } catch (error) {
     console.error('Notification read error:', error)
   }
 }
 
+let eventSource = null
+
 onMounted(async () => {
-  // nickname.value = sessionStorage.getItem('nickname')
-
-  console.log(' nickname : ', userStore.nickname)
-
-  // 잠시 버그만 안나게 추가 했습니다
   if (userStore.nickname) {
     try {
       notifications.value = await getNotifications(0)
+      console.log(notifications.value)
     } catch (error) {
-      console.log('에러 발생. ', error.respnse.data.message)
+      console.error('Error fetching notifications:', error)
     }
     document.addEventListener('mousedown', handleClickOutside)
-    // fetchUnreadNotifications()
+
+    try {
+      const response = await localAxios.get('/notification/get-sse-token')
+      const token = response.data
+
+      eventSource = new EventSource(baseURL + `/notification/stream?token=${token}`, {
+        withCredentials: true
+      })
+
+      eventSource.onmessage = (event) => {
+        const newNotification = JSON.parse(event.data)
+        console.log('Parsed SSE message:', newNotification)
+        notifications.value.push(newNotification)
+      }
+
+      eventSource.onerror = (error) => {
+        console.error('SSE Error:', error)
+        eventSource.close()
+      }
+    } catch (error) {
+      console.error('Error fetching SSE token:', error)
+    }
   }
 })
 
 onUnmounted(() => {
+  if (eventSource !== null) {
+    eventSource.close()
+  }
   document.removeEventListener('mousedown', handleClickOutside)
 })
 </script>

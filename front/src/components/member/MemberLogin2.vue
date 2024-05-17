@@ -36,7 +36,7 @@
       </div>
     </div>
     <BaseAlert alertText="인증되었습니다." v-if="TOTPSuccessAlert" />
-    <BaseAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
+    <BaseFailAlert :alertText="SignUpErrorMsg" v-if="SignUpErrorAlert" />
   </div>
 </template>
 
@@ -46,6 +46,7 @@ import { useRouter } from 'vue-router'
 import { localAxios } from '@/utils/http-commons.js'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import cookieHelper from '@/utils/cookie.js'
 
 const router = useRouter()

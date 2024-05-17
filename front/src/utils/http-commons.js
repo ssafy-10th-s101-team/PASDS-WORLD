@@ -63,4 +63,4 @@ localAxios.interceptors.response.use(
   }
 )
 
-export { localAxios }
+export { localAxios, baseURL }

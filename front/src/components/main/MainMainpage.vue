@@ -19,6 +19,7 @@
         v-if="isLoaded && isTeamManagementVisible"
         :selectedTeamId="selectedTeamId"
         :selectedTeamName="selectedTeamName"
+        :selectedOrganizationId="selectedOrganizationId"
       />
     </div>
   </div>
@@ -35,7 +36,7 @@ const isLoaded = ref(false)
 const selectedTeamId = ref(null)
 const selectedTeamName = ref('')
 const selectedOrganizationId = ref(null)
-const selectedSearchOrganizationId = ref(false)
+const selectedSearchOrganizationId = ref(-1)
 const selectedSearchTeamId = ref(null)
 const selectedSearchPrivateDataId = ref(null)
 const isTeamManagementVisible = ref(false)

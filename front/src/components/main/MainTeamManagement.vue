@@ -1,24 +1,4 @@
 <template>
-  <!-- 버튼 -->
-  <!-- <div class="max-w-2xl mx-auto flex justify-between sm:px-6 lg:px-8">
-    <h2>{{ teamName }} 팀 설정 페이지</h2>
-    <button type="button" @click="goBack">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="w-6 h-6"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"
-        />
-      </svg>
-    </button>
-  </div> -->
   <div class="max-w-2xl mx-auto flex justify-between sm:px-6 lg:px-8">
     <div class="max-w-lg">
       <div class="inline-flex shadow-sm rounded-md mt-5" role="group">
@@ -76,6 +56,7 @@
                   </th>
                 </tr>
               </thead>
+
               <tbody
                 class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
               >
@@ -284,7 +265,7 @@
   />
   <TeamInvitationModal
     :teamId="teamId"
-    :organizationId="organizationId"
+    :organizationId="props.selectedOrganizationId"
     :roles="roles"
     :teamMembers="teamMembers"
     @teamMember-invited="refreshMembers"
@@ -293,7 +274,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import MainAuthorizationModal from '../common/MainAuthorizationModal.vue'
 import MainMemberRoleModal from '../common/MainMemberRoleModal.vue'
@@ -311,14 +292,14 @@ import router from '@/router'
 
 const commonStore = useCommonStore()
 const route = useRoute()
-const organizationId = Number(route.query.organizationId)
+const organizationId = ref(0)
 const teamId = ref(0)
 const teamName = ref('')
 const teamLeader = ref('')
 const { toggleHidden } = commonStore
 const selectedRoleId = ref(null)
 const selectedRoleName = ref('')
-const selectedMemberId = ref(null)
+const selectedMemberId = ref(0)
 const currentPage = ref(1)
 const totalPages = ref(10)
 
@@ -328,13 +309,13 @@ const teamMembers = ref([])
 
 const props = defineProps({
   selectedTeamId: Number,
-  selectedTeamName: String
+  selectedTeamName: String,
+  selectedOrganizationId: Number
 })
 // 역할 목록 가져오기
 const fetchRole = async (teamId) => {
   try {
     const response = await getRole(teamId)
-
     roles.value = response.filter((role) => role.name !== 'HEADER')
     console.log('roles', roles.value)
   } catch (error) {
@@ -365,7 +346,7 @@ watch(
   (newTeamId) => {
     if (newTeamId !== -1) {
       teamId.value = newTeamId
-      teamName.value = props.selectedTeamName
+
       // 팀 정보 API를 호출하여 teamInfo를 업데이트합니다.
       fetchRole(newTeamId)
       fetchTeamMembers(newTeamId)
@@ -377,6 +358,21 @@ watch(
   { immediate: true }
 )
 
+watch(
+  () => props.selectedTeamName,
+  (newTeamName) => {
+    teamName.value = newTeamName
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.selectedOrganizationId,
+  (newOrganizationId) => {
+    organizationId.value = newOrganizationId
+  },
+  { immdediate: true }
+)
 // 버튼 토글
 const moveToTeamInfo = () => {
   currentTab.value = 'info'
@@ -408,14 +404,10 @@ const checkTeamName = () => {
   }
 }
 
-// 뒤로가기
-const goBack = () => {
-  router.go(-1)
-}
-
 // 새로고침
 const refreshRoles = async () => {
   roles.value = await fetchRole(teamId.value)
+  await nextTick()
 }
 const refreshMembers = async () => {
   teamMembers.value = await fetchTeamMembers(teamId.value)

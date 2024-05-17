@@ -80,14 +80,14 @@ watch(
         if (teams.length > 0 && props.selectedSearchTeamId) {
           selectTeam(props.selectedSearchTeamId)
         } else {
-          emit('team-selected', -1)
+          emit('team-selected', -1, '')
         }
       } else {
         if (teams.length > 0) {
           selectTeam(teams[0].teamId)
         } else {
           selectedTeamId.value = -1
-          emit('team-selected', -1)
+          emit('team-selected', -1, '')
         }
       }
     }
@@ -108,7 +108,7 @@ function selectTeam(id) {
   selectedTeamId.value = id
   const team = teamList.value.find((t) => t.teamId === id)
   selectedTeamName.value = team ? team.teamName : ''
-  emit('team-selected', id)
+  emit('team-selected', id, selectedTeamName.value)
   emit('loaded', true)
 
   teamButtons.value.forEach((btn) => {
@@ -123,7 +123,7 @@ const handleTeamCreated = async () => {
     selectTeam(teamList.value[teamList.value.length - 1].teamId)
   } else {
     selectedTeamId.value = -1
-    emit('team-selected', -1)
+    emit('team-selected', -1, '')
   }
 }
 

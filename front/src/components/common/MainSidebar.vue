@@ -99,9 +99,9 @@ const fetchOrganization = async () => {
   return await getOrganizations()
 }
 
-function selectOrganization(id) {
-  selectedOrganizationId.value = id
-  emit('organization-selected', id)
+const selectOrganization = (id) => {
+  selectedOrganizationId.value = Number(id)
+  emit('organization-selected', Number(id))
   emit('loaded', true)
 }
 

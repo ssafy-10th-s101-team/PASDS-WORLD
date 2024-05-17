@@ -104,7 +104,8 @@ const updateMemberRole = async (event) => {
   event.preventDefault()
   const body = {
     teamId: props.teamId,
-    memberId: props
+    assignedMemberId: props.memberId,
+    roleId: selectedRoleId.value
   }
   try {
     await assignRole(body)

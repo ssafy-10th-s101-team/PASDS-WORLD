@@ -75,12 +75,14 @@ const router = createRouter({
         {
           path: 'vault',
           name: 'mainpage',
-          component: () => import('@/components/main/MainMainpage.vue')
-        },
-        {
-          path: 'team-management',
-          name: 'teamManagement',
-          component: () => import('@/components/main/MainTeamManagement.vue')
+          component: () => import('@/components/main/MainMainpage.vue'),
+          children: [
+            {
+              path: 'team-management',
+              name: 'teamManagement',
+              component: () => import('@/components/main/MainTeamManagement.vue')
+            }
+          ]
         }
         // {
         //   path: 'vault/itemid',
@@ -119,7 +121,7 @@ const router = createRouter({
           name: 'organizationDashboard',
           props: true,
           component: () => import('@/components/organization/OrganizationDashboard.vue')
-        },
+        }
       ]
     }
   ]

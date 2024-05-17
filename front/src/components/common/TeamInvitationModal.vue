@@ -128,20 +128,20 @@ onMounted(async () => {
   //   (member) => !props.teamMembers.some((teamMember) => teamMember.id === member.memberId)
   // )
 })
-watch(
-  () => props.roles,
-  (newRoles) => {
-    console.log('props roles', newRoles)
-    const guestRole = newRoles.find((role) => role.name === 'GUEST')
-    console.log('guestRole', guestRole)
-    if (guestRole) {
-      guestRoleId.value = guestRole.roleId
-    } else {
-      console.warn('GUEST role not found in roles:', newRoles)
-    }
-  },
-  { immediate: true }
-)
+// watch(
+//   () => props.roles,
+//   (newRoles) => {
+//     console.log('props roles', newRoles)
+//     const guestRole = newRoles.find((role) => role.name === 'GUEST')
+//     console.log('guestRole', guestRole)
+//     if (guestRole) {
+//       guestRoleId.value = guestRole.roleId
+//     } else {
+//       console.warn('GUEST role not found in roles:', newRoles)
+//     }
+//   },
+//   { immediate: true }
+// )
 
 // 역할 목록 가져오기
 const fetchOrganizationMembers = async (organizationId) => {

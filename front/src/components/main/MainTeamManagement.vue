@@ -326,7 +326,9 @@ const fetchRole = async (teamId) => {
 
 const fetchTeamMembers = async (teamId) => {
   try {
-    return await getTeamMembers(teamId, 1)
+    const members = await getTeamMembers(teamId, 1)
+    console.log(members)
+    return members.teamMemberResponse
   } catch (error) {
     console.error('Unexpected error:', error)
   }
@@ -335,8 +337,9 @@ const fetchTeamMembers = async (teamId) => {
 // 팀장 조회
 const fetchLeader = async (teamId) => {
   try {
-    console.log('리더는누구', getLeader(teamId))
-    return await getLeader(teamId)
+    const leader = await getLeader(teamId)
+
+    return leader.nickname
   } catch (error) {
     return
   }
@@ -344,14 +347,14 @@ const fetchLeader = async (teamId) => {
 
 watch(
   () => props.selectedTeamId,
-  (newTeamId) => {
+  async (newTeamId) => {
     if (newTeamId !== -1) {
       teamId.value = newTeamId
 
       // 팀 정보 API를 호출하여 teamInfo를 업데이트합니다.
-      fetchRole(newTeamId)
-      teamMembers.value = fetchTeamMembers(newTeamId)
-      teamLeader.value = fetchLeader(newTeamId)
+      await fetchRole(newTeamId)
+      teamMembers.value = await fetchTeamMembers(newTeamId)
+      teamLeader.value = await fetchLeader(newTeamId)
     } else {
       teamMembers.value = null
     }

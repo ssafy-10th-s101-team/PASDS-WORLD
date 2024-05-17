@@ -233,9 +233,7 @@
               <a href=""> 보안 강화하기 </a>
             </div>
           </div>
-          <div class="text-red-500" @click="toggleHidden('deleteTeamModal')">
-            <a href=""> 팀삭제 </a>
-          </div>
+          <div class="text-red-500" @click="toggleHidden('deleteTeamModal')">팀삭제</div>
         </div>
       </div>
     </div>
@@ -246,7 +244,7 @@
       <div class="text-red-500">삭제하시겠습니까?</div>
     </div>
     <div class="flex justify-center pb-6">
-      <BaseButton buttonText="삭제" @click="removeTeam" />
+      <BaseButton buttonText="삭제" @click="handleTeamRemove" />
       <div class="disabled"></div>
     </div>
   </BaseModal>
@@ -271,6 +269,7 @@
     @teamMember-invited="refreshMembers"
   />
   <TeamRoleCreationModal :teamId="teamId" @role-created="refreshRoles" />
+  <BaseAlert alertText="팀 삭제 성공했습니다." v-if="teamDeleteSuccess" />
 </template>
 
 <script setup>
@@ -285,9 +284,17 @@ import ChangeTeamLeaderModal from '../common/TeamChangeLeaderModal.vue'
 import BaseModal from '../common/BaseModal.vue'
 import BaseButton from '../common/BaseButton.vue'
 import BasePagination from '../common/BasePagination.vue'
+import BaseAlert from '../common/BaseAlert.vue'
 import { useCommonStore } from '@/stores/common'
 import { getRole } from '@/api/role'
-import { deleteTeam, getLeader, getTeamMembers, regenerateDataKey } from '@/api/team'
+import {
+  deleteTeam,
+  getLeader,
+  getTeamMembers,
+  regenerateDataKey,
+  getTeams,
+  getAdminTeams
+} from '@/api/team'
 import router from '@/router'
 
 const commonStore = useCommonStore()
@@ -306,6 +313,8 @@ const totalPages = ref(10)
 const currentTab = ref('role')
 const roles = ref([])
 const teamMembers = ref([])
+
+const teamDeleteSuccess = ref(false)
 
 const props = defineProps({
   selectedTeamId: Number,
@@ -427,26 +436,30 @@ const refreshLeader = async () => {
 const updateKey = async () => {
   try {
     regenerateDataKey(teamId.value)
-    window.alert('성공')
   } catch (error) {
     console.error(error.response.data.message)
   }
 }
 
 // 팀 삭제
-const removeTeam = async (event) => {
-  event.preventDefault()
-
+const removeTeam = async () => {
   try {
     const body = {
       teamId: teamId.value
     }
     await deleteTeam(body)
-    alert('삭제 성공')
-    router.push({ name: 'mainpage' })
+    teamDeleteSuccess.value = true
+    setTimeout(() => {
+      teamDeleteSuccess.value = false
+    }, 3000)
   } catch (error) {
     window.alert(error.response.data.message)
   }
+}
+const handleTeamRemove = async (event) => {
+  event.preventDefault()
+  removeTeam()
+  toggleHidden('deleteTeamModal')
 }
 </script>
 

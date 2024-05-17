@@ -115,7 +115,7 @@ public class TeamService {
         for (Team team : findTeamList) {
             //내가 맡은 역할 찾기
             MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
-            String roleName  = null;
+            String roleName = null;
             if (memberRole != null)
                 roleName = memberRole.getRole().getName();
 
@@ -464,17 +464,31 @@ public class TeamService {
 
         Role leaderRole = roleRepository.findByTeamAndName(team, "LEADER");
         MemberRole findNewLeaderAndRole = memberRoleRepository.findByMemberAndTeam(newLeader, team);
+
+        // 팀장 위임은 현재 우리 팀장이 아닌 사람에게만 가능
+        if (findNewLeaderAndRole.getRole().getId().equals(leaderRole.getId())) {
+            throw new BusinessException(ExceptionCode.BAD_REQUEST);
+        }
+
         findNewLeaderAndRole.setRole(leaderRole);
 
         memberRoleRepository.save(findNewLeaderAndRole);
 
-        // 팀장위임하는 사람이 조직장이 아닌경우
+        Role guestRole = roleRepository.findByTeamAndName(team, "GUEST");
+        // 팀장위임하는 사람이 팀장인 경우
         if (!member.getId().equals(header.getId())) {
-            Role guestRole = roleRepository.findByTeamAndName(team, "GUEST");
             MemberRole findMemberAndRole = memberRoleRepository.findByMemberAndTeam(member, team);
             findMemberAndRole.setRole(guestRole);
 
             memberRoleRepository.save(findMemberAndRole);
+        } else {    // 조직장이 위임하는 경우 기존의 [팀장 -> GUEST]로 변경
+            if (leader != null) {
+                Member prevLeader = team.getLeader();
+                MemberRole prevMemberRole = memberRoleRepository.findByMemberAndTeam(prevLeader, team);
+                prevMemberRole.setRole(guestRole);
+
+                memberRoleRepository.save(prevMemberRole);
+            }
         }
         team.setLeader(newLeader);
         teamRepository.save(team);

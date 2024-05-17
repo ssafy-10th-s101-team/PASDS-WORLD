@@ -126,9 +126,9 @@ const updateLeader = async (event) => {
     toggleHidden('changeTeamLeaderModal')
   } catch (error) {
     errorMsg.value = error.response ? error.response.data.message : '팀장 변경에 실패하였습니다.'
-    organizationFailAlert.value = true
+    updateLeaderFailAlert.value = true
     setTimeout(() => {
-      organizationFailAlert.value = false
+      updateLeaderFailAlert.value = false
     }, 3000)
     return
   }

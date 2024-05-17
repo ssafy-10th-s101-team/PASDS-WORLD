@@ -174,7 +174,7 @@
                   class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
                 >
                   <tr
-                    v-for="teamMember in teamMembers"
+                    v-for="(teamMember, index) in teamMembers"
                     :key="teamMember.id"
                     class="hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
@@ -192,10 +192,13 @@
                     <td
                       class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap dark:text-white"
                     ></td>
-                    <td class="py-4 px-6 text-sm text-center whitespace-nowrap dark:text-white">
+                    <td
+                      v-if="teamMember.role !== 'HEADER'"
+                      class="py-4 px-6 text-sm text-center whitespace-nowrap dark:text-white"
+                    >
                       <div
                         class="text-samsung-blue dark:text-blue-500 hover:underline cursor-pointer"
-                        @click="showMemberRoleModal(teamMember.id)"
+                        @click="showMemberRoleModal(teamMember.id, index)"
                       >
                         . . .
                       </div>
@@ -255,6 +258,8 @@
     :teamId="teamId"
     :roles="roles"
     :memberId="selectedMemberId"
+    :teamMembers="teamMembers"
+    :selectedIndex="selectedIndex"
     @memberRole-updated="refreshMembers"
   />
   <ChangeTeamNameModal :teamId="teamId" :teamName="teamName" @teamName-updated="refreshTeam" />
@@ -311,6 +316,7 @@ const { toggleHidden } = commonStore
 const selectedRoleId = ref(null)
 const selectedRoleName = ref('')
 const selectedMemberId = ref(0)
+const selectedIndex = ref(0)
 const currentPage = ref(1)
 const totalPages = ref(10)
 
@@ -333,7 +339,6 @@ const fetchRole = async (teamId) => {
   try {
     const response = await getRole(teamId)
     roles.value = response.filter((role) => role.name !== 'HEADER')
-    console.log('roles', roles.value)
   } catch (error) {
     console.error('Unexpected error:', error)
   }
@@ -343,7 +348,6 @@ const fetchRole = async (teamId) => {
 const fetchTeamMembers = async (teamId) => {
   try {
     const members = await getTeamMembers(teamId, 1)
-    console.log(members)
     return members.teamMemberResponse
   } catch (error) {
     console.error('Unexpected error:', error)
@@ -411,8 +415,9 @@ const showAuthorizationModal = (roleId) => {
   toggleHidden('teamRoleUpdateModal')
 }
 
-const showMemberRoleModal = (memberId) => {
+const showMemberRoleModal = (memberId, index) => {
   selectedMemberId.value = memberId
+  selectedIndex.value = index
   toggleHidden('memberRole') // 모달 토글 함수, 이름 확인 필요
 }
 
@@ -433,6 +438,7 @@ const refreshMembers = async (data) => {
   alertText.value = data.alertText
   if (data.status) {
     teamMembers.value = await fetchTeamMembers(teamId.value)
+    teamLeader.value = await fetchLeader(teamId.value)
     invitationSuccessAlert.value = true
     setTimeout(() => {
       invitationSuccessAlert.value = false
@@ -449,8 +455,8 @@ const refreshTeam = async (newTeamName) => {
   router.push({ query: { ...route.query, teamName: newTeamName } })
 }
 const refreshLeader = async () => {
-  teamLeader.value = await fetchLeader(teamId.value)
   teamMembers.value = await fetchTeamMembers(teamId.value)
+  teamLeader.value = await fetchLeader(teamId.value)
 }
 // 키회전 요청
 const updateKey = async () => {

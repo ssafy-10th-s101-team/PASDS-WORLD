@@ -6,10 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import world.pasds.back.invitaion.entity.dto.request.AcceptOrganizationInviteRequestDto;
 import world.pasds.back.invitaion.entity.dto.request.AcceptTeamInviteRequestDto;
-import world.pasds.back.invitaion.entity.dto.response.AcceptResponseDto;
-import world.pasds.back.invitaion.entity.dto.response.GetInvitationsResponseDto;
-import world.pasds.back.invitaion.entity.dto.response.RejectOrganizationInviteRequestDto;
-import world.pasds.back.invitaion.entity.dto.response.RejectTeamInviteRequestDto;
+import world.pasds.back.invitaion.entity.dto.response.*;
 import world.pasds.back.invitaion.service.InvitationService;
 import world.pasds.back.member.entity.CustomUserDetails;
 
@@ -37,8 +34,8 @@ public class InvitationController {
 
     @PostMapping("/reject")
     public ResponseEntity<?> rejectOrganizationInvite(@RequestBody RejectOrganizationInviteRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        invitationService.rejectOrganizationInvite(requestDto, userDetails.getMemberId());
-        return ResponseEntity.ok().build();
+        RejectResponseDto response = invitationService.rejectOrganizationInvite(requestDto, userDetails.getMemberId());
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/accept-team")

@@ -12,10 +12,7 @@ import world.pasds.back.common.service.EmailService;
 import world.pasds.back.invitaion.entity.Invitation;
 import world.pasds.back.invitaion.entity.dto.request.AcceptOrganizationInviteRequestDto;
 import world.pasds.back.invitaion.entity.dto.request.AcceptTeamInviteRequestDto;
-import world.pasds.back.invitaion.entity.dto.response.AcceptResponseDto;
-import world.pasds.back.invitaion.entity.dto.response.GetInvitationsResponseDto;
-import world.pasds.back.invitaion.entity.dto.response.RejectOrganizationInviteRequestDto;
-import world.pasds.back.invitaion.entity.dto.response.RejectTeamInviteRequestDto;
+import world.pasds.back.invitaion.entity.dto.response.*;
 import world.pasds.back.invitaion.repository.InvitationRepository;
 import world.pasds.back.member.entity.*;
 import world.pasds.back.member.repository.MemberOrganizationRepository;
@@ -115,7 +112,6 @@ public class InvitationService {
 
         List<Invitation> invitationList = invitationRepository.findAllOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAtDesc(member.getEmail(), organization);
         Invitation invitation = invitationList.get(0);
-        System.out.println(invitation);
         // 조직 초대가 유효한 경우
         if (invitation != null && !invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
             MemberOrganization memberOrganization = MemberOrganization.builder()
@@ -143,28 +139,31 @@ public class InvitationService {
     }
 
     @Transactional
-    public void rejectOrganizationInvite(RejectOrganizationInviteRequestDto requestDto, Long memberId) {
+    public RejectResponseDto rejectOrganizationInvite(RejectOrganizationInviteRequestDto requestDto, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Organization organization = organizationRepository.findById(requestDto.getOrganizationId()).orElseThrow(() -> new BusinessException(ExceptionCode.ORGANIZATION_NOT_FOUND));
 
         List<Invitation> invitationList = invitationRepository.findAllOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAtDesc(member.getEmail(), organization);
         Invitation invitation = invitationList.get(0);
 
+        boolean isExpired = true;
         // 조직 초대가 유효한 경우
-        if (invitation != null && invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
+        if (invitation != null && invitation.getExpiredAt().isAfter(LocalDateTime.now())) {
             /**
              * Todo: 알림 Url 설정
              */
-            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 거절", "조직 초대 거절했습니다~", NotificationType.USER, null);
+            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 거절", invitation.getInvitedMemberEmail() + "님이 조직 초대를 거절하셨습니다.", NotificationType.USER, null);
+            isExpired = false;
         } else {
             /**
              * Todo: 알림 Url 설정
              */
             if (invitation != null && invitation.getInvitedBy() != null) {
-                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", "조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
+                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", invitation.getInvitedMemberEmail() + "님에게 보낸 조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
             }
         }
         invitationRepository.deleteAll(invitationList);
+        return RejectResponseDto.builder().isExpired(isExpired).build();
     }
 
     @Transactional

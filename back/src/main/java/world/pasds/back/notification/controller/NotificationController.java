@@ -47,14 +47,8 @@ public class NotificationController {
                 .filter(data -> data.getToMemberId().equals(memberId))
                 .map(data -> ServerSentEvent.builder(data)
                         .id(String.valueOf(data.getId()))
-                        .event("notification")
+                        .event("message")
                         .build());
-    }
-
-    @GetMapping("/count/unread")
-    public ResponseEntity<?> getUnreadNotificationCount(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        int count = notificationService.countUnreadNotifications(userDetails.getMemberId());
-        return ResponseEntity.ok(count);
     }
 
     @GetMapping("/{notificationId}")

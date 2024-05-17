@@ -45,6 +45,7 @@ public class NotificationService {
                 .id(saved.getId())
                 .fromMemberNickName(fromMember.getNickname())
                 .toMemberNickName(toMember.getNickname())
+                .toMemberId(toMember.getId())
                 .title(title)
                 .message(message)
                 .type(type)
@@ -52,11 +53,6 @@ public class NotificationService {
                 .status(NotificationStatus.UNREAD)
                 .build();
         notificationEventPublisher.publish(responseDto);
-    }
-
-    @Transactional
-    public int countUnreadNotifications(Long memberId) {
-        return notificationRepository.countByToMemberAndStatus(memberId, NotificationStatus.UNREAD);
     }
 
     @Transactional
@@ -68,6 +64,7 @@ public class NotificationService {
                 .id(notification.getId())
                 .fromMemberNickName(notification.getFromMemberNickName())
                 .toMemberNickName(notification.getToMemberNickName())
+                .toMemberId(notification.getToMember())
                 .title(notification.getTitle())
                 .message(notification.getMessage())
                 .actionUrl(notification.getActionUrl())
@@ -78,13 +75,12 @@ public class NotificationService {
 
     @Transactional
     public NotificationResponseDto readNotification(Long memberId, Long notificationId) {
-
         //권한 확인
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new BusinessException(ExceptionCode.NOTIFICATION_NOT_FOUND));
-        if (notification.getToMember() != member.getId())
+        if (!notification.getToMember().equals(member.getId())) {
             throw new BusinessException(ExceptionCode.MEMBER_UNAUTHORIZED);
-
+        }
         notification.setStatus(NotificationStatus.READ);
 
         notificationRepository.save(notification);

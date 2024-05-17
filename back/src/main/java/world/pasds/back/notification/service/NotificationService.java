@@ -29,7 +29,20 @@ public class NotificationService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notify(Member fromMember, Member toMember, String title, String message, NotificationType type, String url) {
+        Notification notification = Notification.builder()
+                .fromMemberNickName(fromMember.getNickname())
+                .fromMember(fromMember.getId())
+                .toMemberNickName(toMember.getNickname())
+                .toMember(toMember.getId())
+                .title(title)
+                .message(message)
+                .type(type)
+                .actionUrl(url)
+                .status(NotificationStatus.UNREAD)
+                .build();
+        Notification saved = notificationRepository.save(notification);
         NotificationResponseDto responseDto = NotificationResponseDto.builder()
+                .id(saved.getId())
                 .fromMemberNickName(fromMember.getNickname())
                 .toMemberNickName(toMember.getNickname())
                 .title(title)
@@ -50,7 +63,7 @@ public class NotificationService {
     public List<NotificationResponseDto> findAllUnreadNotifications(Long memberId, int offset) {
         Pageable pageable = PageRequest.of(offset, 100);
 //        List<Notification> notifications = notificationRepository.findAllNotificationsByToMember(memberId, pageable);
-        List<Notification> notifications =  notificationRepository.findAllNotificationsByToMemberAndStatus(memberId, NotificationStatus.UNREAD, pageable);
+        List<Notification> notifications = notificationRepository.findAllNotificationsByToMemberAndStatus(memberId, NotificationStatus.UNREAD, pageable);
         return notifications.stream().map(notification -> NotificationResponseDto.builder()
                 .id(notification.getId())
                 .fromMemberNickName(notification.getFromMemberNickName())
@@ -69,7 +82,7 @@ public class NotificationService {
         //권한 확인
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new BusinessException(ExceptionCode.NOTIFICATION_NOT_FOUND));
-        if(notification.getToMember() != member.getId())
+        if (notification.getToMember() != member.getId())
             throw new BusinessException(ExceptionCode.MEMBER_UNAUTHORIZED);
 
         notification.setStatus(NotificationStatus.READ);

@@ -16,12 +16,16 @@ import world.pasds.back.notification.entity.dto.response.NotificationResponseDto
 import world.pasds.back.notification.service.NotificationService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 @RequestMapping("/app/api/notification")
 public class NotificationController {
     private final Sinks.Many<NotificationResponseDto> sink;
     private final NotificationService notificationService;
+    private final Map<String, Long> memberMap = new ConcurrentHashMap<>();
 
     @Autowired
     public NotificationController(Sinks.Many<NotificationResponseDto> sink, NotificationService notificationService) {
@@ -29,9 +33,18 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
+    @GetMapping("/get-sse-token")
+    public ResponseEntity<?> getSseToken(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String uuid = UUID.randomUUID().toString();
+        memberMap.put(uuid, userDetails.getMemberId());
+        return ResponseEntity.ok().body(uuid);
+    }
+
     @GetMapping(value = "/stream", produces = "text/event-stream")
-    public Flux<ServerSentEvent<NotificationResponseDto>> streamEvents() {
+    public Flux<ServerSentEvent<NotificationResponseDto>> streamEvents(@RequestParam("token") String token) {
+        Long memberId = memberMap.get(token);
         return sink.asFlux()
+                .filter(data -> data.getToMemberId().equals(memberId))
                 .map(data -> ServerSentEvent.builder(data)
                         .id(String.valueOf(data.getId()))
                         .event("notification")

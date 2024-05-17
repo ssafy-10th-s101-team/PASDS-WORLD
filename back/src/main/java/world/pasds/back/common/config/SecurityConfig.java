@@ -14,7 +14,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -42,7 +41,8 @@ public class SecurityConfig {
             // 이메일 인증하기
             "/app/api/email/verification-email-code",
             "/app/api/key-rotate/handle-masterkey-change",
-            "/actuator/**"
+            "/actuator/**",
+            "/app/api/notification/stream"
     };
 
     @Value("${security.pepper}")

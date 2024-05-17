@@ -13,6 +13,7 @@ import world.pasds.back.notification.entity.NotificationType;
 @AllArgsConstructor
 public class NotificationResponseDto {
     private Long id;
+    private Long toMemberId;
     private String toMemberNickName;
     private String fromMemberNickName;
     private String title;

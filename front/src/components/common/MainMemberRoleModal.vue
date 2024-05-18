@@ -46,7 +46,6 @@
                   aria-labelledby="`role-option-${role.roleId}`"
                   aria-describedby="`role-option-${role.roleId}`"
                   v-model="selectedRoleId"
-                  checked=""
                 />
                 <label
                   :for="`role-option-${role.roleId}`"
@@ -76,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useCommonStore } from '@/stores/common'
 import { assignRole } from '@/api/role'
 import { removeTeam } from '@/api/team'
@@ -95,6 +94,14 @@ const props = defineProps({
     required: true
   },
   teamId: {
+    type: Number,
+    required: true
+  },
+  teamMembers: {
+    type: Array,
+    required: true
+  },
+  selectedIndex: {
     type: Number,
     required: true
   }
@@ -133,6 +140,18 @@ const banTeamMember = async (event) => {
     emit('memberRole-updated', { status: false, alertText: '팀원 추방에 실패했습니다.' })
   }
 }
+
+watch(
+  () => props.selectedIndex,
+  (newVal) => {
+    const currentRole = props.teamMembers[newVal]?.role
+    const matchedRole = props.roles.find((role) => role.name === currentRole)
+    if (matchedRole) {
+      selectedRoleId.value = matchedRole.roleId
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>

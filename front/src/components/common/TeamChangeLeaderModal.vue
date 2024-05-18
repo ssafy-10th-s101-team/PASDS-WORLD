@@ -76,16 +76,23 @@
       <BaseButton buttonText="변경" @click="updateLeader" />
     </div>
   </BaseModal>
+  <BaseAlert alertText="팀장이 변경되었습니다" v-if="updateLeaderSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="updateLeaderFailAlert" />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import BaseButton from './BaseButton.vue'
 import BaseModal from './BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { assignLeader } from '@/api/team'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
 const { toggleHidden } = commonStore
+const updateLeaderSuccessAlert = ref(false)
+const updateLeaderFailAlert = ref(false)
+const errorMsg = ref('')
 
 const selectedMemberId = ref('')
 onMounted(() => {
@@ -111,10 +118,18 @@ const updateLeader = async (event) => {
   }
   try {
     await assignLeader(body)
-    alert('팀장이 변경되었습니다')
+    updateLeaderSuccessAlert.value = true
+    setTimeout(() => {
+      updateLeaderSuccessAlert.value = false
+    }, 3000)
     emit('teamLeader-updated')
     toggleHidden('changeTeamLeaderModal')
   } catch (error) {
+    errorMsg.value = error.response ? error.response.data.message : '팀장 변경에 실패하였습니다.'
+    updateLeaderFailAlert.value = true
+    setTimeout(() => {
+      updateLeaderFailAlert.value = false
+    }, 3000)
     return
   }
 }

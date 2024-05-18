@@ -275,7 +275,15 @@ RVh0ZGF0ZTpjcmVhdGUAMjAyNC0wNS0xMVQxMjowNjoyOCswMDowMMb+T/oAAAAldEVYdGRhdGU6
 bW9kaWZ5ADIwMjQtMDUtMTFUMTI6MDY6MjgrMDA6MDC3o/dGAAAAKHRFWHRkYXRlOnRpbWVzdGFt
 cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg=="
                 />
-                <text x="37" y="18" font-size="12" text-anchor="middle" font-weight="bold">
+                <text
+                  x="37"
+                  y="18"
+                  font-size="12"
+                  text-anchor="middle"
+                  font-weight="bold"
+                  :class="{ 'text-red-700 font-extrabold': notifications.length >= 1 }"
+                  :fill="notifications.length >= 1 ? 'red' : 'black'"
+                >
                   {{ notifications.length > 99 ? '99+' : notifications.length }}
                 </text>
               </svg>
@@ -360,6 +368,32 @@ const handleNotificationClick = async (notification) => {
 }
 
 let eventSource = null
+const connectEventSource = async () => {
+  try {
+    const response = await localAxios.get('/notification/get-sse-token')
+    const token = response.data
+
+    eventSource = new EventSource(baseURL + `/notification/stream?token=${token}`, {
+      withCredentials: true
+    })
+
+    eventSource.onmessage = (event) => {
+      const newNotification = JSON.parse(event.data)
+      notifications.value.push(newNotification)
+    }
+
+    eventSource.onerror = (error) => {
+      eventSource.close()
+      // 재연결 시도
+      setTimeout(() => {
+        console.log('Reconnecting to SSE...')
+        connectEventSource()
+      }, 3000) // 3초 후에 재연결 시도
+    }
+  } catch (error) {
+    console.error('Error fetching SSE token:', error)
+  }
+}
 
 onMounted(async () => {
   if (userStore.nickname) {
@@ -371,27 +405,7 @@ onMounted(async () => {
     }
     document.addEventListener('mousedown', handleClickOutside)
 
-    try {
-      const response = await localAxios.get('/notification/get-sse-token')
-      const token = response.data
-
-      eventSource = new EventSource(baseURL + `/notification/stream?token=${token}`, {
-        withCredentials: true
-      })
-
-      eventSource.onmessage = (event) => {
-        const newNotification = JSON.parse(event.data)
-        console.log('Parsed SSE message:', newNotification)
-        notifications.value.push(newNotification)
-      }
-
-      eventSource.onerror = (error) => {
-        console.error('SSE Error:', error)
-        eventSource.close()
-      }
-    } catch (error) {
-      console.error('Error fetching SSE token:', error)
-    }
+    connectEventSource()
   }
 })
 

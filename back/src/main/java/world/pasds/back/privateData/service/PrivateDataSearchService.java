@@ -84,8 +84,10 @@ public class PrivateDataSearchService {
                 .filter(src -> {
                     if (src == null) return false;
                     // 권한 확인
-                    Team team = teamRepository.findById(src.getTeamId()).orElseThrow(() -> new BusinessException(ExceptionCode.TEAM_NOT_FOUND));
+                    Team team = teamRepository.findById(src.getTeamId()).orElse(null);
+                    if (team == null) return false;
                     MemberRole memberRole = memberRoleRepository.findByMemberAndTeam(member, team);
+                    if (memberRole == null) return false;
                     Role role = memberRole.getRole();
                     return roleAuthorityRepository.findAllByRole(role).stream()
                             .anyMatch(roleAuthority -> roleAuthority.getAuthority().getName() == AuthorityName.PRIVATE_DATA_READ);

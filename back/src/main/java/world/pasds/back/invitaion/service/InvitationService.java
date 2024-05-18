@@ -123,14 +123,14 @@ public class InvitationService {
             /**
              * Todo: 알림 Url 설정
              */
-            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 수락", memberOrganization.getOrganization().getName() + " 조직의 초대를 수락했습니다", NotificationType.USER, null);
+            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 수락", invitation.getInvitedMemberEmail()+" 님이 " +memberOrganization.getOrganization().getName() + " 조직의 초대를 수락했습니다", NotificationType.USER, null);
         } else {
             /**
              * Todo: 알림 Url 설정
              */
 
             if (invitation != null && invitation.getInvitedBy() != null) {
-                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", "조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
+                notificationService.notify(invitation.getInvitedBy(), invitation.getInvitedBy(), "조직 초대 기한 만료", invitation.getInvitedMemberEmail() + "님에게 보낸 조직 초대 기한이 만료되었습니다.", NotificationType.SYSTEM, null);
             }
             isExpired = true;
         }
@@ -152,7 +152,7 @@ public class InvitationService {
             /**
              * Todo: 알림 Url 설정
              */
-            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 거절", invitation.getInvitedMemberEmail() + "님이 조직 초대를 거절하셨습니다.", NotificationType.USER, null);
+            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 거절", invitation.getInvitedMemberEmail() + " 님이 조직 초대를 거절하셨습니다.", NotificationType.USER, null);
             isExpired = false;
         } else {
             /**

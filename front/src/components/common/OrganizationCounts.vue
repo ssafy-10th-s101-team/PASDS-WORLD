@@ -4,16 +4,16 @@
       <div class="flex flex-col justify-between h-full ">
         <div>
           <div class="lg:flex w-full justify-between">
-            <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 민감정보수</h3>
+            <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 비밀번호수</h3>
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
-              <div class="flex items-center">
-                <button
-                  @click="showBarChart"
-                  :disabled="!isLoaded"
-                  class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  {{ btnText1 }}
-                </button>
-              </div>
+<!--              <div class="flex items-center">-->
+<!--                <button-->
+<!--                  @click="showBarChart"-->
+<!--                  :disabled="!isLoaded"-->
+<!--                  class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">-->
+<!--                  {{ btnText1 }}-->
+<!--                </button>-->
+<!--              </div>-->
               <div class="lg:ml-10">
                 <div
                   class="bg-gray-100 dark:bg-gray-700 ease-in duration-150 hover:bg-gray-200 pb-2 pt-1 px-3 rounded-sm">
@@ -70,7 +70,6 @@ const props = defineProps({
 })
 
 
-
 const chartInstance = ref(null)
 const graphData = ref([])
 const selectedYear = ref(2024)
@@ -118,7 +117,7 @@ watch(
         data: {
           labels: month.value,
           datasets: [{
-            label: '민감정보수',
+            label: '비밀번호수',
             borderColor: '#4151b2',
             backgroundColor: '#4151b2',
             data: graphData.value,
@@ -150,11 +149,8 @@ watch(
     }, 1000)
 
     } catch (error) {
-      console.log("aaaaaaa")
       console.error(error)
       // showErrorAlert(error.response.data.message)
-    } finally {
-      
     }
   }, { deep: true }
 )

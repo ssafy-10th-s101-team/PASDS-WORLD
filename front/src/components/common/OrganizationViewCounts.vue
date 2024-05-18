@@ -7,12 +7,12 @@
             <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 조회수</h3>
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
               <div class="flex items-center">
-                <button
-                  @click="showBarChart"
-                  :disabled="!isLoaded"
-                  class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  {{ btnText1 }}
-                </button>
+<!--                <button-->
+<!--                  @click="showBarChart"-->
+<!--                  :disabled="!isLoaded"-->
+<!--                  class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">-->
+<!--                  {{ btnText1 }}-->
+<!--                </button>-->
               </div>
               <div class="lg:ml-10">
                 <div

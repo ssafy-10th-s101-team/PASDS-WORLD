@@ -68,11 +68,11 @@
         <div class="w-full px-8 absolute top-4">
           <div class="flex justify-between">
             <div class="">
-              <p class="font-light">
+              <p class="SamsungOne700C">
                 Name
               </p>
-              <p class="font-medium tracking-widest font-mono">
-                Karthik P
+              <p class="SamsungOne700C tracking-widest font-mono">
+                ●●●●
               </p>
             </div>
             <img class="w-14"
@@ -86,26 +86,25 @@
               4642 3489 9867 <span
               class="  rounded-full ml-1 px-2 py-1 text-xs absolute">●●●●</span>
             </p>
-
           </div>
           <div class="pt-2 pr-3">
             <div class="flex justify-between">
 
               <div class="">
-                <p class="font-light text-xs text-xs">
+                <p class="SamsungOne700C text-xs text-xs">
                   Expires At
                 </p>
-                <p class="font-medium tracking-wider text-sm font-mono">
+                <p class="SamsungOne700C tracking-wider text-sm font-mono">
                   03/25
                 </p>
               </div>
 
               <div class="">
-                <p class="font-light text-xs">
+                <p class="SamsungOne700C text-xs">
                   CVC
                 </p>
-                <p class="font-bold tracking-more-wider text-sm font-mono">
-                  123
+                <p class="SamsungOne700C tracking-more-wider text-sm font-mono">
+                  ●●●
                 </p>
               </div>
             </div>
@@ -131,7 +130,7 @@
       <!-- Lower Section (5/6 height) -->
       <div class="relative w-full h-1/6 pt-2 pl-2 pr-2">
         <span
-          class=" text-xs text-gray-600">용량 {{storage}}%</span>
+          class=" text-xs text-gray-600">용량 {{ storage }}%</span>
         <div class="h-4 relative w-60 rounded-full overflow-hidden">
           <div class=" w-full h-full bg-gray-200 absolute "></div>
           <div class=" h-full bg-gray-600 sm:bg-indigo-500 absolute" style="width:90%"></div>
@@ -180,6 +179,8 @@ import BaseAlert from '@/components/common/BaseAlert.vue'
 import OrganizationCounts from '@/components/common/OrganizationCounts.vue'
 import OrganizationViewCounts from '@/components/common/OrganizationViewCounts.vue'
 import CircleChart from '@/components/dashboard/CircleChart.vue'
+import cookieHelper from '@/utils/cookie.js'
+
 
 const organizationViewList = ref([])
 const organizationRotateList = ref([])
@@ -280,50 +281,44 @@ watch(
     organizationId.value = props.selectedOrganizationId
     organizationName.value = props.selectedOrganizationName
 
-
     if (!newOrganizationId) return // Optionally, skip when ID is null/undefined
 
-    try {
-      const response = await localAxios.get(`/dashboard/${newOrganizationId}`)
-      // const response = await localAxios.get(`/dashboard/1`)
-      const data = response.data
-      organizationViewList.value = data.organizationViewList
-      organizationRotateList.value = data.organizationRotateList
-      organizationCountList.value = data.organizationCountList
+    await localAxios.get(`/dashboard/${newOrganizationId}`)
+      .then((response) => {
+        const data = response.data
+        organizationViewList.value = data.organizationViewList
+        organizationRotateList.value = data.organizationRotateList
+        organizationCountList.value = data.organizationCountList
 
-      console.log(organizationCountList.value) // 비밀수
-      console.log(organizationViewList.value) // 조회수
-      console.log(organizationRotateList.value) // 키회전수
+        // 연도 selectBox
+        organizationCountList.value.forEach((data) => {
+          if (!years.value.includes(data[0])) {
+            years.value.push(data[0])
+          }
+        })
 
+        // 연도 selectBox
+        organizationViewList.value.forEach((data) => {
+          if (!years2.value.includes(data[0])) {
+            years2.value.push(data[0])
+          }
+        })
 
-      // 연도 selectBox
-      organizationCountList.value.forEach((data) => {
-        if (!years.value.includes(data[0])) {
-          years.value.push(data[0])
+        // 연도 selectBox
+        organizationRotateList.value.forEach((data) => {
+          if (!years3.value.includes(data[0])) {
+            years3.value.push(data[0])
+          }
+        })
+      })
+      .catch((error) => {
+        console.error(error)
+        if (error.response && error.response.data) {
+          showErrorAlert(error.response.data.message)
         }
       })
 
-
-      // 연도 selectBox
-      organizationViewList.value.forEach((data) => {
-        if (!years2.value.includes(data[0])) {
-          years2.value.push(data[0])
-        }
-      })
-
-      // 연도 selectBox
-      organizationRotateList.value.forEach((data) => {
-        if (!years3.value.includes(data[0])) {
-          years3.value.push(data[0])
-        }
-      })
-
-    } catch (error) {
-      console.error(error)
-      if (error.response && error.response.data) {
-        showErrorAlert(error.response.data.message)
-      }
-    }
+    await getTopTeams()
   }
 )
 
@@ -333,6 +328,7 @@ const getTopTeams = async () => {
       topCountTeams.value = response.data
     })
     .catch((error) => {
+      topCountTeams.value = []
       console.error(error)
     })
 }

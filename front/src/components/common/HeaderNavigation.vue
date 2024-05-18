@@ -278,11 +278,10 @@ cAAyMDI0LTA1LTExVDEyOjA2OjI4KzAwOjAw4LbWmQAAAABJRU5ErkJggg=="
                 <text
                   x="37"
                   y="18"
-                  font-size="12"
+                  font-size="15"
                   text-anchor="middle"
                   font-weight="bold"
-                  :class="{ 'text-red-700 font-extrabold': notifications.length >= 1 }"
-                  :fill="notifications.length >= 1 ? 'red' : 'black'"
+                  :class="{ 'text-red-600 font-extrabold': notifications.length >= 1 }"
                 >
                   {{ notifications.length > 99 ? '99+' : notifications.length }}
                 </text>

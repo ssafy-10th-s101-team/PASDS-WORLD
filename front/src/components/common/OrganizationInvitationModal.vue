@@ -80,6 +80,7 @@ async function sendInvitation() {
       invitationFailAlert.value = false
     }, 3000)
   }
+  email.value = ''
   toggleHidden('organizationInvitationModal')
 }
 

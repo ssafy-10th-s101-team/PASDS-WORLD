@@ -10,4 +10,6 @@ public interface PrivateDataSearchRepository extends ElasticsearchRepository<Pri
     PrivateDataDocument findByPrivateDataId(Long privateDataId);
 
     List<PrivateDataDocument> findAllByOrganizationId(Long organizationId);
+
+    List<PrivateDataDocument> findAllByTeamId(Long teamId);
 }

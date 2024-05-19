@@ -56,6 +56,11 @@ public class PrivateDataSearchService {
         }
     }
 
+    public void deleteAllPrivateDataByTeamId(Long teamId) {
+        List<PrivateDataDocument> find = privateDataSearchRepository.findAllByTeamId(teamId);
+        privateDataSearchRepository.deleteAll(find);
+    }
+
     public List<PrivateDataDocument> search(String title, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ExceptionCode.MEMBER_NOT_FOUND));
         SearchResponse<PrivateDataDocument> response;

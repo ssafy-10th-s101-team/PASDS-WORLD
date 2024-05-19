@@ -302,6 +302,7 @@ public class TeamService {
             // 팀의 모든 비밀 삭제
             List<PrivateData> privateDataList = privateDataRepository.findAllByTeam(team);
             privateDataRepository.deleteAll(privateDataList);
+            privateDataSearchService.deleteAllPrivateDataByTeamId(team.getId());
             // 팀의 모든 초대 삭제
             List<MemberTeam> memberTeamList = memberTeamRepository.findAllByTeam(team);
             invitationService.deleteInvitation(team);

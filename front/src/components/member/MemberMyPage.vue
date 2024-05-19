@@ -280,6 +280,7 @@ const changeNickname = async () => {
 }
 onMounted(async () => {
   invitations.value = await getInvitations(0)
+  invitations.value = invitations.value.filter((invitation) => invitation.organizationRole)
   console.log(invitations.value)
 })
 </script>

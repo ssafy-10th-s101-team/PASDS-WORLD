@@ -110,8 +110,11 @@ public class InvitationService {
 
         List<Invitation> invitationList = invitationRepository.findAllOrganizationInvitationByInvitedMemberEmailAndOrganizationOrderByCreatedAtDesc(member.getEmail(), organization);
         Invitation invitation = invitationList.get(0);
+
+        MemberOrganization existingMemberOrganization = memberOrganizationRepository.findByMemberAndOrganization(member, organization);
         // 조직 초대가 유효한 경우
-        if (invitation != null && !invitation.getExpiredAt().isBefore(LocalDateTime.now())) {
+        if (invitation != null && !invitation.getExpiredAt().isBefore(LocalDateTime.now())
+                && existingMemberOrganization == null) {
             MemberOrganization memberOrganization = MemberOrganization.builder()
                     .member(member)
                     .organization(organization)

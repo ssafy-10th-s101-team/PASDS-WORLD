@@ -58,6 +58,7 @@ public class InvitationService {
         return invitationRepository.findAllByInvitedMemberEmail(member.getEmail(), pageable)
                 .stream()
                 .filter(invitation -> invitation.getExpiredAt().isAfter(LocalDateTime.now()))
+                .filter(invitation -> invitation.getOrganizationRole() != null)
                 .map(invitation -> GetInvitationsResponseDto.builder()
                         .invitationId(invitation.getId())
                         .invitedBy(invitation.getInvitedBy().getNickname())
@@ -116,6 +117,7 @@ public class InvitationService {
                     .organization(organization)
                     .organizationRole(invitation.getOrganizationRole())
                     .build();
+            //
             memberOrganizationRepository.save(memberOrganization);
             /**
              * Todo: 알림 Url 설정

@@ -12,6 +12,7 @@
         v-if="isLoaded"
         :selectedOrganizationId="selectedOrganizationId"
         @organization-search-selected="handleSearchOrganizationSelected"
+        :fromSearch="fromSearch"
       />
     </div>
   </div>
@@ -26,6 +27,7 @@ const route = useRoute()
 const isLoaded = ref(false)
 const selectedOrganizationId = ref(null)
 const selectedSearchOrganizationId = ref(null)
+const fromSearch = ref(false)
 
 const isTeamManagement = computed(() => route.name === 'teamManagement')
 
@@ -35,11 +37,13 @@ function handleLoaded() {
 
 function handleOrganizationSelected(id) {
   selectedOrganizationId.value = id
+  fromSearch.value = false
 }
 
 function handleSearchOrganizationSelected(id) {
   selectedOrganizationId.value = id
   selectedSearchOrganizationId.value = id
+  fromSearch.value = true
 }
 </script>
 

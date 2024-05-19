@@ -14,7 +14,11 @@
         :selected-search-organization-id="selectedSearchOrganizationId"
         :selected-search-team-id="selectedSearchTeamId"
       />
-      <MainTable v-if="isLoaded && !isTeamManagementVisible" :selectedTeamId="selectedTeamId" />
+      <MainTable
+        v-if="isLoaded && !isTeamManagementVisible"
+        :selectedTeamId="selectedTeamId"
+        :selectedSearchPrivateDataId="selectedSearchPrivateDataId"
+      />
       <MainTeamManagement
         v-if="isLoaded && isTeamManagementVisible"
         :selectedTeamId="selectedTeamId"
@@ -38,11 +42,13 @@ const selectedTeamName = ref('')
 const selectedOrganizationId = ref(null)
 const selectedSearchOrganizationId = ref(-1)
 const selectedSearchTeamId = ref(null)
-const selectedSearchPrivateDataId = ref(null)
+const selectedSearchPrivateDataId = ref(-1)
 const isTeamManagementVisible = ref(false)
+const fromSearch = ref(false)
 
 const props = defineProps({
-  selectedOrganizationId: Number
+  selectedOrganizationId: Number,
+  fromSearch: Boolean
 })
 
 const emit = defineEmits(['organization-search-selected'])
@@ -54,6 +60,9 @@ function handleLoaded() {
 function handleTeamSelected(id, name) {
   selectedTeamId.value = id
   selectedTeamName.value = name
+  if (!fromSearch.value) {
+    selectedSearchPrivateDataId.value = -1
+  }
 }
 
 function handleSearchOrganizationSelected(id) {
@@ -77,6 +86,7 @@ watch(
   () => props.selectedOrganizationId,
   (newVal) => {
     selectedOrganizationId.value = newVal
+    fromSearch.value = props.fromSearch
   },
   { immediate: true }
 )

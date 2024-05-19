@@ -1,5 +1,4 @@
 <template>
-  <!-- This is an example component -->
   <div class="max-w-2xl mx-auto">
     <div class="flex flex-col">
       <div class="overflow-x-auto shadow-md sm:rounded-lg max-w-full">
@@ -50,6 +49,10 @@
                   class="hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <td
+                    :class="{
+                      'border-samsung-blue border-2':
+                        data.privateDataId === props.selectedSearchPrivateDataId
+                    }"
                     class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
                     {{ data.title }}
@@ -124,7 +127,7 @@ import BaseButton from './BaseButton.vue'
 import { useCommonStore } from '@/stores/common'
 import MainPrivateDataCreate from './MainPrivateDataCreate.vue'
 import MainPrivateDataDetail from './MainPrivateDataDetail.vue'
-import { watch, ref, defineProps, nextTick } from 'vue'
+import { watch, ref, defineProps } from 'vue'
 import { getPrivateDatas } from '@/api/data'
 import { getRole } from '@/api/role'
 import BasePagination from '@/components/common/BasePagination.vue'
@@ -138,7 +141,8 @@ const totalPages = ref(10)
 const teamRoles = ref([])
 
 const props = defineProps({
-  selectedTeamId: Number
+  selectedTeamId: Number,
+  selectedSearchPrivateDataId: Number
 })
 
 const fetchPrivateData = async () => {

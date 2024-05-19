@@ -61,11 +61,15 @@
       </form>
     </div>
   </BaseModal>
+  <BaseAlert alertText="역할이 성공적으로 수정되었습니다." v-if="roleUpdateSuccessAlert" />
+  <BaseFailAlert :alertText="errorMsg" v-if="roleUpdateFailAlert" />
 </template>
 
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import BaseModal from './BaseModal.vue'
+import BaseModal from '@/components/common/BaseModal.vue'
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseFailAlert from '@/components/common/BaseFailAlert.vue'
 import { getAuthority, updateRole, deleteRole, getRoleDetail } from '@/api/role'
 import { useCommonStore } from '@/stores/common'
 const commonStore = useCommonStore()
@@ -73,6 +77,9 @@ const { toggleHidden } = commonStore
 const authorities = ref([])
 const selectedAuthorities = ref([])
 const newRoleName = ref('')
+const roleUpdateSuccessAlert = ref(false)
+const roleUpdateFailAlert = ref(false)
+const errorMsg = ref('')
 
 const roleAuths = ref([])
 
@@ -163,12 +170,20 @@ const postRole = async (event) => {
       authorities: selectedAuthorities.value
     }
     await updateRole(body)
+
+    roleUpdateSuccessAlert.value = true
+    setTimeout(() => {
+      roleUpdateSuccessAlert.value = false
+    }, 3000)
     emit('role-updated')
-    toggleHidden('teamRoleUpdateModal')
-    // 닫기
   } catch (error) {
-    window.alert(error.response.data.message)
+    errorMsg.value = error.response.data.message
+    roleUpdateFailAlert.value = true
+    setTimeout(() => {
+      roleUpdateFailAlert.value = false
+    }, 3000)
   }
+  toggleHidden('teamRoleUpdateModal')
 }
 
 const removeRole = async (event) => {

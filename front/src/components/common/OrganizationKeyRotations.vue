@@ -8,14 +8,9 @@
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
               <div class="flex items-center">
                 <button
-                  @click="showBarChart"
+                  @click="updateKey"
                   class="ml-1 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  {{ btnText1 }}
-                </button>
-                <button
-                  @click="showTopTeams"
-                  class="py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">
-                  상위 팀
+                  키 회전하러가기
                 </button>
               </div>
               <div class="lg:ml-8">
@@ -58,6 +53,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
+import { regenerateDataKey } from '@/api/team.js'
+import router from '@/router/index.js'
 
 // Props 정의
 const props = defineProps({
@@ -79,15 +76,12 @@ const month = ref([])
 const increasing = ref(0)
 const isLoaded = ref(false)
 
-const graphType = ref('line')
-const btnText1 = ref('팀별 사용량')
-
 onMounted(() => {
   isLoaded.value = true
 })
 
 watch(
-  [() => props.organizationRotateList, () => props.organizationId, () => selectedYear.value, () => isLoaded, () => graphType.value],
+  [() => props.organizationRotateList, () => props.organizationId, () => selectedYear.value],
   () => {
     try {
 
@@ -95,9 +89,6 @@ watch(
       if (chartInstance.value) {
         chartInstance.value.destroy()
       }
-
-      // 로그를 통해 전달된 props 확인
-      console.log('전달된 organizationCountList:', props.organizationRotateList)
 
       month.value = []
       graphData.value = []
@@ -109,27 +100,26 @@ watch(
         if (selectedYear.value == data[0] && !month.value.includes(data[1])) {
           month.value.push(data[1])
           graphData.value.push(data[2])
-          console.log(month.value)
         }
       })
 
 
       const ctx = document.getElementById('myChart3').getContext('2d')
       chartInstance.value = new Chart(ctx, {
-        type: graphType.value,
+        type: 'line',
         data: {
           labels: month.value,
           datasets: [{
             label: '키회전수',
-            borderColor: '#4A5568',
+            borderColor: '#6d79c4',
+            backgroundColor: '#6d79c4',
             data: graphData.value,
             fill: false,
-            pointBackgroundColor: '#4A5568',
+            pointBackgroundColor: '#6d79c4',
             borderWidth: 1,
             pointBorderWidth: 1,
-            pointHoverRadius: 6,
-            pointHoverBorderWidth: 8,
-            pointHoverBorderColor: 'rgb(74,85,104,0.2)'
+            pointHoverRadius: 2,
+            pointHoverBorderWidth: 2,
           }]
         },
         options: {
@@ -150,23 +140,10 @@ watch(
   }, { deep: true }
 )
 
-const showBarChart = () => {
-  if (graphType.value === 'bar') {
-    graphType.value = 'line'
-    btnText1.value = '팀별 사용량'
-    return
-  }
-  if (graphType.value === 'line') {
-    graphType.value = 'bar'
-    btnText1.value = '전체 사용량'
 
-  }
+const updateKey = async () => {
+  router.push({name : 'main'})
 }
-
-const showTopTeams = () => {
-
-}
-
 
 </script>
 

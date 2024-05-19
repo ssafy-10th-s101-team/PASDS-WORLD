@@ -72,7 +72,7 @@
                 Name
               </p>
               <p class="SamsungOne700C tracking-widest font-mono">
-                ●●●●
+                이**
               </p>
             </div>
             <img class="w-14"
@@ -133,7 +133,7 @@
           class=" text-xs text-gray-600">용량 {{ storage }}%</span>
         <div class="h-4 relative w-60 rounded-full overflow-hidden">
           <div class=" w-full h-full bg-gray-200 absolute "></div>
-          <div class=" h-full bg-gray-600 sm:bg-indigo-500 absolute" style="width:90%"></div>
+          <div class=" h-full bg-gray-600 sm:bg-indigo-500 absolute" style="width:74%"></div>
         </div>
       </div>
       <div class="relative w-full h-3/6 pt-2 pl-2 pr-2">
@@ -152,7 +152,7 @@
     >
       <!-- Upper Section (1/6 height) -->
       <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
-        <h1 class="text-black text-xl">2024년 5월 사용량</h1>
+        <h1 class="text-black text-xl">2024년 5월 조회수 상위</h1>
       </div>
       <CircleChart :topCountTeams="topCountTeams" :selectedOrganizationId="organizationId"
                    :organizationViewList="organizationViewList" />
@@ -160,13 +160,25 @@
 
     </div>
 
-    <!--    <div class="col-span-12 rounded-lg shadow-md p-0 sm:col-span-7 h-70 flex flex-col">-->
-    <!--      <OrganizationKeyRotations-->
-    <!--        :organizationRotateList="organizationRotateList"-->
-    <!--        :selectedOrganizationId="organizationId"-->
-    <!--        :yearList="years3"-->
-    <!--      />-->
-    <!--    </div>-->
+    <div class="col-span-12 rounded-lg shadow-md p-0 sm:col-span-7 h-70 flex flex-col">
+      <OrganizationKeyRotations
+        :organizationRotateList="organizationRotateList"
+        :selectedOrganizationId="organizationId"
+        :yearList="years3"
+      />
+    </div>
+    <div
+      class="col-span-12 rounded-lg shadow-md bg-white p-0 sm:col-span-3 h-70 flex flex-col overflow-hidden"
+    >
+      <!-- Upper Section (1/6 height) -->
+      <div class="flex-none h-1/6 bg-gray-100 rounded-t-lg p-0 flex items-center pl-4">
+        <h1 class="text-black text-xl">2024년 5월 키회전수 상위</h1>
+      </div>
+      <CircleChart2 :topRotationTeams="topRotationTeams" :selectedOrganizationId="organizationId"
+                   :organizationViewList="organizationRotateList" />
+      <!-- Lower Section (5/6 height) -->
+
+    </div>
 
     <BaseAlert :alertText="ErrorMsg" v-if="ErrorAlert" />
   </div>
@@ -179,7 +191,8 @@ import BaseAlert from '@/components/common/BaseAlert.vue'
 import OrganizationCounts from '@/components/common/OrganizationCounts.vue'
 import OrganizationViewCounts from '@/components/common/OrganizationViewCounts.vue'
 import CircleChart from '@/components/dashboard/CircleChart.vue'
-import cookieHelper from '@/utils/cookie.js'
+import OrganizationKeyRotations from '@/components/common/OrganizationKeyRotations.vue'
+import CircleChart2 from '@/components/dashboard/CircleChart2.vue'
 
 
 const organizationViewList = ref([])
@@ -194,8 +207,9 @@ const years2 = ref([])
 const years3 = ref([])
 
 const topCountTeams = ref([])
+const topRotationTeams = ref([])
 
-const storage = ref(90)
+const storage = ref(74)
 
 const props = defineProps({
   selectedOrganizationId: {
@@ -223,6 +237,7 @@ const showErrorAlert = (message) => {
 }
 
 onMounted(async () => {
+
   organizationId.value = props.selectedOrganizationId
   organizationName.value = props.selectedOrganizationName
   // console.log(props.selectedOrganizationId)
@@ -232,12 +247,14 @@ onMounted(async () => {
     .get(`/dashboard/${props.selectedOrganizationId}`)
     .then((response) => {
       const data = response.data
+
+      organizationViewList.value = []
+      organizationRotateList.value = []
+      organizationCountList.value = []
+
       organizationViewList.value = data.organizationViewList
       organizationRotateList.value = data.organizationRotateList
       organizationCountList.value = data.organizationCountList
-      console.log(organizationCountList.value) // 비밀수
-      console.log(organizationViewList.value) // 조회수
-      console.log(organizationRotateList.value) // 키회전수
 
       // 연도 selectBox
       organizationCountList.value.forEach((data) => {
@@ -262,21 +279,20 @@ onMounted(async () => {
         }
       })
 
-      getTopTeams()
-
     })
     .catch((error) => {
       console.error(error)
       showErrorAlert(error.response.data.message)
     })
 
+  await getTopViewTeam()
+  await getTopRotationTeam()
 
 })
 
 watch(
   () => props.selectedOrganizationId,
   async (newOrganizationId) => {
-    console.log('hello', newOrganizationId)
 
     organizationId.value = props.selectedOrganizationId
     organizationName.value = props.selectedOrganizationName
@@ -286,6 +302,11 @@ watch(
     await localAxios.get(`/dashboard/${newOrganizationId}`)
       .then((response) => {
         const data = response.data
+
+        organizationViewList.value = []
+        organizationRotateList.value = []
+        organizationCountList.value = []
+
         organizationViewList.value = data.organizationViewList
         organizationRotateList.value = data.organizationRotateList
         organizationCountList.value = data.organizationCountList
@@ -310,6 +331,8 @@ watch(
             years3.value.push(data[0])
           }
         })
+
+
       })
       .catch((error) => {
         console.error(error)
@@ -317,15 +340,26 @@ watch(
           showErrorAlert(error.response.data.message)
         }
       })
-
-    await getTopTeams()
+    await getTopViewTeam()
+    await getTopRotationTeam()
   }
 )
 
-const getTopTeams = async () => {
+const getTopViewTeam = async () => {
   await localAxios.get(`/dashboard?organizationId=${props.selectedOrganizationId}&year=2024&month=5&method=v`)
     .then((response) => {
       topCountTeams.value = response.data
+    })
+    .catch((error) => {
+      topCountTeams.value = []
+      console.error(error)
+    })
+}
+
+const getTopRotationTeam = async () => {
+  await localAxios.get(`/dashboard?organizationId=${props.selectedOrganizationId}&year=2024&month=5&method=r`)
+    .then((response) => {
+      topRotationTeams.value = response.data
     })
     .catch((error) => {
       topCountTeams.value = []

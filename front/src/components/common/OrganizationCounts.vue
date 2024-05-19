@@ -6,14 +6,6 @@
           <div class="lg:flex w-full justify-between">
             <h3 class="text-gray-600 dark:text-gray-400 leading-5 text-base md:text-xl">월별 비밀번호수</h3>
             <div class="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
-<!--              <div class="flex items-center">-->
-<!--                <button-->
-<!--                  @click="showBarChart"-->
-<!--                  :disabled="!isLoaded"-->
-<!--                  class="ml-2 mr-2 py-2 px-4 bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded text-white ease-in duration-150 text-xs hover:bg-indigo-600">-->
-<!--                  {{ btnText1 }}-->
-<!--                </button>-->
-<!--              </div>-->
               <div class="lg:ml-10">
                 <div
                   class="bg-gray-100 dark:bg-gray-700 ease-in duration-150 hover:bg-gray-200 pb-2 pt-1 px-3 rounded-sm">
@@ -28,7 +20,7 @@
           </div>
           <div class="flex items-end mt-6">
             <h3 class="text-indigo-500 leading-5 text-lg md:text-2xl">{{ graphData[graphData.length-1] }}개</h3>
-            <div class="flex items-center md:ml-4 ml-1 text-green-700">
+            <div v-if="graphData.length > 1" class="flex items-center md:ml-4 ml-1 text-green-700">
               <p class="text-green-700 text-xs md:text-base">전월 대비 {{ increasing }}% 증가</p>
               <svg role="img" class="text-green-700" aria-label="increase. upward arrow icon"
                    xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -52,7 +44,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
 
 
@@ -74,18 +66,30 @@ const chartInstance = ref(null)
 const graphData = ref([])
 const selectedYear = ref(2024)
 const month = ref([])
-const increasing = ref(0)
-const isLoaded = ref(false)
 
-const graphType = ref('line')
-const btnText1 = ref('막대 그래프')
+const increasing = computed(() => {
+  // graphData.value가 비어있지 않고, 최소 두 개의 항목이 있는지 확인
+  if (graphData.value.length < 2) {
+    return 0; // 또는 적절한 기본값
+  }
+
+  // 마지막 두 항목을 숫자로 변환
+  const lastValue = parseFloat(graphData.value[graphData.value.length - 1]);
+  const secondLastValue = parseFloat(graphData.value[graphData.value.length - 2]);
+
+  // 증가율 계산
+  return ((lastValue - secondLastValue) / secondLastValue) * 100;
+
+});
+
+const isLoaded = ref(false)
 
 onMounted(() => {
   isLoaded.value = true
 })
 
 watch(
-  [()=> props.organizationCountList, () => props.organizationId, () => selectedYear.value, () => graphType.value],
+  [()=> props.organizationCountList, () => props.organizationId, () => selectedYear.value],
   () => {
     try {
       isLoaded.value = false;
@@ -94,40 +98,33 @@ watch(
         chartInstance.value.destroy()
       }
 
-      // 로그를 통해 전달된 props 확인
-      console.log('전달된 organizationCountList:', props.organizationCountList)
-
       month.value = []
       graphData.value = []
 
       // 월
       props.organizationCountList.forEach((data) => {
-        console.log(selectedYear.value)
-        console.log(data)
         if (selectedYear.value == data[0] && !month.value.includes(data[1])) {
           month.value.push(data[1])
           graphData.value.push(data[2])
-          console.log(month.value)
         }
       })
 
       const ctx = document.getElementById('myChart').getContext('2d')
       chartInstance.value = new Chart(ctx, {
-        type: graphType.value,
+        type: 'line',
         data: {
           labels: month.value,
           datasets: [{
             label: '비밀번호수',
-            borderColor: '#4151b2',
-            backgroundColor: '#4151b2',
+            borderColor: '#6d79c4',
+            backgroundColor: '#6d79c4',
             data: graphData.value,
             fill: false,
-            pointBackgroundColor: '#4151b2',
+            pointBackgroundColor: '#6d79c4',
             borderWidth: 1,
             pointBorderWidth: 1,
-            pointHoverRadius: 6,
-            pointHoverBorderWidth: 8,
-            pointHoverBorderColor: 'rgb(74,85,104,0.2)'
+            pointHoverRadius: 2,
+            pointHoverBorderWidth: 2,
           }]
         },
         options: {
@@ -145,29 +142,13 @@ watch(
 
       setTimeout(() => {
         isLoaded.value = true;
-      // console.log(isLoaded.value)
     }, 1000)
-
     } catch (error) {
       console.error(error)
       // showErrorAlert(error.response.data.message)
     }
   }, { deep: true }
 )
-
-const showBarChart = () => {
-  if (graphType.value === 'bar') {
-    graphType.value = 'line'
-    btnText1.value = '막대 그래프'
-    return
-  }
-  if (graphType.value === 'line') {
-    graphType.value = 'bar'
-    btnText1.value = '꺾은선 그래프'
-
-  }
-}
-
 
 
 </script>

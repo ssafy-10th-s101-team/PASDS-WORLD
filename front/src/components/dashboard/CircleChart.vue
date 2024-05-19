@@ -54,19 +54,14 @@ watch(
 
       const ctx = document.getElementById('myChart4').getContext('2d')
       chartInstance.value = new Chart(ctx, {
-        type: 'doughnut',
+        type: 'pie',
         data: {
           labels: teams.value,
           datasets: [{
-            backgroundColor: ['#6d79c4', '#E2E5F4', '#1428A0', '#3243AC', '#8A94D0', '#C5CAE8'],
+            backgroundColor: ['#6d79c4','#C5CAE8', '#E2E5F4', '#8A94D0'],
             data: graphData.value,
             fill: false,
-            pointBackgroundColor: ['#6d79c4', '#E2E5F4', '#1428A0', '#3243AC', '#8A94D0', '#C5CAE8'],
-            borderWidth: 0,
-            pointBorderWidth: 4,
-            pointHoverRadius: 6,
-            pointHoverBorderWidth: 8,
-            pointHoverBorderColor: 'rgb(74,85,104,0.2)'
+            pointBackgroundColor: ['#6d79c4','#C5CAE8', '#E2E5F4', '#8A94D0'],
           }]
         },
         options: {

@@ -98,10 +98,7 @@ public class InvitationService {
                 .role(role)
                 .build();
         invitationRepository.save(invitation);
-        emailService.sendMessage(receiver.getEmail(),
-                "Invite to " + organization.getName() + " " + team.getName(),
-                "From " + sender.getNickname() + "(" + sender.getEmail() + ")" + " invite to " + organization.getName() + " " + team.getName() + "\n" + DOMAIN + "\n" + "초대받은 이메일로 회원가입을 진행해주세요.");
-        notificationService.notify(sender, receiver, "팀 초대", "팀 초대", NotificationType.USER, null);
+        notificationService.notify(sender, receiver, "팀 초대", organization.getName() + " 조직의 " + team.getName() + " 팀에 초대되셨습니다.", NotificationType.USER, null);
     }
 
     @Transactional
@@ -123,7 +120,7 @@ public class InvitationService {
             /**
              * Todo: 알림 Url 설정
              */
-            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 수락", invitation.getInvitedMemberEmail()+" 님이 " +memberOrganization.getOrganization().getName() + " 조직의 초대를 수락했습니다", NotificationType.USER, null);
+            notificationService.notify(member, invitation.getInvitedBy(), "조직 초대 수락", invitation.getInvitedMemberEmail() + " 님이 " + memberOrganization.getOrganization().getName() + " 조직의 초대를 수락했습니다", NotificationType.USER, null);
         } else {
             /**
              * Todo: 알림 Url 설정

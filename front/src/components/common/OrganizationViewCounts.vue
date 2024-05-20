@@ -21,8 +21,8 @@
             </div>
           </div>
           <div class="flex items-end mt-6">
-            <h3 class="text-indigo-500 leading-5 text-lg md:text-2xl">{{ graphData[graphData.length-1] }}번</h3>
-            <div v-if="graphData.length > 1" class="flex items-center md:ml-4 ml-1 text-green-700">
+            <h3 v-if="selectedYear == 2024" class="text-indigo-500 leading-5 text-lg md:text-2xl">{{ graphData[graphData.length-1] }}번</h3>
+            <div v-if="graphData.length > 1 && selectedYear == 2024" class="flex items-center md:ml-4 ml-1 text-green-700">
               <p class="text-green-700 text-xs md:text-base">전월 대비 {{ increasing }}% 증가</p>
               <svg role="img" class="text-green-700" aria-label="increase. upward arrow icon"
                    xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -72,6 +72,8 @@ const prefix = ref('증가')
 
 const increasing = computed(() => {
   // graphData.value가 비어있지 않고, 최소 두 개의 항목이 있는지 확인
+  if (selectedYear.value != 2024) return;
+
   if (graphData.value.length < 2) {
     return 0; // 또는 적절한 기본값
   }

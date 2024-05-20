@@ -68,6 +68,7 @@ const graphData = ref([])
 const selectedYear = ref(2024)
 const month = ref([])
 const isLoaded = ref(false)
+const prefix = ref('증가')
 
 const increasing = computed(() => {
   // graphData.value가 비어있지 않고, 최소 두 개의 항목이 있는지 확인
@@ -80,7 +81,10 @@ const increasing = computed(() => {
   const secondLastValue = parseFloat(graphData.value[graphData.value.length - 2]);
 
   // 증가율 계산
-  return ((lastValue - secondLastValue) / secondLastValue) * 100;
+  const increaseRate = ((lastValue - secondLastValue) / secondLastValue) * 100;
+
+  // 소수점 아래 첫째 자리까지만 반환 (반올림)
+  return Math.round(increaseRate * 10) / 10;
 
 });
 

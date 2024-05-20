@@ -27,7 +27,7 @@
           </div>
           <div class="flex items-end mt-6">
             <h3 class="text-indigo-500 leading-5 text-lg md:text-2xl">{{ graphData[graphData.length-1] }}회</h3>
-            <div class="flex items-center md:ml-4 ml-1 text-green-700">
+            <div v-if="graphData.length > 1" class="flex items-center md:ml-4 ml-1 text-green-700">
               <p class="text-green-700 text-xs md:text-base">전월 대비 {{ increasing }}% 증가</p>
               <svg role="img" class="text-green-700" aria-label="increase. upward arrow icon"
                    xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import Chart from 'chart.js/auto'
 import { regenerateDataKey } from '@/api/team.js'
 import router from '@/router/index.js'
@@ -73,8 +73,29 @@ const chartInstance = ref(null)
 const graphData = ref([])
 const selectedYear = ref(2024)
 const month = ref([])
-const increasing = ref(0)
+
 const isLoaded = ref(false)
+const prefix = ref('증가')
+
+
+const increasing = computed(() => {
+  // graphData.value가 비어있지 않고, 최소 두 개의 항목이 있는지 확인
+  if (graphData.value.length < 2) {
+    return 0; // 또는 적절한 기본값
+  }
+
+  // 마지막 두 항목을 숫자로 변환
+  const lastValue = parseFloat(graphData.value[graphData.value.length - 1]);
+  const secondLastValue = parseFloat(graphData.value[graphData.value.length - 2]);
+
+  // 증가율 계산
+  const increaseRate = ((lastValue - secondLastValue) / secondLastValue) * 100;
+
+  // 소수점 아래 첫째 자리까지만 반환 (반올림)
+  return Math.round(increaseRate * 10) / 10;
+
+});
+
 
 onMounted(() => {
   isLoaded.value = true

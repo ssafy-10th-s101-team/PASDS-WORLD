@@ -15,7 +15,7 @@
 
 ## :walking: 프로젝트 소개
 
--
+- 팀별 민감 데이터 공유 솔루션
 
 ## :construction_worker: 팀원 구성
 
@@ -78,7 +78,7 @@
 
 - 신우섭
   - UI
-    - 메인: 팀, 비밀
+    - 메인: 팀, 민감데이터
     - 알림
   - Back
     - 알림: SSE
@@ -87,7 +87,7 @@
     - 조직: CRUD
     - 팀: CRUD
     - 역할: CRUD
-    - 비밀: CRUD + Elasticsearch를 활용한 검색 
+    - 민감데이터: CRUD + Elasticsearch를 활용한 검색 
   - Monitoring
     - ELK + Filebeat 로깅 파이프라인 구축
   - Kms

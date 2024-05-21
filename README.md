@@ -1,4 +1,8 @@
-# (로고) PASDS-WORLD
+# <img src="docs/jpg/logo.png" weight=30 height=30> PASDS-WORD
+
+<div align=center>
+<img src="docs/jpg/PPT표지.JPG" height=600>
+</div>
 
 ## :book: 목차
 

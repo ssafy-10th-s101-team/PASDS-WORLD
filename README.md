@@ -37,7 +37,7 @@
 
 #### Front-end
 
-<img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=white"> <img alt="vue.js" src="https://img.shields.io/badge/vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white"> <img alt="bootstrap" src="https://img.shields.io/badge/bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white">
+<img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=white"> <img alt="vue.js" src="https://img.shields.io/badge/vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white"> <img alt="tailwind" src="https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white">
 
 #### Back-end
 
@@ -86,7 +86,21 @@
 - 김진용
 
 - 신우섭
-
+  - UI
+    - 메인: 팀, 민감데이터
+    - 알림
+  - Back
+    - 알림: SSE
+    - 권한: CRUD
+    - 초대: CRUD
+    - 조직: CRUD
+    - 팀: CRUD
+    - 역할: CRUD
+    - 민감데이터: CRUD + Elasticsearch를 활용한 검색
+  - Monitoring
+    - ELK + Filebeat 로깅 파이프라인 구축
+  - Kms
+    - 로깅 시스템 구축
 - 유광우
 
 - 이준범
@@ -101,7 +115,12 @@
     - Master Key 발급 및 회전 로직 구현
 
 - 임덕기
-
+  - front
+    - Vue.js 설정 및 Tailwind CSS 통합, 폰트 설정
+    - 공통 컴포넌트 및 페이지 별 컴포넌트 작성
+    - 레이아웃 구성
+    - 반응형 디자인 및 다크모드 구현
+    - 페이지 라우팅
 - 이하은
 
 ## :movie_camera: 기능 시연
@@ -303,3 +322,536 @@ main-server:
 ```
 java -jar kms-0.0.1-SNAPSHOT.jar
 ```
+
+<details>
+<summary>Front</summary>
+```
+.
+├── node_modules
+├── README.md
+├── certificate.pem
+├── index.html
+├── jsconfig.json
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── privatekey.pem
+├── project_structure.txt
+├── public
+│ └── favicon.ico
+├── src
+│ ├── App.vue
+│ ├── api
+│ │ ├── data.js
+│ │ ├── invitation.js
+│ │ ├── notification.js
+│ │ ├── organization.js
+│ │ ├── role.js
+│ │ └── team.js
+│ ├── assets
+│ │ ├── fonts
+│ │ │ └── SamsungOneKorean-700C.ttf
+│ │ ├── fonts.css
+│ │ ├── images
+│ │ │ ├── QR_example.png
+│ │ │ ├── background1-example.jpg
+│ │ │ ├── pasdsworld_v1_qr.png
+│ │ │ ├── pasdsworld_v2_qr.png
+│ │ │ ├── pasdsworld_v3_qr.png
+│ │ │ └── secret_key_qr_example.png
+│ │ ├── logo.png
+│ │ └── main.css
+│ ├── components
+│ │ ├── common
+│ │ │ ├── BaseAlert.vue
+│ │ │ ├── BaseButton.vue
+│ │ │ ├── BaseFailAlert.vue
+│ │ │ ├── BaseModal.vue
+│ │ │ ├── BasePagination.vue
+│ │ │ ├── BaseSearchBar.vue
+│ │ │ ├── BaseSpinner.vue
+│ │ │ ├── BaseTimer.vue
+│ │ │ ├── HeaderNavigation.vue
+│ │ │ ├── MainAuthorizationModal.vue
+│ │ │ ├── MainMemberRoleModal.vue
+│ │ │ ├── MainPrivateDataCreate.vue
+│ │ │ ├── MainPrivateDataDetail.vue
+│ │ │ ├── MainSidebar.vue
+│ │ │ ├── MainTable.vue
+│ │ │ ├── MainTeamButtonGroup.vue
+│ │ │ ├── MemberChangePasswordModal.vue
+│ │ │ ├── OrganizationAuthorizationModal.vue
+│ │ │ ├── OrganizationChangeHeaderModal.vue
+│ │ │ ├── OrganizationChangeNameModal.vue
+│ │ │ ├── OrganizationCounts.vue
+│ │ │ ├── OrganizationCreationModal.vue
+│ │ │ ├── OrganizationInvitationModal.vue
+│ │ │ ├── OrganizationKeyRotations.vue
+│ │ │ ├── OrganizationSidebar.vue
+│ │ │ ├── OrganizationViewCounts.vue
+│ │ │ ├── TeamChangeLeaderModal.vue
+│ │ │ ├── TeamChangeNameModal.vue
+│ │ │ ├── TeamCreationModal.vue
+│ │ │ ├── TeamInvitationModal.vue
+│ │ │ └── TeamRoleCreationModal.vue
+│ │ ├── dashboard
+│ │ │ ├── CircleChart.vue
+│ │ │ └── CircleChart2.vue
+│ │ ├── main
+│ │ │ ├── MainMainpage.vue
+│ │ │ └── MainTeamManagement.vue
+│ │ ├── member
+│ │ │ ├── MemberForgotPassword.vue
+│ │ │ ├── MemberForgotTotpKey.vue
+│ │ │ ├── MemberLogin.vue
+│ │ │ ├── MemberLogin2.vue
+│ │ │ ├── MemberMyPage.vue
+│ │ │ ├── MemberSignup.vue
+│ │ │ ├── MemberSignup2.vue
+│ │ │ ├── MemberSignup3.vue
+│ │ │ └── MemberSignup4.vue
+│ │ └── organization
+│ │ ├── OrganizationDashboard.vue
+│ │ ├── OrganizationMember.vue
+│ │ ├── OrganizationMemberRoleModal.vue
+│ │ ├── OrganizationSetting.vue
+│ │ └── OrganizationTeam.vue
+│ ├── main.js
+│ ├── router
+│ │ └── index.js
+│ ├── stores
+│ │ ├── common.js
+│ │ └── user.js
+│ ├── utils
+│ │ ├── cookie.js
+│ │ └── http-commons.js
+│ └── views
+│ ├── HomeView.vue
+│ ├── HomeViewOnePageScrollTest.vue
+│ ├── MainView.vue
+│ ├── MemberView.vue
+│ └── OrganizationView.vue
+├── tailwind.config.js
+└── vite.config.js
+```
+</details>
+<details>
+<summary>Back</summary>
+```
+.
+├── Dockerfile
+├── back_structure.txt
+├── build.gradle
+├── gradle
+│ └── wrapper
+│ ├── gradle-wrapper.jar
+│ └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── settings.gradle
+└── src
+├── main
+│ └── java
+│ └── world
+│ └── pasds
+│ └── back
+│ ├── BackApplication.java
+│ ├── authority
+│ │ ├── controller
+│ │ │ └── AuthorityController.java
+│ │ ├── entity
+│ │ │ ├── Authority.java
+│ │ │ ├── AuthorityDto.java
+│ │ │ ├── AuthorityName.java
+│ │ │ └── response
+│ │ │ └── GetAuthoritiesResponseDto.java
+│ │ ├── repository
+│ │ │ └── AuthorityRepository.java
+│ │ └── service
+│ │ └── AuthorityService.java
+│ ├── common
+│ │ ├── BaseEntity.java
+│ │ ├── ControllerAdvice.java
+│ │ ├── DataKeyRotationTask.java
+│ │ ├── config
+│ │ │ ├── AppConfig.java
+│ │ │ ├── ElasticsearchConfig.java
+│ │ │ ├── ElasticsearchRepositoryConfig.java
+│ │ │ ├── EmailConfig.java
+│ │ │ ├── JpaRepositoryConfig.java
+│ │ │ ├── RedisConfig.java
+│ │ │ └── SecurityConfig.java
+│ │ ├── controller
+│ │ │ ├── EmailController.java
+│ │ │ ├── KeyRotateController.java
+│ │ │ └── RedisController.java
+│ │ ├── dto
+│ │ │ ├── EmailCodeGeneralVerificationRequestDto.java
+│ │ │ ├── EmailSendGeneralRequestDto.java
+│ │ │ ├── ErrorResponse.java
+│ │ │ ├── KmsDecryptionKeysResponseDto.java
+│ │ │ ├── KmsEncryptionKeysResponseDto.java
+│ │ │ ├── KmsKeyDto.java
+│ │ │ └── KmsReGenerationKeysResponseDto.java
+│ │ ├── exception
+│ │ │ ├── BusinessException.java
+│ │ │ └── ExceptionCode.java
+│ │ ├── filter
+│ │ │ └── CustomAuthenticationFilter.java
+│ │ ├── service
+│ │ │ ├── EmailAsyncService.java
+│ │ │ ├── EmailService.java
+│ │ │ ├── KeyService.java
+│ │ │ ├── RedisJwtSecretKeyListener.java
+│ │ │ └── RedisService.java
+│ │ └── util
+│ │ ├── AesUtil.java
+│ │ ├── CookieProvider.java
+│ │ ├── JwtTokenProvider.java
+│ │ └── LoginUserAuditorAware.java
+│ ├── dashboard
+│ │ ├── controller
+│ │ │ └── DashboardController.java
+│ │ ├── entity
+│ │ │ ├── OrganizationDashboard.java
+│ │ │ ├── TeamDashboard.java
+│ │ │ └── dto
+│ │ │ └── response
+│ │ │ ├── MainDashboardResponseDto.java
+│ │ │ └── TeamDashboardResponseDto.java
+│ │ ├── repository
+│ │ │ ├── OrganizationDashboardRepository.java
+│ │ │ └── TeamDashboardRepository.java
+│ │ └── service
+│ │ ├── OrganizationDashboardService.java
+│ │ └── TeamDashboardService.java
+│ ├── invitaion
+│ │ ├── controller
+│ │ │ └── InvitationController.java
+│ │ ├── entity
+│ │ │ ├── Invitation.java
+│ │ │ └── dto
+│ │ │ ├── request
+│ │ │ │ ├── AcceptOrganizationInviteRequestDto.java
+│ │ │ │ └── AcceptTeamInviteRequestDto.java
+│ │ │ └── response
+│ │ │ ├── AcceptResponseDto.java
+│ │ │ ├── GetInvitationsResponseDto.java
+│ │ │ ├── RejectOrganizationInviteRequestDto.java
+│ │ │ ├── RejectResponseDto.java
+│ │ │ └── RejectTeamInviteRequestDto.java
+│ │ ├── repository
+│ │ │ └── InvitationRepository.java
+│ │ └── service
+│ │ └── InvitationService.java
+│ ├── member
+│ │ ├── controller
+│ │ │ └── MemberController.java
+│ │ ├── dto
+│ │ │ ├── request
+│ │ │ │ ├── ChangeNicknameRequestDto.java
+│ │ │ │ ├── ChangePasswordRequestDto.java
+│ │ │ │ ├── ResetPasswordRequestDto.java
+│ │ │ │ ├── SecondLoginRequestDto.java
+│ │ │ │ └── SignupRequestDto.java
+│ │ │ └── response
+│ │ │ └── FirstLoginResponseDto.java
+│ │ ├── entity
+│ │ │ ├── CustomUserDetails.java
+│ │ │ ├── Member.java
+│ │ │ ├── MemberOrganization.java
+│ │ │ ├── MemberRole.java
+│ │ │ └── MemberTeam.java
+│ │ ├── repository
+│ │ │ ├── MemberOrganizationRepository.java
+│ │ │ ├── MemberRepository.java
+│ │ │ ├── MemberRoleRepository.java
+│ │ │ └── MemberTeamRepository.java
+│ │ └── service
+│ │ ├── CustomUserDetailsService.java
+│ │ └── MemberService.java
+│ ├── notification
+│ │ ├── controller
+│ │ │ └── NotificationController.java
+│ │ ├── entity
+│ │ │ ├── Notification.java
+│ │ │ ├── NotificationStatus.java
+│ │ │ ├── NotificationType.java
+│ │ │ └── dto
+│ │ │ └── response
+│ │ │ └── NotificationResponseDto.java
+│ │ ├── repository
+│ │ │ └── NotificationRepository.java
+│ │ └── service
+│ │ ├── NotificationEventPublisher.java
+│ │ └── NotificationService.java
+│ ├── organization
+│ │ ├── controller
+│ │ │ └── OrganizationController.java
+│ │ ├── entity
+│ │ │ ├── Organization.java
+│ │ │ ├── OrganizationRole.java
+│ │ │ └── dto
+│ │ │ ├── request
+│ │ │ │ ├── AssignNewHeaderRequestDto.java
+│ │ │ │ ├── CreateOrganizationRequestDto.java
+│ │ │ │ ├── DeleteOrganizationRequestDto.java
+│ │ │ │ ├── InviteMemberToOrganizationRequestDto.java
+│ │ │ │ ├── LeaveOrganizationRequestDto.java
+│ │ │ │ ├── RemoveMemberFromOrganizationRequestDto.java
+│ │ │ │ ├── RenameOrganizationRequestDto.java
+│ │ │ │ └── UpdateRoleRequestDto.java
+│ │ │ └── response
+│ │ │ ├── GetOrganizationMemberDto.java
+│ │ │ ├── GetOrganizationMemberResponseDto.java
+│ │ │ └── GetOrganizationsResponseDto.java
+│ │ ├── repository
+│ │ │ └── OrganizationRepository.java
+│ │ └── service
+│ │ └── OrganizationService.java
+│ ├── privateData
+│ │ ├── controller
+│ │ │ └── PrivateDataController.java
+│ │ ├── entity
+│ │ │ ├── DataType.java
+│ │ │ ├── PrivateData.java
+│ │ │ ├── PrivateDataDocument.java
+│ │ │ ├── PrivateDataRole.java
+│ │ │ └── dto
+│ │ │ ├── PrivateDataRoleDto.java
+│ │ │ ├── request
+│ │ │ │ ├── CreatePrivateDataRequestDto.java
+│ │ │ │ ├── DeletePrivateDataRequestDto.java
+│ │ │ │ ├── GetPrivateDataRequestDto.java
+│ │ │ │ ├── UpdatePrivateDataRequestDto.java
+│ │ │ │ └── UpdatePrivateDataRoleRequestDto.java
+│ │ │ └── response
+│ │ │ ├── GetPrivateDataListResponseDto.java
+│ │ │ ├── GetPrivateDataResponseDto.java
+│ │ │ └── PrivateDataResponse.java
+│ │ ├── repository
+│ │ │ ├── elasticsearch
+│ │ │ │ └── PrivateDataSearchRepository.java
+│ │ │ └── jpa
+│ │ │ ├── PrivateDataCustomRepository.java
+│ │ │ ├── PrivateDataCustomRepositoryImpl.java
+│ │ │ ├── PrivateDataRepository.java
+│ │ │ └── PrivateDataRoleRepository.java
+│ │ └── service
+│ │ ├── PrivateDataSearchService.java
+│ │ └── PrivateDataService.java
+│ ├── role
+│ │ ├── controller
+│ │ │ └── RoleController.java
+│ │ ├── entity
+│ │ │ ├── Role.java
+│ │ │ ├── RoleAuthority.java
+│ │ │ └── dto
+│ │ │ ├── request
+│ │ │ │ ├── CreateRoleRequestDto.java
+│ │ │ │ ├── DeleteRoleRequestDto.java
+│ │ │ │ └── UpdateRoleRequestDto.java
+│ │ │ └── response
+│ │ │ ├── GetRoleDetailResponseDto.java
+│ │ │ └── GetRoleResponseDto.java
+│ │ ├── repository
+│ │ │ ├── RoleAuthorityCustomRepository.java
+│ │ │ ├── RoleAuthorityCustomRepositoryImpl.java
+│ │ │ ├── RoleAuthorityRepository.java
+│ │ │ └── RoleRepository.java
+│ │ └── service
+│ │ └── RoleService.java
+│ ├── team
+│ │ ├── controller
+│ │ │ └── TeamController.java
+│ │ ├── entity
+│ │ │ ├── Team.java
+│ │ │ └── dto
+│ │ │ ├── request
+│ │ │ │ ├── AssignNewTeamHeaderRequestDto.java
+│ │ │ │ ├── AssignRoleRequestDto.java
+│ │ │ │ ├── CreateTeamRequestDto.java
+│ │ │ │ ├── DeleteTeamRequestDto.java
+│ │ │ │ ├── InviteMemberToTeamRequestDto.java
+│ │ │ │ ├── LeaveTeamRequestDto.java
+│ │ │ │ ├── RemoveMemberFromTeamRequestDto.java
+│ │ │ │ ├── RenameTeamRequestDto.java
+│ │ │ │ └── RotateTeamDataKeyRequestDto.java
+│ │ │ └── response
+│ │ │ ├── GetAdminTeamsResponseDto.java
+│ │ │ ├── GetTeamLeaderResponseDto.java
+│ │ │ ├── GetTeamMemberDto.java
+│ │ │ ├── GetTeamMemberResponseDto.java
+│ │ │ └── GetTeamsResponseDto.java
+│ │ ├── repository
+│ │ │ └── TeamRepository.java
+│ │ └── service
+│ │ └── TeamService.java
+│ └── totp
+│ ├── controller
+│ │ └── TotpController.java
+│ ├── dto
+│ │ ├── EmailCodeKeyVerificationRequestDto.java
+│ │ └── TotpCodeVerificationRequestDto.java
+│ ├── repository
+│ │ └── TotpRepository.java
+│ └── service
+│ └── TotpService.java
+└── test
+└── java
+└── world
+└── pasds
+└── back
+└── BackApplicationTests.java
+```
+</details>
+<details>
+<summary>KMS</summary>
+```
+.
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── kms_structure.txt
+├── settings.gradle
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── world
+    │   │       └── pasds
+    │   │           └── kms
+    │   │               ├── KmsApplication.java
+    │   │               ├── common
+    │   │               │   ├── BaseEntity.java
+    │   │               │   ├── ControllerAdvice.java
+    │   │               │   ├── dto
+    │   │               │   │   └── ErrorResponse.java
+    │   │               │   ├── exception
+    │   │               │   │   ├── BusinessException.java
+    │   │               │   │   └── ExceptionCode.java
+    │   │               │   └── logging
+    │   │               │       ├── GlobalExceptionHandler.java
+    │   │               │       ├── LogInfo.java
+    │   │               │       └── LoggingAspect.java
+    │   │               ├── config
+    │   │               │   └── RestTemplateConfig.java
+    │   │               ├── datakey
+    │   │               │   ├── controller
+    │   │               │   │   └── DataKeyController.java
+    │   │               │   ├── dto
+    │   │               │   │   ├── DecryptionKeysResponseDto.java
+    │   │               │   │   ├── EncryptedDataKeyDto.java
+    │   │               │   │   ├── EncryptionKeysResponseDto.java
+    │   │               │   │   └── RegenerateKeysResponseDto.java
+    │   │               │   ├── model
+    │   │               │   │   └── MasterKeyData.java
+    │   │               │   └── service
+    │   │               │       └── DataKeyService.java
+    │   │               ├── jwtsecretkey
+    │   │               │   ├── controller
+    │   │               │   │   └── JwtSecretKeyController.java
+    │   │               │   └── service
+    │   │               │       └── JwtSecretKeyService.java
+    │   │               ├── masterkey
+    │   │               │   ├── entity
+    │   │               │   │   └── MasterKey.java
+    │   │               │   ├── repository
+    │   │               │   │   └── MasterKeyRepository.java
+    │   │               │   └── service
+    │   │               │       └── MasterKeyService.java
+    │   │               └── util
+    │   │                   ├── AesUtil.java
+    │   │                   └── HmacUtil.java
+    │   └── resources
+    │       └── logback-spring.xml
+    └── test
+        └── java
+            └── world
+                └── pasds
+                    └── kms
+                        ├── KmsApplicationTests.java
+                        └── MasterKeyServiceTest.java
+```
+</details>
+<details>
+<summary>Android</summary>
+````
+.
+├── and_structure.txt
+├── app
+│   ├── build.gradle.kts
+│   ├── proguard-rules.pro
+│   └── src
+│       └── main
+│           ├── AndroidManifest.xml
+│           ├── java
+│           │   └── com
+│           │       └── world
+│           │           └── pasds
+│           │               ├── GenerateTotpActivity.kt
+│           │               ├── MainActivity.kt
+│           │               └── ui
+│           │                   └── theme
+│           │                       ├── Color.kt
+│           │                       ├── Theme.kt
+│           │                       └── Type.kt
+│           └── res
+│               ├── drawable
+│               │   ├── ic_launcher.xml
+│               │   ├── ic_launcher_background.xml
+│               │   ├── ic_launcher_foreground.xml
+│               │   ├── qr_code_scan.png
+│               │   └── two_factor_authentication.png
+│               ├── mipmap-hdpi
+│               │   ├── ic_launcher.png
+│               │   ├── ic_launcher_background.png
+│               │   ├── ic_launcher_foreground.png
+│               │   ├── ic_launcher_monochrome.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-mdpi
+│               │   ├── ic_launcher.png
+│               │   ├── ic_launcher_background.png
+│               │   ├── ic_launcher_foreground.png
+│               │   ├── ic_launcher_monochrome.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-xhdpi
+│               │   ├── ic_launcher.png
+│               │   ├── ic_launcher_background.png
+│               │   ├── ic_launcher_foreground.png
+│               │   ├── ic_launcher_monochrome.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-xxhdpi
+│               │   ├── ic_launcher.png
+│               │   ├── ic_launcher_background.png
+│               │   ├── ic_launcher_foreground.png
+│               │   ├── ic_launcher_monochrome.png
+│               │   └── ic_launcher_round.png
+│               ├── mipmap-xxxhdpi
+│               │   ├── ic_launcher.png
+│               │   ├── ic_launcher_background.png
+│               │   ├── ic_launcher_foreground.png
+│               │   ├── ic_launcher_monochrome.png
+│               │   └── ic_launcher_round.png
+│               ├── values
+│               │   ├── colors.xml
+│               │   ├── strings.xml
+│               │   └── themes.xml
+│               └── xml
+│                   ├── backup_rules.xml
+│                   └── data_extraction_rules.xml
+├── build.gradle.kts
+├── gradle
+│   ├── libs.versions.toml
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradle.properties
+├── gradlew
+├── gradlew.bat
+└── settings.gradle.kts
+```
+</details>

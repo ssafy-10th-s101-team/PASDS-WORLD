@@ -1,12 +1,10 @@
-# <img src="docs/jpg/logo.png" weight=30 height=30> PASDS-WORD
+# <img src="docs/jpg/logo.png" weight=30 height=30> PASDS-WORLD
 
 <div align=center>
 <img src="docs/jpg/PPT표지.JPG" height=600>
 </div>
 
 ## :book: 목차
-
-햣
 
 - [프로젝트 소개](#walking-프로젝트-소개)
 - [주요 기능](#walking-주요-기능)
@@ -96,7 +94,25 @@
 ## :pushpin: 역할 분담
 
 - 김진용
-
+  - Front
+    - 회원 도메인
+    - 라우터가드, 인터셉터, 쿠키
+  - Back
+    - 이메일 도메인
+      - Async, 이메일 계정 회전
+    - SpringSecurity
+      - 인증, 인가
+      - pepper + BCrypt
+      - JwtCustomFilter
+      - 보안관련 헤더 설정
+    - 취약점 진단
+      - OWASP (Zed Attack Proxy)
+      - Cookie
+  - Android
+    - 전체적인 UI/UX
+    - QR 코드 인식
+    - TOTP기반 인증코드 발급
+    - 내부테스트 배포
 - 신우섭
   - UI
     - 메인: 팀, 민감데이터
@@ -137,28 +153,168 @@
 
 ## :movie_camera: 기능 시연
 
-### 회원관련 보안
+### 회원
 
 <details>
 <summary>회원가입</summary>
+<img src="docs/gif/회원_회원가입앞.gif">
+<img src="docs/gif/회원_회원가입뒤.gif">
 </details>
 
-### 조직관리
+<details>
+<summary>로그인</summary>
+<img src="docs/gif/회원_로그인.gif">
+</details>
 
 <details>
-<summary>조직관리</summary>
+<summary>비밀번호 재설정</summary>
+<img src="docs/gif/회원_비밀번호재설정.gif">
+</details>
+
+<details>
+<summary>패스키 재발급</summary>
+<img src="docs/gif/회원_패스키재발급.gif">
+</details>
+
+<details>
+<summary>1차 로그인 실패</summary>
+<img src="docs/gif/회원_1차로그인실패.gif">
+</details>
+
+<details>
+<summary>2차 로그인 실패</summary>
+<img src="docs/gif/회원_2차로그인실패.gif">
+</details>
+
+<details>
+<summary>패스키 스캔</summary>
+<img src="docs/gif/회원_패스키스캔.gif">
+</details>
+
+<details>
+<summary>패스코드 발급</summary>
+<img src="docs/gif/회원_패스코드발급.gif">
+</details>
+
+### 조직
+
+<details>
+<summary>조직 생성</summary>
+<img src="docs/gif/조직_생성.gif">
+</details>
+
+<details>
+<summary>조직 초대</summary>
+<img src="docs/gif/조직_초대.gif">
+</details>
+
+<details>
+<summary>조직 초대 수락</summary>
+<img src="docs/gif/조직_초대수락.gif">
+</details>
+
+<details>
+<summary>조직 추방</summary>
+<img src="docs/gif/조직_추방.gif">
+</details>
+
+<details>
+<summary>조직 이름 변경</summary>
+<img src="docs/gif/조직_이름변경.gif">
+</details>
+
+<details>
+<summary>조직 역할 변경</summary>
+<img src="docs/gif/조직_역할변경.gif">
+</details>
+
+<details>
+<summary>조직 대시보드</summary>
+<img src="docs/gif/조직_대시보드.gif">
 </details>
 
 ### 팀 관리
 
 <details>
-<summary>팀관리</summary>
+<summary>팀 생성</summary>
+<img src="docs/gif/팀_생성.gif">
+</details>
+
+<details>
+<summary>팀 이름변경</summary>
+<img src="docs/gif/팀_이름변경.gif">
+</details>
+
+<details>
+<summary>팀 추방</summary>
+<img src="docs/gif/팀_추방.gif">
+</details>
+
+<details>
+<summary>팀 삭제</summary>
+<img src="docs/gif/팀_삭제.gif">
+</details>
+
+<details>
+<summary>팀원목록</summary>
+<img src="docs/gif/팀_팀원목록.gif">
+</details>
+
+<details>
+<summary>팀장변경</summary>
+<img src="docs/gif/팀_팀장변경.gif">
+</details>
+
+<details>
+<summary>역할 배정</summary>
+<img src="docs/gif/역할_사람역할배정.gif">
+</details>
+
+<details>
+<summary>역할 삭제</summary>
+<img src="docs/gif/역할_삭제.gif">
+</details>
+
+<details>
+<summary>역할 수정</summary>
+<img src="docs/gif/역할_수정.gif">
+</details>
+
+<details>
+<summary>역할 추가</summary>
+<img src="docs/gif/역할_추가.gif">
 </details>
 
 ### 민감 데이터
 
 <details>
-<summary>민감 데이터</summary>
+<summary>로그인 형식 저장</summary>
+<img src="docs/gif/민감데이터_로그인저장.gif">
+</details>
+
+<details>
+<summary>텍스트 형식 저장</summary>
+<img src="docs/gif/민감데이터_텍스트저장.gif">
+</details>
+
+<details>
+<summary>텍스트 조회</summary>
+<img src="docs/gif/민감데이터_조회.gif">
+</details>
+
+<details>
+<summary>텍스트 수정</summary>
+<img src="docs/gif/민감데이터_수정.gif">
+</details>
+
+<details>
+<summary>텍스트 삭제</summary>
+<img src="docs/gif/민감데이터_삭제.gif">
+</details>
+
+<details>
+<summary>검색</summary>
+<img src="docs/gif/민감데이터_검색.gif">
 </details>
 
 ## :computer: 구동 방법

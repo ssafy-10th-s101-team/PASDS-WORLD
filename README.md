@@ -1,13 +1,17 @@
-# (로고) PASDS-WORLD
+# <img src="./img/logo.png" width=30 height=30> PASDS-WORLD
 
 ## :book: 목차
 
+햣
+
 - [프로젝트 소개](#walking-프로젝트-소개)
+- [주요 기능](#walking-주요-기능)
+- [개발 노션](#memo-개발-노션)
 - [팀원 구성](#construction_worker-팀원-구성)
 - [개발 기간](#calendar-개발-기간)
 - [기술 스택](#hammer_and_wrench-기술-스택)
 - [아키텍처](#building_construction-아키텍처)
-- [문서](#memo-문서)
+- [ERD](#memo-ERD)
 - [역할 분담](#pushpin-역할-분담)
 - [기능 시연](#movie_camera-기능-시연)
 - [구동 방법](#computer-구동-방법)
@@ -16,11 +20,15 @@
 
 - PASDS-WORLD는 공통 비밀번호와 같은 팀별 민감데이터를 공유해주는 서비스입니다.
 
-## 주요기능
+## :walking: 주요 기능
 
 - <b>TOTP</b> 기반 2차 인증을 통해 안전한 로그인을 제공합니다.
 - <b>RBAC</b>를 통한 민감 데이터를 공유합니다.
 - <b>KMS</b> 서버를 통해 발급받은 키로 민감 데이터를 안전하게 암호화 합니다.
+
+## :memo: 개발 노션
+
+- [Notion](https://wooseobee.notion.site/a2fa71cf3c5f481da7e553f637de53e0)
 
 ## :construction_worker: 팀원 구성
 
@@ -75,11 +83,11 @@
 
 ## :building_construction: 아키텍처
 
-## :memo: 문서
+<img src="img/pasds-world-architecture.png">
 
-- [ERD]()
-- [API 명세서]()
-- [코드 및 커밋 컨벤션]()
+## :memo: ERD
+
+<img src="img/pasds-erd.png">
 
 ## :pushpin: 역할 분담
 

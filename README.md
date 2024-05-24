@@ -516,8 +516,9 @@ java -jar kms-0.0.1-SNAPSHOT.jar
 
 <details>
 <summary>Front</summary>
+  
 ```
-.
+
 ├── node_modules
 ├── README.md
 ├── certificate.pem
@@ -625,11 +626,13 @@ java -jar kms-0.0.1-SNAPSHOT.jar
 ├── tailwind.config.js
 └── vite.config.js
 ```
+
 </details>
 <details>
 <summary>Back</summary>
+  
 ```
-.
+
 ├── Dockerfile
 ├── back_structure.txt
 ├── build.gradle
@@ -894,12 +897,15 @@ java -jar kms-0.0.1-SNAPSHOT.jar
 └── pasds
 └── back
 └── BackApplicationTests.java
+
 ```
+
 </details>
 <details>
 <summary>KMS</summary>
+  
 ```
-.
+
 ├── build.gradle
 ├── gradle
 │   └── wrapper
@@ -966,12 +972,15 @@ java -jar kms-0.0.1-SNAPSHOT.jar
                     └── kms
                         ├── KmsApplicationTests.java
                         └── MasterKeyServiceTest.java
+
 ```
+
 </details>
 <details>
 <summary>Android</summary>
-````
-.
+
+```
+
 ├── and_structure.txt
 ├── app
 │   ├── build.gradle.kts
@@ -1045,4 +1054,5 @@ java -jar kms-0.0.1-SNAPSHOT.jar
 ├── gradlew.bat
 └── settings.gradle.kts
 ```
+
 </details>

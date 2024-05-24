@@ -514,6 +514,9 @@ main-server:
 java -jar kms-0.0.1-SNAPSHOT.jar
 ```
 
+
+## :package: 프로젝트 구조
+
 <details>
 <summary>Front</summary>
   

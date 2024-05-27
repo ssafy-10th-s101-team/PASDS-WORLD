@@ -130,6 +130,15 @@
   - Kms
     - 로깅 시스템 구축
 - 유광우
+  
+  - Infra
+    - VPC 내에 private, private subnet 인프라 환경 구축
+    - Route, NACL, 보안 그룹을 활용한 네트워크 환경 구축
+    - Jenkins를 사용한 무중단, 자동화 배포 구현
+  - Back
+    - 사용자 대시보드를 위한 월별 사용량 log 저장 및 조회 기능 구현
+  - Monitoring
+    - Actuator, Prometheus, Grafana를 사용한 Spring Boot 모니터링 환경 구축
 
 - 이준범
 
